@@ -109,7 +109,7 @@ body {
   right: 5px;
   width: 9px;
   height: 9px;
-  background: #e9ad42;
+  background: #1b273a;
   border: 2px solid #fff8e8;
   border-radius: 50%;
   box-shadow: 0 0 0 1px #9b7136;
@@ -121,10 +121,10 @@ body {
   padding: 16px;
   border: 1px solid var(--line);
   border-radius: 9px;
-  background: linear-gradient(120deg, #cad8b8, #f8efdc);
+  background: linear-gradient(120deg, #1b273a, #1b273a);
 }
 .profile-intro.neutral {
-  background: linear-gradient(120deg, #c1d3e1, #f7efdc);
+  background: linear-gradient(120deg, #1b273a, #1b273a);
 }
 .profile-intro > div:last-child {
   min-width: 0;
@@ -175,7 +175,7 @@ body {
   flex-wrap: wrap;
   gap: 14px;
   padding: 14px;
-  background: #ede6d5;
+  background: #1b273a;
   border-radius: 8px;
 }
 .profile-companion > svg {
@@ -189,7 +189,7 @@ body {
 .profile-journal {
   max-height: 220px;
   overflow: auto;
-  background: #f0e8d4;
+  background: #1b273a;
   padding: 12px;
   border-radius: 8px;
 }
@@ -219,7 +219,7 @@ textarea.modal-select {
   padding: 16px;
   border: 1px solid #cbbb9e;
   border-radius: 8px;
-  background: #f5eedc;
+  background: #1b273a;
   min-width: 0;
 }
 .guild-stalls article > svg {
@@ -566,7 +566,7 @@ textarea.modal-select {
   min-height: 44px;
   padding: 12px;
   border: 1px solid #bb9e6e;
-  background: #eaddbb;
+  background: #1b273a;
   color: #343e46;
   box-shadow: 0 2px 5px #0005;
 }

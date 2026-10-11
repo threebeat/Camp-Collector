@@ -19,8 +19,8 @@ import {
   WEAPON_MODIFIERS,
   ARMOR_MODIFIERS,
   PET_MODIFIERS,
-} from "./data.js?v=13";
-import { CONTEXT, BUILDINGS, MATERIALS } from "./world.js?v=13";
+} from "./data.js?v=14";
+import { CONTEXT, BUILDINGS, MATERIALS } from "./world.js?v=14";
 const mechanics = [
   [
     "Living Camp and Market",
@@ -35,7 +35,7 @@ const mechanics = [
   [
     "A level is a small step",
     "Progression",
-    "Race and class growth tables increase all six stats on every level. A level-up restores full health. Equipped equipment, armor and companions also earn XP. Characters keep their names, race, bonds, and memories as they grow. Class points are earned at the rarity transitions: 20, 40 and 60.",
+    "Race and class growth tables increase all six stats on every level. A level-up restores full health. Equipped equipment, armor and companions also earn XP. Characters keep their names, race, bonds, and memories as they grow. Class points are earned at levels 10, 20, 40, 60 and 80, independently of rarity.",
   ],
   [
     "Talents and Attributes",
@@ -55,12 +55,12 @@ const mechanics = [
   [
     "Class trees at the Bonfire",
     "Progression",
-    "Spend one class point on a class-tree node at the Bonfire. The first node selects your calling and permanently locks other branches. At levels 40 and 60 choose between the two children of your last learned node; each choice locks its sibling. Your active class technique changes with that calling. Forceful techniques add power; measured techniques add reach and shorter cooldowns. Legendary surge improves offense and coverage; Legendary shelter improves shields, persuasion, and survival. Your character is not transformed and keeps their identity. Unspent points remain available.",
+    "Spend one class point on a class-tree node at the Bonfire. The first point at level 10 grants Firekeeper discipline. At level 20 select a subclass; level 40 adds a talent; level 60 selects an advanced subclass; level 80 grants a final talent. Each choice requires its ancestor and locks its alternatives. Most classes have six to nine distinct subclasses across the two forks. Your active class technique changes with that calling. Forceful techniques add power; measured techniques add reach and shorter cooldowns. Legendary surge improves offense and coverage; Legendary shelter improves shields, persuasion, and survival. Your character is not transformed and keeps their identity. Unspent points remain available.",
   ],
   [
     "Weapon, armor and companion transformations",
     "Progression",
-    "Transform weapons at a built Blacksmith, and armor and companions at the Bonfire. A built Equipment Workshop also transforms all three domains at levels 20, 40 and 60. Weapons add a chosen prefix, affix or enchantment once per stage, keeping XP and identity. The first costs 4 gem value. The second costs 10 gem value and 5 Obsidian; the final costs 16 gem value and 5 Relic fragments. Prefixes change elements or attack styles, affixes add one to three stats, and enchantments grant an active spell with finite mana. A Legendary weapon can have all three. Each companion form adds 40% power. Armor has its own modifier pool; characters use class points instead. Unmounted companions have 48 encounter mana and cast their own enchantment. Mount enchantments are cast by their rider and count toward the ten active abilities limit.",
+    "Transform weapons at a built Blacksmith, and armor and companions at the Equipment Workshop. A built Equipment Workshop also transforms all three domains at levels 20, 40 and 60. Weapons add a chosen prefix, affix or enchantment once per stage, keeping XP and identity. The first costs 4 gem value. The second costs 10 gem value and 5 Obsidian; the final costs 16 gem value and 5 Relic fragments. Prefixes change elements or attack styles, affixes add one to three stats, and enchantments grant an active spell with finite mana. A Legendary weapon can have all three. Each companion form adds 40% power. Armor has its own modifier pool; characters use class points instead. Unmounted companions have 48 encounter mana and cast their own enchantment. Mount enchantments are cast by their rider and count toward the ten active abilities limit.",
   ],
   [
     "Armor and equipment",
@@ -80,7 +80,7 @@ const mechanics = [
   [
     "Regional roads and supplies",
     "World",
-    "Your Camp is the only buildable location. Five regions open in order: Mosslight Wood, Hollow March, Emberpeak Mountains, Briarfall Country, and Amberwild Jungle. Camp is marked with a star on the forest map. Visiting destinations reveals connected roads through the fog. Click a discovered place to calculate up to three routes. The forest has 18 irregularly placed destinations and 26 roads; later regions have 24 locations with distinct routes. The map opens fully zoomed out. Terrain stays visible; only inaccessible nodes are blacked out. Compare up to three routes; only the selected route is bright blue: combat count, non-combat count, enemy health, rewards and food per adventurer are shown before selection. Lock the route to open a separate party screen; selecting characters does not change the locked road. Each road has a combat count and a rest, chest or cache at its end, except that the final road ends at your destination. The shortest journeys need no food. Each adventurer needs floor((combat count − 2) / 4) food, with a minimum of zero; the journey consumes those provisions on departure. Each adventurer must have their primary equipment. The forest ends at Thornwatch Castle. Its boss unlocks Eldrin and a portal beside the Crossroads at Camp. Defeat the final boss of each later map to unlock the next map. Map difficulty is fixed at Adventurer until you defeat that map’s boss; then you may increase the challenge and rewards. Route danger multiplies enemy HP and damage as well as reward value. Pack up to three additional consumables or journey tools.",
+    "Your Camp is the only buildable location. Choose among five regions: Mosslight Wood, Hollow March, Emberpeak Mountains, Briarfall Country, and Amberwild Jungle. Camp is marked with a star on the forest map. Visiting destinations reveals connected roads through the fog. Click a discovered place to calculate up to three routes. The forest has 18 irregularly placed destinations and 26 roads; later regions have 24 locations with distinct routes. The map opens fully zoomed out. Terrain stays visible; only inaccessible nodes are blacked out. Compare up to three routes; only the selected route is bright blue: combat count, non-combat count, enemy health, rewards and food per adventurer are shown before selection. Lock the route to open a separate party screen; selecting characters does not change the locked road. Each road has a combat count and a rest, chest or cache at its end, except that the final road ends at your destination. The shortest journeys need no food. Each adventurer needs floor((combat count − 2) / 4) food, with a minimum of zero; the journey consumes those provisions on departure. Each adventurer must have their primary equipment. The forest ends at Thornwatch Castle. Its boss unlocks Eldrin and a portal beside the Crossroads at Camp. Every final regional boss drops one Boss Sigil per completed journey. Spend one with the portal mage to select any unopened region. World difficulty is controlled at the Bonfire: one regional boss unlocks Veteran and three different bosses unlock Nightmare. Active journeys keep their departure tier. Route danger multiplies enemy HP and damage as well as reward value. Pack up to three additional consumables or journey tools.",
   ],
   [
     "Quest Board",
@@ -100,7 +100,7 @@ const mechanics = [
   [
     "The company comes home",
     "Expeditions",
-    "Three to six adventurers travel together. If at least one survives a fight, the others revive at 20% HP. Your permanent adventurers, equipment and earned loot return safely on defeat or recall. Complete the destination to keep charmed recruits. Recovery gradually restores full health over 30 seconds after a normal return, or 90 seconds after defeat. Each adventurer uses one stocked food to halve this timer.",
+    "Three to six adventurers travel together. If at least one survives a fight, the others revive at 20% HP. Your permanent adventurers, equipment and earned loot return safely on defeat or recall. Complete the destination to keep charmed recruits. Recovery gradually restores full health over 30 seconds after a normal return, or 90 seconds after defeat. Stocked food halves this timer. Each adventurer instead consumes one food every 12 hours and earns five XP per meal, including travelers; their meal XP is applied when they return.",
   ],
   [
     "Background time",
@@ -120,7 +120,7 @@ const mechanics = [
   [
     "Recycling and selling",
     "Economy",
-    "Recycle characters at Camp for gold and 1 + floor(level / 25) gem value. Equipment, armor and companions return to storage. Recycling equipment and companions grants gem value only at level 20 or higher. Favorites are protected, and at least three characters must remain. Market sales pay 35% more gold and no gems. Socketed gems return intact when a companion is sold or recycled.",
+    "Retire characters at Camp for floor(8 + 1.5 × level²) gold and floor(level / 30) gem value. Equipment, armor and companions return to storage. Recycling equipment and companions grants gem value only at level 20 or higher. Favorites are protected, and at least three characters must remain. Equipment and companion sales pay 35% more gold and no gems. Characters use the unified retirement action. Socketed gems return intact when a companion is sold or recycled.",
   ],
   [
     "Combining stories",
@@ -182,21 +182,22 @@ export const CODEX = [
         Object.entries(c.base)
           .map(([k, v]) => "+" + v + " " + k)
           .join(", ") +
-        ".",
+        ". Class tree: " +
+        (SCHOOLS[key] || [])
+          .map(
+            (p) =>
+              p.name +
+              " — " +
+              p.text +
+              " Advanced choices: " +
+              p.name +
+              " Ascendant / " +
+              p.name +
+              " Warden.",
+          )
+          .join(" ") +
+        " Points alternate talent, subclass, talent, subclass, talent at levels 10, 20, 40, 60 and 80.",
     })),
-  ...Object.entries(SCHOOLS)
-    .filter(([k]) => CLASSES[k] && !["witch", "stormcaller"].includes(k))
-    .flatMap(([key, list]) =>
-      list.map((s) => ({
-        name: s.name,
-        category: "Class callings",
-        text:
-          CLASSES[key].label +
-          " class-tree branch. " +
-          s.text +
-          " Choose at level 20 or later; doing so locks other branches. A character learns three nodes in total, one at each rarity transition; the tree forks again at each step.",
-      })),
-    ),
   ...Object.values(ITEMS).map((i) => ({
     name: i.name,
     category: "Equipment",
@@ -247,11 +248,19 @@ export const CODEX = [
         : l.races.join(", ")) +
       ".",
   })),
-  ...Object.values(COSMETICS).map((c) => ({
-    name: c.name,
+  {
+    name: "Cosmetic collections",
     category: "Cosmetics",
-    text: c.text + " Apply at the Market Atelier.",
-  })),
+    text:
+      "Apply owned appearances at the Market Atelier. The gem Shop includes a section for each of the twelve monthly themes. Cosmetics change appearance and grant no combat stats.\n\n" +
+      Object.values(COSMETICS)
+        .map((c) => c.name)
+        .join(" · "),
+    details: Object.values(COSMETICS).map((c) => ({
+      name: c.name,
+      text: c.text,
+    })),
+  },
   ...Object.values(DIFFICULTIES).map((d) => ({
     name: d.name,
     category: "Difficulty",
@@ -263,7 +272,7 @@ export const CODEX = [
       d.damage +
       "×, gold " +
       d.reward +
-      "×. Map detours unlock these settings after that region’s boss; direct roads stay at 1×. NPC Challenges allow difficulty selection immediately.",
+      "×. One regional boss unlocks Veteran, three different bosses unlock Nightmare. Choose the global tier at the Bonfire; route danger multiplies it. NPC Challenges use the same world tier.",
   })),
   ...Object.entries(CONTEXT).map(([key, text]) => ({
     name:
@@ -302,7 +311,7 @@ export const CODEX = [
 CODEX.push({
   name: "Building a stronger team",
   category: "Rules & formulas",
-  text: "Core stats = race + class + per-level growth + gear + armor + Talents + Attributes + class calling + companion sockets + temporary supplies.\n\nItem numeric potency = (1 + (level − 1) × 0.035) × (1 + sharpening rank × 0.20) × rarity multiplier. Rarity multipliers: Common 1.00, Uncommon 1.12, Rare 1.28, Legendary 1.48, Mythical 1.75.\n\nOrdinary facets scale by (1 + (level − 1) × 0.04) × (1 + rarity tier × 0.12). Automatic rarity milestones occur at levels 20, 40 and 60. Training Talents increase only by training, and class-tree points come at 20, 40 and 60.\n\nGems in companion sockets are excluded from spendable gem value. Removal returns them intact. Spending returns exact change; fusion preserves total value; transmutation consumes a gem to create materials.",
+  text: "Core stats = race + class + per-level growth + gear + armor + Talents + Attributes + class calling + companion sockets + temporary supplies.\n\nItem numeric potency = (1 + (level − 1) × 0.035) × (1 + sharpening rank × 0.20) × rarity multiplier. Rarity multipliers: Common 1.00, Uncommon 1.12, Rare 1.28, Legendary 1.48, Mythical 1.75.\n\nOrdinary facets scale by (1 + (level − 1) × 0.04) × (1 + rarity tier × 0.12). Automatic rarity milestones occur at levels 20, 40 and 60. Training Talents increase only by training, and class-tree points come at 10, 20, 40, 60 and 80.\n\nGems in companion sockets are excluded from spendable gem value. Removal returns them intact. Spending returns exact change; fusion preserves total value; transmutation consumes a gem to create materials.",
 });
 
 CODEX.push(
@@ -321,7 +330,7 @@ CODEX.push(
     category: "Camp",
     text:
       CONTEXT.expansions +
-      " Buy the east meadow to construct Farm plots, the west grove for capacity cabins, or the south garden for herbs. Farms produce two food per five minutes, storing up to 24. Herb gardens store up to 12 herbs. Camp houses twenty adventurers initially. Each cabin adds twenty spaces, and additional cabins cost more. Releasing an adventurer returns their belongings to storage; it does not retire them into Camp. Favorites and the last three adventurers are protected.",
+      " Buy the east meadow to construct Farm plots, the west grove for capacity cabins, or the south garden for herbs. Farms produce two food per five minutes, storing up to 24. Herb gardens store up to 12 herbs. Camp houses forty adventurers initially. Each cabin adds twenty spaces, and additional cabins cost more. Retirement returns all equipment, the lantern and companion. Gold reward = floor(8 + 1.5 × level²), plus floor(level / 30) gem value. Full Camps miss recruits; there is no arrival queue. Favorites and the last three adventurers are protected.",
   },
 );
 
@@ -330,28 +339,35 @@ for (const [domain, pool] of [
   ["Armor", ARMOR_MODIFIERS],
   ["Companion", PET_MODIFIERS],
 ])
-  for (const [type, defs] of Object.entries(pool))
-    for (const [key, d] of Object.entries(defs))
-      CODEX.push({
-        name: domain + " " + type + " · " + d.name,
-        category: domain + " modifiers",
-        text:
-          d.text +
-          " Visual signature: " +
-          d.visual.style +
-          ". " +
-          (d.weaponKinds
-            ? "Compatible weapon families: " +
-              d.weaponKinds.map((k) => WEAPON_KINDS[k]).join(", ") +
-              "."
-            : d.armorWeights
-              ? "Compatible armor weights: " + d.armorWeights.join(", ") + "."
-              : d.petKeys
-                ? "Compatible companions: " +
-                  d.petKeys.map((k) => PETS[k].name).join(", ") +
-                  "."
-                : "Universal within this modifier category."),
-      });
+  for (const [type, defs] of Object.entries(pool)) {
+    const details = Object.values(defs).map((d) => ({
+      name: d.name,
+      text:
+        d.text +
+        " Visual signature: " +
+        d.visual.style +
+        ". " +
+        (d.weaponKinds
+          ? "Compatible weapon families: " +
+            d.weaponKinds.map((k) => WEAPON_KINDS[k]).join(", ")
+          : d.armorWeights
+            ? "Compatible armor weights: " + d.armorWeights.join(", ")
+            : d.petKeys
+              ? "Compatible companions: " +
+                d.petKeys.map((k) => PETS[k].name).join(", ")
+              : "Universal within this modifier category."),
+    }));
+    CODEX.push({
+      name: domain + " " + type + " guide",
+      category: domain + " modifiers",
+      text:
+        "Choose one modifier at each equipment transformation milestone. This page includes every " +
+        type +
+        " in this domain, with its effect, visual signature and compatibility.\n\n" +
+        details.map((d) => d.name).join(" · "),
+      details,
+    });
+  }
 CODEX.push({
   name: "Wings and flight",
   category: "Combat",
@@ -368,7 +384,7 @@ CODEX.push({
 CODEX.push({
   name: "Direct roads and wild trails",
   category: "World",
-  text: "Every direct route has fixed 1× enemy strength and 1× rewards. Detours have greater difficulty and rewards, even before you clear a region boss. Defeating the boss unlocks additional difficulty choices for detours. Every map has three Rare mini-boss nodes and one final Rare boss. Strong roads use solid black or selected blue lines and have open terrain. Wild roads remain dotted black or selected blue and have extra obstacles. Forest roads near the lake, brook, falls or bridge have river combat with crossings. Landmarks hint at ruins, water, settlements and prehistoric finds.",
+  text: "Direct roads have 1× route danger, multiplied by the world tier. Detours have greater difficulty and rewards, even before you clear a region boss. The Bonfire changes world difficulty after regional boss victories. Every map has three Rare mini-boss nodes and one final Rare boss. Strong roads use solid black or selected blue lines and have open terrain. Wild roads remain dotted black or selected blue and have extra obstacles. Forest roads near the lake, brook, falls or bridge have river combat with crossings. Landmarks hint at ruins, water, settlements and prehistoric finds.",
 });
 CODEX.push({
   name: "Original Mythical identities",
@@ -378,12 +394,12 @@ CODEX.push({
 CODEX.push({
   name: "Challenge reward tiers",
   category: "Challenges",
-  text: "Today’s daily challenge and themed weekly and monthly champions allow difficulty selection before departure. Cleared region bosses become weekly champion rematches. A higher tier pays only the extra gold and gems above the highest tier already rewarded that period. Replays retain character XP. Player challenges are fixed team snapshots and do not have NPC difficulty controls.",
+  text: "Today’s daily challenge and themed weekly and monthly champions use the global difficulty set at the Bonfire. Cleared region bosses become weekly champion rematches. A higher tier pays only the extra gold and gems above the highest tier already rewarded that period. Replays retain character XP. Player challenges are fixed team snapshots and do not have NPC difficulty controls.",
 });
 
 CODEX.push(
   {
-    name: "Camp Collector: the long night",
+    name: "Evernight: the long night",
     category: "World",
     text:
       CONTEXT.nightfall ||
@@ -413,5 +429,33 @@ CODEX.push(
     name: "Equipment Workshop and comparisons",
     category: "Equipment rules",
     text: "Build the Equipment Workshop to craft basic armor from gold, wood and hides or ore, and transform weapons, armor and companions. Buy and sell through the Market. Compare shopping items against compatible equipped characters. Storage Equip lists ready compatible heroes and slots. A slot dot means a new compatible inventory instance is available.",
+  },
+);
+
+CODEX.push(
+  {
+    name: "Camp level and XP",
+    category: "Progression",
+    text: "Camps have levels and no rarity. The level bar opens a breakdown. Level 1 needs 100 XP; each following level costs 60 more. Character XP contributes 25%; equipment and companion XP contribute 10%. Victories and quests add XP. Construction grants 160–250 XP; each expansion grants 350. Contributions are recorded once per owned object and survive reloads.",
+  },
+  {
+    name: "Food every twelve hours",
+    category: "Camp",
+    text: "Each adventurer uses one food every 12 hours and receives five character XP. The Camp food card shows stock, the next meal and total demand. Stocked food halves recovery and improves wanderer chances. Long absences settle whole meal periods in one bounded operation; no food means no meal bonus. Expedition meals defer XP until return to preserve active battles.",
+  },
+  {
+    name: "Light and night vision",
+    category: "Combat",
+    text: "Every character has a separate Light slot; unequip or replace it while ready at Camp. A Hooded lantern casts 190 units of warm light; Witchlight casts 275 units. Ordinary unaided sight is 55 units. Dwarves, Gnomes, Kobolds, Myconids and Shades see 200–280 units in darkness; Vampire grants 300 and Werewolf 250. Lantern Runner lessons can grant the 190-unit Night vision talent. Characters without enough sight search more slowly. Moving lanterns, fire and magic expose terrain and foes; trees, rocks and ruins cast shadows. Explored terrain stays dimly remembered, while unseen enemies remain concealed.",
+  },
+  {
+    name: "Eight guilds and Market districts",
+    category: "Economy",
+    text: "The Guildhall has eight booths in two rows of four. Each guild offers 35-gold lessons, a four-encounter patrol quest and member goods. Lessons add ten standing; claimed guild quests add twenty. At twenty standing the shop opens. Each additional standing reduces its price, up to 40%; a member item can be bought once per 12-hour restock. Lessons preserve class and can teach professions. The Tavern hires travelers, the Outfitter shares a court with the Quest Board, and the Arena has its own grounds.",
+  },
+  {
+    name: "Arena wagers",
+    category: "Combat",
+    text: "Enter through the Market Arena grounds. Stage exactly three ready characters and stake 10–1000 gold, optionally 0–100 basic resources. Rules rotate randomly between two teams, four teams, tigers and an explosive floor. Win returns 2.2 times the gold stake, or four times for four-team matches, scaled by world rewards. Staked resources return 2.2 times, scaled by world rewards. Defeat and recall lose the wager. Payouts happen once. Arena prizes contain no gems, cosmetics or recruits.",
   },
 );

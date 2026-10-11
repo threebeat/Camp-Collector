@@ -207,6 +207,10 @@ export function cleanTeam(raw, prefix) {
         ? item
         : null;
     });
+    h.light =
+      source.light && ITEMS[source.light.key]?.type === "light"
+        ? cleanItem(source.light)
+        : null;
     h.armor = armorSlots(h).map((slot, i) => {
       const item = cleanItem(source.armor?.[i]);
       if (!item || !slot.allowed || source.armor[i].unidentified) return null;
@@ -248,12 +252,16 @@ export function cleanTeam(raw, prefix) {
       nodes = source.classNodes || [];
     if (nodes.length) {
       if (
-        !path ||
-        !validClassNodes({ ...h, classPath: path.id, classNodes: nodes })
+        (nodes.length > 1 && !path) ||
+        !validClassNodes({
+          ...h,
+          classPath: path?.id || null,
+          classNodes: nodes,
+        })
       )
         throw Error("Invalid class branch.");
-      h.classPath = path.id;
-      h.specialization = path.id;
+      h.classPath = path?.id || null;
+      h.specialization = path?.id || null;
       h.classNodes = [...nodes];
     }
     if (LINEAGES[h.race].some((l) => l.id === source.lineage)) {

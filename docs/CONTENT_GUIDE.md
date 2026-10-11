@@ -4,7 +4,7 @@ The content model should support experimentation. This guide explains how to mak
 
 ## Current inventory and source of truth
 
-There are seventeen races, twenty playable classes, fifty-two ordinary weapon bases plus four authored Mythical weapons, ten companion bases, thirteen cosmetics and three authored Mythical adventurers. Weapon, armor and companion domains each have 24 prefixes, 24 affixes and 24 enchantments: 216 modifiers overall. `ITEMS` also includes armor, tools, accessories and equipable spell scrolls. Some historical definitions are retained internally and should not be mistaken for the active generator pool.
+There are seventeen races, twenty playable classes, fifty-two ordinary weapon bases plus four authored Mythical weapons, ten companion bases, forty-nine cosmetics (including thirty-six monthly appearances) and three authored Mythical adventurers. Weapon, armor and companion domains each have 24 prefixes, 24 affixes and 24 enchantments: 216 modifiers overall. `ITEMS` also includes armor, tools, accessories and equipable spell scrolls. Some historical definitions are retained internally and should not be mistaken for the active generator pool.
 
 Use [CONTENT_REFERENCE.md](CONTENT_REFERENCE.md) for the complete current lists and baseline values. It is generated from code:
 
@@ -28,7 +28,7 @@ A class supplies targeted stat additions, growth, an active technique, starter e
 
 Active techniques are used automatically by the unit, consume encounter resources and appear in `abilities()`. Passive consequences belong in Attributes or Talents. Keep the ten-active-ability cap enforced in equipment, combination, transformations and sanitized challenge snapshots. A companion's separate active action is distinct from an owner action; mount enchantments may apply to the owner.
 
-Class trees are built from the class callings and shared node helpers. A chosen calling has exclusive branches at successive rarity milestones. Update the mechanical effects in `combatClass()`, `classEffects()`, `stats()` and `Battle.cast()` as appropriate, not just the tree card. Make locks clear before confirming a permanent choice. No new character transformation system is required by the current design.
+Class trees are built from the class callings and shared node helpers. Points at levels 10/20/40/60/80 alternate talent, subclass, talent, advanced subclass and talent. The foundation must precede a calling; each calling has Forceful/Measured techniques, Ascendant/Warden subclasses and final mastery. Keep equipment transformations on their separate 20/40/60 thresholds. Update the mechanical effects in `combatClass()`, `classEffects()`, `stats()` and `Battle.cast()` as appropriate, not just the tree card. Make locks clear before confirming a permanent choice. No new character transformation system is required by the current design.
 
 ## Attributes and Talents
 
@@ -74,18 +74,26 @@ Cosmetic definitions distinguish character palettes, full-body `character` guise
 
 `web/journeys.js` defines map blueprints with stable node IDs, positions, level, kind/reward and unique road edges. Every current map has three marked mini-boss nodes and one final boss. The route planner computes bounded alternate simple paths through discovered/reachable roads. It freezes per-road combat and stop data into a journey itinerary.
 
-Each road has style, danger and optional water metadata. Solid strong roads select more open terrain; dotted wild roads select denser obstacles. Water-adjacent forest roads and marsh roads can use river encounters. `journeyInfo()` keeps the direct road at fixed 1× and gives detours increased danger/rewards. Preview, staged configuration, engine enemy scaling and rewards must agree.
+Each road has style, danger and optional water metadata. Solid strong roads select more open terrain; dotted wild roads select denser obstacles. Water-adjacent forest roads and marsh roads can use river encounters. `journeyInfo()` keeps direct roads at 1× route danger and gives detours increased route danger/rewards, then combines the selected global world tier. Do not reintroduce per-match difficulty selection. Preview, staged configuration, engine enemy scaling and rewards must agree.
 
-`web/landmarks.js` draws decorative geography below roads. Nodes, roads, off-node landmarks, enemy pools, biome terrain and rewards should suggest the same place. A lake graphic alone does not make battles watery: wire the road metadata too. Avoid revealing future region names in the Crossroads picker before its portal/unlock conditions.
+`web/landmarks.js` draws decorative geography below roads. Nodes, roads, off-node landmarks, enemy pools, biome terrain and rewards should suggest the same place. A lake graphic alone does not make battles watery: wire the road metadata too. Crossroads lists unlocked regions; the unlocked Portal Mage deliberately shows all unopened choices. Final bosses grant one Boss Sigil per completed journey, including repeats, and one Sigil opens a chosen region.
 
-For a new destination, choose a meaningful resource, boss, recruit, companion, equipment or cosmetic reward. Tie quests to its node ID and region. Use `waitingRecruits` for earned character overflow; do not silently exceed Camp capacity or delete a valuable milestone reward. Repeated-resource rewards and first-clear receipts must be intentional.
+For a new destination, choose a meaningful resource, boss, recruit, companion, equipment or cosmetic reward. Tie quests to its node ID and region. Respect 40 starting spaces plus 20 per cabin: full Camps miss character rewards. There is no waiting-arrivals queue. Check space before charging for purchases and report accepted recruit counts accurately. Repeated-resource rewards and first-clear receipts must be intentional.
 
 ## Challenges and lore
 
-Daily trials use today's UTC date, weekly/monthly champions use themed periods, and defeated regional bosses become champion rematches. Clear reward descriptors and highest-tier receipts avoid paying the same prize repeatedly. Player challenge teams come from real posted offers; do not fill that screen with invented users.
+Daily trials use today's UTC date, weekly/monthly champions use themed periods, and defeated regional bosses become champion rematches. The Daily calendar records complete/missed/current dates; monthly Shop appearances use twelve themes. Global Bonfire difficulty supplies the trial tier. Clear reward descriptors and highest-tier receipts avoid paying the same prize repeatedly. Player challenge teams come from real posted offers; do not fill that screen with invented users.
 
 `CODEX` combines authored explanations and canonical inventories. `CONTEXT` powers information icons near services/stats. Describe what affects a decision: cost, timing, restrictions, formulas, targeting and rewards. Correct both when behavior changes. Light lore is welcome, but should not make promised functionality that the model does not implement.
 
 ## A practical content check
 
 For new content, verify generation/acquisition, legal equipment, real combat behavior, checkpoint reload, service spending/caps, challenge snapshot sanitization, art at icon and unit scales, and in-game explanation. Run the existing checks and add targeted tests where a new interaction has meaningful failure modes. Generate native asset sheets, then inspect actual desktop and phone layouts in a supported browser environment before claiming layout validation.
+
+## Light, guild and restricted stock
+
+Racial/Attribute/Talent sight and light radii belong in the canonical definitions and `lighting.js`. Use shared geometry for AI, fog and selection. A new lamp needs utility-slot equipping/storage, worn art, loot/vendor policy, snapshot validation and checkpoint coverage. Utility lights do not consume the eight general equipment slots.
+
+Eight guild definitions live in `evernight.js`; exclusive `guild-*` items are canonical `ITEMS` entries marked `guildOnly`. Lessons/quests produce standing and member receipts control purchases. Ordinary loot, shops and recipes exclude guild-only and authored-only equipment. Monthly cosmetics are canonical `monthly-*` definitions with `monthlyTheme`; the dedicated Shop collection owns their acquisition and receipt rules. Do not accidentally offer these through generic rotating stock.
+
+The Codex groups all subclass detail into class entries and modifier definitions into nine domain/category tables. Add useful costs, effects, restrictions and acquisition details to those pages instead of recreating hundreds of thin entries. Camp XP, twelve-hour food and global difficulty explanations must match the model.

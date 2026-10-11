@@ -1,4 +1,4 @@
-import { weaponShape } from "./weapons.js?v=13";
+import { weaponShape } from "./weapons.js?v=14";
 import {
   MYTHICAL_HEROES,
   CLASSES,
@@ -17,7 +17,7 @@ import {
   objectModifiers,
   flightType,
   petInfo,
-} from "./data.js?v=13";
+} from "./data.js?v=14";
 const paths = {
   stone:
     '<path d="m3 17 2-9 7-4 8 5 2 9-10 3Z"/><path d="m5 8 7 5 8-4m-8 4v8"/>',
@@ -51,6 +51,8 @@ const paths = {
   pause: '<path d="M7 4v16M17 4v16"/>',
   check: '<path d="m4 12 5 5L20 6"/>',
   close: '<path d="m6 6 12 12M6 18 18 6"/>',
+  settings:
+    '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M5 19l2-2M17 7l2-2"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10h.01"/>',
   book: '<path d="M12 5c-4-3-9-2-10-1v16c3-2 7-2 10 0 3-2 7-2 10 0V4c-3-2-7-2-10 1Zm0 0v15"/>',
   camp: '<path d="m12 3-10 17h20L12 3Zm0 8-5 9m5-9 5 9"/>',
@@ -415,7 +417,7 @@ export function portraitSvg(hero, small = false) {
     heroRarity(hero) >= 2
       ? `<ellipse class="character-aura" cx="50" cy="86" rx="36" ry="13" fill="${RARITY_COLORS[heroRarity(hero)]}" opacity=".13"/>`
       : "";
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 104" preserveAspectRatio="none"><defs><filter id="${glowId}" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="2" result="blur"/><feFlood flood-color="${aura || "#ffffff"}"/><feComposite in2="blur" operator="in"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter><linearGradient id="${gradientId}" x2="0" y2="1"><stop stop-color="${c.color}"/><stop offset=".45" stop-color="${c.color}"/><stop offset="1" stop-color="${c.color}"/></linearGradient></defs><ellipse cx="50" cy="98" rx="29" ry="5" fill="#203a2c" opacity=".18"/>${auraArt}${wingStyles()}<g class="portrait-body">${extras}<path d="M33 84 30 98h16l3-13m5-1 2 14h16l-6-17" fill="#5b5746"/><path d="M31 58Q50 45 69 58L77 88Q51 102 23 88Z" fill="url(#${gradientId})" stroke="#59604d" stroke-width="2"/><path d="M34 57 47 73 41 94M66 57 53 73l7 21" fill="none" stroke="#445948" stroke-opacity=".4" stroke-width="4"/><path d="M33 59 21 78m46-19 12 20" stroke="${c.color}" stroke-width="12" stroke-linecap="round"/><circle cx="21" cy="78" r="5" fill="${skin}"/><circle cx="79" cy="79" r="5" fill="${skin}"/>${["Orc", "Kobold", "Nereid", "Drakeling", "Automaton", "Ent", "Owlkin", "Bearkin"].includes(hero.race) ? "" : `<path d="M29 26Q30 8 50 9T71 27L67 44H33Z" fill="${hair}"/>`}<ellipse cx="50" cy="35" rx="${hero.race === "Elf" ? 16 : hero.race === "Dwarf" ? 22 : 19}" ry="${hero.race === "Dwarf" ? 18 : 20}" fill="${skin}"/>${["Orc", "Kobold", "Nereid", "Drakeling", "Automaton", "Ent", "Owlkin", "Bearkin"].includes(hero.race) ? '<g fill="' + hair + '"><circle cx="41" cy="22" r="1.5"/><circle cx="55" cy="19" r="1.4"/><circle cx="62" cy="24" r="1"/>' + ((hero.appearance?.crest || 0) % 2 ? '<path d="m47 20 2-9 4 9"/>' : '<path d="M50 19q-5-12 2-10" stroke="' + hair + '" fill="none"/>') + "</g>" : `<path d="M31 29Q29 7 50 9T70 30L59 19 41 25Z" fill="${hair}"/>`}<path d="M32 33h-5m45 0h-5" stroke="${skin}" stroke-width="7" stroke-linecap="round"/><g class="portrait-eyes" transform="translate(${hero.appearance?.look || 0} 0)">${eyes}</g><path d="m47 44 6 0" stroke="#9c7860" stroke-width="2" stroke-linecap="round"/>${faceMark}${beard}${hat}${equipmentMark}${wornArmorArt(hero)}${attributeArt}<g class="portrait-weapon" transform="rotate(${hero.appearance?.weaponPose || 0} 21 78)">${weapon}${held?.evolution ? '<path d="m18 56 4-5 4 5-4 5m-9 7 18-4" fill="#f3dc93" stroke="#e8d494" stroke-width="2"/>' : ""}</g><path d="M38 61Q47 54 60 61" fill="none" stroke="#a39f75" stroke-width="2" stroke-opacity=".35"/><circle cx="${42 + (hero.appearance?.crest || 0) * 3}" cy="70" r="3" fill="#e2d7b7" stroke="#897656"/>${gear
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 104" preserveAspectRatio="none"><defs><filter id="${glowId}" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="2" result="blur"/><feFlood flood-color="${aura || "#ffffff"}"/><feComposite in2="blur" operator="in"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter><linearGradient id="${gradientId}" x2="0" y2="1"><stop stop-color="${c.color}"/><stop offset=".45" stop-color="${c.color}"/><stop offset="1" stop-color="${c.color}"/></linearGradient></defs><ellipse cx="50" cy="98" rx="29" ry="5" fill="#203a2c" opacity=".18"/>${auraArt}${wingStyles()}<g class="portrait-body">${extras}<path d="M33 84 30 98h16l3-13m5-1 2 14h16l-6-17" fill="#5b5746"/><path d="M31 58Q50 45 69 58L77 88Q51 102 23 88Z" fill="url(#${gradientId})" stroke="#59604d" stroke-width="2"/><path d="M34 57 47 73 41 94M66 57 53 73l7 21" fill="none" stroke="#445948" stroke-opacity=".4" stroke-width="4"/><path d="M33 59 21 78m46-19 12 20" stroke="${c.color}" stroke-width="12" stroke-linecap="round"/><circle cx="21" cy="78" r="5" fill="${skin}"/><circle cx="79" cy="79" r="5" fill="${skin}"/>${["Orc", "Kobold", "Nereid", "Drakeling", "Automaton", "Ent", "Owlkin", "Bearkin"].includes(hero.race) ? "" : `<path d="M29 26Q30 8 50 9T71 27L67 44H33Z" fill="${hair}"/>`}<ellipse cx="50" cy="35" rx="${hero.race === "Elf" ? 16 : hero.race === "Dwarf" ? 22 : 19}" ry="${hero.race === "Dwarf" ? 18 : 20}" fill="${skin}"/>${["Orc", "Kobold", "Nereid", "Drakeling", "Automaton", "Ent", "Owlkin", "Bearkin"].includes(hero.race) ? '<g fill="' + hair + '"><circle cx="41" cy="22" r="1.5"/><circle cx="55" cy="19" r="1.4"/><circle cx="62" cy="24" r="1"/>' + ((hero.appearance?.crest || 0) % 2 ? '<path d="m47 20 2-9 4 9"/>' : '<path d="M50 19q-5-12 2-10" stroke="' + hair + '" fill="none"/>') + "</g>" : `<path d="M31 29Q29 7 50 9T70 30L59 19 41 25Z" fill="${hair}"/>`}<path d="M32 33h-5m45 0h-5" stroke="${skin}" stroke-width="7" stroke-linecap="round"/><g class="portrait-eyes" transform="translate(${hero.appearance?.look || 0} 0)">${eyes}</g><path d="m47 44 6 0" stroke="#9c7860" stroke-width="2" stroke-linecap="round"/>${faceMark}${beard}${hat}${equipmentMark}${wornArmorArt(hero)}${hero.light ? lanternArt(hero.light, true) : ""}${attributeArt}<g class="portrait-weapon" transform="rotate(${hero.appearance?.weaponPose || 0} 21 78)">${weapon}${held?.evolution ? '<path d="m18 56 4-5 4 5-4 5m-9 7 18-4" fill="#f3dc93" stroke="#e8d494" stroke-width="2"/>' : ""}</g><path d="M38 61Q47 54 60 61" fill="none" stroke="#a39f75" stroke-width="2" stroke-opacity=".35"/><circle cx="${42 + (hero.appearance?.crest || 0) * 3}" cy="70" r="3" fill="#e2d7b7" stroke="#897656"/>${gear
     .filter((i) => ["charm", "offhand"].includes(ITEMS[i.key].type))
     .slice(0, 3)
     .map(
@@ -496,7 +498,8 @@ export function itemSvg(item) {
           : '<path d="m50 19 22 22-8 32-14 14-15-14-7-32Z" fill="' +
             color +
             '" stroke="#e3d4b5" stroke-width="3"/>';
-  if (weaponShape(item.key))
+  if (d.type === "light") shape = lanternArt(item, false);
+  else if (weaponShape(item.key))
     shape = weaponPresentation(item) + weaponEffectArt(item);
   else if (d.type === "armor") {
     const shapes = {
@@ -662,7 +665,7 @@ export function smokeCharacterSvg(hero) {
     phase = hero.appearance?.smokePose || 0,
     weapon = hero.items?.find((i) => ITEMS[i.key]?.weaponKind),
     helmet = hero.armor?.[0];
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 104" data-smoke-race="${hero.race}">${wingStyles()}<style>@keyframes smoke-drift{0%,100%{transform:translate(0,0);opacity:.55}50%{transform:translate(3px,-5px);opacity:.8}}.smoke-wisp{animation:smoke-drift 5.7s ease-in-out infinite;transform-origin:50px 75px}.smoke-wisp:nth-child(2n){animation-delay:-2.6s}</style><ellipse cx="50" cy="98" rx="27" ry="5" fill="#2c4139" opacity=".15"/><g class="portrait-body">${flightType(hero) ? wingArt(flightType(hero), hero.appearance?.wingPose || 0) : ""}<g fill="${color}" stroke="${edge}" stroke-width=".7">${Array.from({ length: 9 }, (_, i) => `<ellipse class="smoke-wisp" cx="${32 + (i % 3) * 17 + Math.sin(phase + i) * 3}" cy="${55 + Math.floor(i / 3) * 14}" rx="${12 + (i % 3) * 2}" ry="13" opacity="${0.45 + (i % 3) * 0.15}"/>`).join("")}<path d="M33 60Q21 40 30 23 47 5 67 22 79 42 67 58 77 70 68 87Q60 96 68 101 48 98 41 89 29 96 23 88 39 81 31 68Z" fill-opacity=".78"/><path class="smoke-wisp" d="M40 79Q25 90 18 76 23 105 51 92 59 106 79 92 63 92 61 75Z" stroke="none" opacity=".65"/></g><g class="portrait-eyes" transform="translate(${hero.appearance?.look || 0} 0)" fill="${white ? "#699797" : "#e6c9ff"}"><ellipse cx="40" cy="35" rx="5" ry="3"/><ellipse cx="59" cy="35" rx="5" ry="3"/></g>${hero.armor?.[1] ? '<path d="m34 61 16-7 17 7-4 19-13 8-13-8Z" fill="' + (white ? "#b6cacc" : "#746582") + '" fill-opacity=".7" stroke="' + edge + '"/>' : ""}${helmet ? '<path d="M30 25q20-32 40 0l-3 7-9-8H41l-8 8Z" fill="' + edge + '"/>' : ""}${wornArmorArt(hero)}${weapon ? '<g class="portrait-weapon" transform="translate(-3 23) scale(.4 .7)">' + weaponPresentation(weapon) + weaponEffectArt(weapon) + "</g>" : ""}</g></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 104" data-smoke-race="${hero.race}">${wingStyles()}<style>@keyframes smoke-drift{0%,100%{transform:translate(0,0);opacity:.55}50%{transform:translate(3px,-5px);opacity:.8}}.smoke-wisp{animation:smoke-drift 5.7s ease-in-out infinite;transform-origin:50px 75px}.smoke-wisp:nth-child(2n){animation-delay:-2.6s}</style><ellipse cx="50" cy="98" rx="27" ry="5" fill="#2c4139" opacity=".15"/><g class="portrait-body">${flightType(hero) ? wingArt(flightType(hero), hero.appearance?.wingPose || 0) : ""}<g fill="${color}" stroke="${edge}" stroke-width=".7">${Array.from({ length: 9 }, (_, i) => `<ellipse class="smoke-wisp" cx="${32 + (i % 3) * 17 + Math.sin(phase + i) * 3}" cy="${55 + Math.floor(i / 3) * 14}" rx="${12 + (i % 3) * 2}" ry="13" opacity="${0.45 + (i % 3) * 0.15}"/>`).join("")}<path d="M33 60Q21 40 30 23 47 5 67 22 79 42 67 58 77 70 68 87Q60 96 68 101 48 98 41 89 29 96 23 88 39 81 31 68Z" fill-opacity=".78"/><path class="smoke-wisp" d="M40 79Q25 90 18 76 23 105 51 92 59 106 79 92 63 92 61 75Z" stroke="none" opacity=".65"/></g><g class="portrait-eyes" transform="translate(${hero.appearance?.look || 0} 0)" fill="${white ? "#699797" : "#e6c9ff"}"><ellipse cx="40" cy="35" rx="5" ry="3"/><ellipse cx="59" cy="35" rx="5" ry="3"/></g>${hero.armor?.[1] ? '<path d="m34 61 16-7 17 7-4 19-13 8-13-8Z" fill="' + (white ? "#b6cacc" : "#746582") + '" fill-opacity=".7" stroke="' + edge + '"/>' : ""}${helmet ? '<path d="M30 25q20-32 40 0l-3 7-9-8H41l-8 8Z" fill="' + edge + '"/>' : ""}${wornArmorArt(hero)}${hero.light ? lanternArt(hero.light, true) : ""}${weapon ? '<g class="portrait-weapon" transform="translate(-3 23) scale(.4 .7)">' + weaponPresentation(weapon) + weaponEffectArt(weapon) + "</g>" : ""}</g></svg>`;
 }
 function fossilShape(key, c) {
   if (key === "ammonite")
@@ -695,4 +698,9 @@ export function cosmeticSvg(key) {
     appearance: { hue: 185 },
     cosmetic: key,
   });
+}
+
+function lanternArt(item, held = false) {
+  const color = ITEMS[item.key]?.lightColor || "#ffc36a";
+  return `<g data-light-art="${item.key}" transform="${held ? "translate(66 70) scale(.27)" : "translate(16 4) scale(.7)"}"><circle cx="48" cy="58" r="35" fill="${color}" opacity=".12"/><path d="M35 30v-9q13-17 26 0v9M27 35h42l-5 48H32Z" fill="#354052" stroke="#ab9467" stroke-width="4"/><path d="M35 42h26v34H35Z" fill="${color}"/><path d="m30 35 18-13 18 13m-18 5v38M29 82h38" stroke="#cfb886" stroke-width="4" fill="none"/></g>`;
 }

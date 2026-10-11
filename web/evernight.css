@@ -1,0 +1,1042 @@
+:root {
+  color-scheme: dark;
+  --paper: #0c111d;
+  --panel: #161e2c;
+  --ink: #e4e9f1;
+  --muted: #a3aec1;
+  --line: #344158;
+  --gold: #e9b86b;
+  --green: #8bbfa9;
+  --dark: #090e18;
+  --shadow: 0 6px 24px #0003;
+}
+body,
+.app {
+  background: var(--paper);
+  color: var(--ink);
+}
+.site-header {
+  background: #101624;
+  border-color: #35415b;
+  flex-wrap: wrap;
+}
+.brand strong {
+  color: #edc583;
+}
+.brand small {
+  color: #a4acc0;
+}
+.app {
+  min-height: calc(100dvh - 90px);
+}
+.page-heading .eyebrow,
+.eyebrow {
+  color: #b7a0d2;
+}
+.muted,
+.small.muted,
+small {
+  color: var(--muted);
+}
+button {
+  color: inherit;
+}
+.primary-button {
+  background: #b78c4d;
+  color: #0c1420;
+  border-color: #d5af70;
+  font-weight: 700;
+}
+.primary-button:hover {
+  background: #e0b574;
+}
+.secondary-button,
+.icon-button,
+.text-button.selected {
+  background: #202c40;
+  color: #e3eaf5;
+  border-color: #42536f;
+}
+.text-button {
+  color: #b8cce2;
+}
+.danger {
+  color: #f4a1a8;
+}
+.primary-button.danger {
+  background: #813d4b;
+  color: #fff;
+}
+.modal,
+.modal-body,
+.modal-header,
+.modal-footer,
+.inspector,
+.camp-detail {
+  background: var(--panel);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.modal::backdrop {
+  background: #000a;
+}
+.modal-header p {
+  color: #bac4d5;
+}
+.modal-note,
+.welcome-note,
+.help-list,
+.construction-preview,
+.class-tree-intro,
+.quick-stop,
+.journey-provisions,
+.locked-route-summary {
+  background: #1d2839;
+  color: #d4deee;
+  border-color: #42536f;
+}
+.modal input,
+.modal textarea,
+.modal select,
+input,
+select,
+textarea {
+  background: #0f1725;
+  color: #e6ebf5;
+  border: 1px solid #465670;
+  max-width: 100%;
+  border-radius: 8px;
+  padding: 10px;
+}
+.modal input::placeholder,
+.modal textarea::placeholder {
+  color: #91a0b6;
+}
+.item-option,
+.equipment-slot,
+.hero-card,
+.quest-card,
+.trial-card,
+.gem-shop-offer,
+.vendor-card,
+.recipe-card,
+.building-card,
+.calendar-bonus,
+.shop-intro,
+.storage-item,
+.service-panel,
+.challenge-theme,
+.pantry-display,
+.expedition-card {
+  background: #172133;
+  color: #e4e9f1;
+  border-color: #384966;
+}
+.item-option small,
+.hero-card small,
+.detail-section-label,
+.equipment-slot small {
+  color: #aebbd0;
+}
+.stat-six > div,
+.health-detail,
+.mana-detail,
+.detail-xp,
+.detail-chip,
+.bond-list,
+.storage-tabs,
+.profile-gear,
+.class-description,
+.slot-meter,
+.detail-section {
+  background: #1b293a;
+  border-color: #3c4b64;
+  color: #d5e0f0;
+}
+.xp-track,
+.health-track,
+.mana-track {
+  background: #354258;
+}
+.xp-track i {
+  background: #ab98d1;
+}
+.health-track i {
+  background: #8eb69c;
+}
+.mana-track i {
+  background: #91afd9;
+}
+.camp-metrics > div,
+.camp-metrics > button {
+  background: #202d40;
+  color: #dfe7f2;
+  border: 1px solid #3e4e67;
+  min-width: 0;
+  border-radius: 10px;
+  padding: 14px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+}
+.camp-metrics {
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.camp-metrics b {
+  font-size: 18px;
+}
+.camp-metrics span {
+  font-size: 12px;
+  color: #adbad0;
+}
+.camp-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.camp-name-row h2 {
+  overflow-wrap: anywhere;
+}
+.camp-name-row .icon-button {
+  flex-shrink: 0;
+}
+.camp-build {
+  width: 100%;
+  margin: 12px 0;
+}
+.camp-level-card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 9px;
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #6b5b8f;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #242d44, #252237);
+  margin: 0 0 14px;
+  text-align: left;
+}
+.camp-level-card .xp-track {
+  width: 100%;
+  height: 7px;
+}
+.camp-level-card b {
+  font-size: 22px;
+  color: #d0b8ef;
+}
+.evernight-camp-card h3 {
+  font-size: 18px;
+  margin-top: 20px;
+}
+.camp-resource-list {
+  margin: 10px 0 0;
+}
+.camp-resource-list > div {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #2f3d53;
+  padding: 8px 0;
+  font-size: 13px;
+}
+.camp-resource-list dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.camp-resource-list dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  color: #e8c58d;
+}
+.camp-resource-strip {
+  background: #182336;
+  border: 1px solid #34445e;
+  border-radius: 12px 12px 0 0;
+  gap: 12px;
+  font-size: 12px;
+  margin: 0;
+  padding: 10px 16px;
+  flex-wrap: wrap;
+}
+.camp-resource-strip + .camp-map {
+  border-radius: 0 0 12px 12px;
+}
+.quest-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  margin-top: 14px;
+  background: #151f30;
+  border: 1px solid #34445e;
+  border-radius: 12px;
+}
+.quest-summary p {
+  font-size: 13px;
+  color: #adbad0;
+}
+.quest-summary button {
+  flex-shrink: 0;
+}
+.tutorial-bar {
+  order: 4;
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 20px;
+  background: #24263a;
+  border-top: 1px solid #46415b;
+  color: #d7d0e8;
+  font-size: 12px;
+}
+.tutorial-bar[hidden] {
+  display: none;
+}
+.tutorial-bar span {
+  margin-right: auto;
+}
+.tutorial-bar b {
+  color: #cfb5ef;
+}
+.tutorial-bar .text-button {
+  font-size: 12px;
+  white-space: nowrap;
+  padding: 5px;
+  min-height: 36px;
+}
+.opening-story {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  line-height: 1.7;
+  margin: 18px 0 28px;
+  color: #d7dcea;
+}
+.evernight-tree {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0;
+}
+.tree-stage {
+  position: relative;
+  border-left: 2px solid #806d9c;
+  padding: 4px 0 4px 15px;
+}
+.tree-stage:before {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #b8a0d6;
+  border-radius: 50%;
+  left: -5px;
+  top: 12px;
+}
+.tree-stage > div {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.tree-choice {
+  background: #253249;
+  border: 1px solid #526181;
+  border-radius: 9px;
+  padding: 12px;
+  flex: 1 1 145px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  text-align: left;
+}
+.tree-choice strong {
+  font-size: 14px;
+}
+.tree-choice small {
+  font-size: 11px;
+  line-height: 1.5;
+}
+.tree-choice.learned {
+  border-color: #c7a871;
+  background: #323445;
+}
+.tree-choice.locked {
+  opacity: 0.45;
+}
+.tree-choice:disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+.tree-choice.learned:disabled {
+  opacity: 1;
+}
+.difficulty-card {
+  background: #1d293d;
+  border-color: #455877;
+  color: #d4deef;
+}
+.difficulty-card.selected {
+  background: #38334d;
+  border-color: #be9edf;
+}
+.quest-controls {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+.quest-controls input {
+  flex: 1 1 190px;
+}
+.quest-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+  gap: 15px;
+}
+.quest-card {
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #34465f;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.quest-card p {
+  font-size: 13px;
+}
+.quest-card .card-actions {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.quest-reward {
+  color: #e2c38b;
+}
+.district-map {
+  position: relative;
+  isolation: isolate;
+  min-height: 500px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #41516b;
+  background: #18243a;
+}
+.district-terrain {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+.district-map:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, #8b693912, transparent 70%);
+  z-index: -1;
+}
+.guild-booth-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 80px 22px;
+  padding: 65px 40px;
+}
+.district-booth {
+  background: #243449f0;
+  border: 1px solid var(--booth-color, #8d9cae);
+  border-top: 7px solid var(--booth-color, #a3b1c6);
+  border-radius: 5px 5px 14px 14px;
+  box-shadow: 0 14px 15px #0005;
+  padding: 22px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-size: 13px;
+  text-align: center;
+}
+.district-booth small {
+  font-size: 11px;
+}
+.district-booth:hover {
+  background: #35435a;
+}
+.court-services {
+  display: flex;
+  gap: 70px;
+  justify-content: center;
+  padding: 145px 60px;
+}
+.court-services .district-booth {
+  width: 230px;
+  font-size: 18px;
+}
+.arena-gate-art {
+  margin: 70px auto;
+  text-align: center;
+  max-width: 560px;
+  padding: 20px;
+  color: #dfb184;
+}
+.arena-gate-art h2 {
+  margin: 18px;
+}
+.arena-gate-art p {
+  margin-bottom: 20px;
+}
+.tavern-services {
+  padding: 40px;
+  text-align: center;
+}
+.tavern-recruits {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 30px;
+}
+.tavern-recruit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 130px;
+  background: #27354d;
+  border: 1px solid #a58a63;
+  border-radius: 12px;
+  padding: 10px;
+}
+.tavern-recruit svg {
+  width: 90px;
+  height: 104px;
+}
+.tavern-recruit strong {
+  font-size: 13px;
+}
+.guild-services {
+  display: grid;
+  gap: 18px;
+  margin-top: 20px;
+}
+.guild-services article {
+  background: #202d43;
+  border: 1px solid #42546f;
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.guild-services article > svg {
+  width: 70px;
+  height: 70px;
+}
+.arena-banner {
+  background: linear-gradient(120deg, #352736, #1e2b40);
+  color: #ded6e3;
+  display: block;
+  padding: 26px;
+  border-color: #735368;
+}
+.arena-banner p {
+  margin-top: 12px;
+}
+.arena-wager {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: #1c283a;
+  border: 1px solid #40516b;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 18px 0;
+}
+.arena-wager h3,
+.arena-wager p {
+  width: 100%;
+}
+.arena-wager label {
+  display: grid;
+  gap: 5px;
+  flex: 1 1 110px;
+  font-size: 12px;
+}
+.arena-wager input,
+.arena-wager select {
+  width: 100%;
+}
+.arena-wager p {
+  font-size: 13px;
+  color: #ccbbc1;
+}
+.daily-calendar {
+  border: 1px solid #41546f;
+  border-radius: 14px;
+  padding: 18px;
+  background: #172238;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: 18px 0;
+}
+.daily-calendar > div:first-child {
+  flex: 1;
+}
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  width: 320px;
+}
+.calendar-days b {
+  text-align: center;
+  color: #9fafc5;
+  font-size: 10px;
+}
+.calendar-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 35px;
+  font-size: 12px;
+  border-radius: 5px;
+  background: #243049;
+}
+.calendar-date small {
+  font-size: 9px;
+}
+.calendar-date.complete {
+  background: #304e45;
+  color: #bdedce;
+}
+.calendar-date.missed {
+  color: #af828e;
+  background: #342a3c;
+}
+.calendar-date.future {
+  opacity: 0.5;
+}
+.calendar-date.current {
+  outline: 2px solid #dab574;
+  outline-offset: -2px;
+}
+.monthly-shop {
+  border: 1px solid #5d5079;
+  border-radius: 14px;
+  padding: 24px;
+  margin: 18px 0;
+  background: linear-gradient(140deg, #20243a, #171f32);
+}
+.monthly-shop .section-heading {
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.monthly-shop select {
+  max-width: 100%;
+}
+.monthly-offers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 20px;
+}
+.monthly-offers article {
+  background: #26324a;
+  border: 1px solid #465676;
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.monthly-offers h3 {
+  font-size: 18px;
+}
+.monthly-offers p {
+  font-size: 12px;
+  color: #b1bdd1;
+}
+.monthly-offers button {
+  margin-top: auto;
+}
+.monthly-emblem {
+  color: var(--theme-color, #bda4dc);
+}
+.portal-regions article {
+  border: 1px solid #425570;
+  border-radius: 10px;
+  padding: 16px;
+  background: #202d42;
+}
+.portal-regions p {
+  font-size: 13px;
+  margin: 10px 0;
+}
+.island-sign {
+  top: 69%;
+  right: 13%;
+}
+.camp-map-label {
+  background: #162235d9;
+  color: #e4d8bd;
+}
+.camp-map-sign,
+.map-caption {
+  color: #dcd0b0;
+}
+.market-map-sign {
+  color: #ece0c7;
+}
+.market-map-stall strong,
+.market-map-stall small {
+  background: #111a2cdd;
+  color: #e8e2d5;
+  text-shadow: none;
+}
+.camp-building strong,
+.camp-building small {
+  background: #111a2cd9;
+  color: #e0d9cc;
+  text-shadow: none;
+}
+.market-direction {
+  background: #1c2c45e8;
+  color: #dfd9cb;
+  border-color: #5e7291;
+}
+.codex-content,
+.codex-entry,
+.codex-nav {
+  background: #182237;
+  color: #dce5f2;
+  border-color: #3b4b67;
+}
+table {
+  color: #d6e2f3;
+}
+th,
+td {
+  border-color: #3a4a65;
+}
+tbody tr:nth-child(even) {
+  background: #202c40;
+}
+.app-footer {
+  color: #92a0b5;
+}
+.launch-bar,
+.interlude-panel,
+.battle-controls,
+.battle-heading,
+.field-topline {
+  background: #192338;
+  border-color: #3b4d69;
+  color: #dbe5f4;
+}
+.battle-log {
+  background: #101a29;
+}
+.toast {
+  background: #27374f;
+  color: #e7ecf5;
+}
+.modal[open] {
+  max-width: min(780px, calc(100vw - 28px));
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid #dbb877;
+  outline-offset: 3px;
+}
+button:disabled {
+  opacity: 0.48;
+}
+.settings-options {
+  display: grid;
+  gap: 16px;
+}
+.settings-options label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: #243148;
+  border-radius: 9px;
+}
+.settings-options input {
+  width: 20px;
+  height: 20px;
+}
+.body-reduced-motion * {
+  animation-duration: 0.001ms !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+.settings-options p {
+  color: #9eacc2;
+  font-size: 13px;
+}
+@media (min-width: 1000px) {
+  .guild-services {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+  }
+  .tutorial-bar {
+    margin-top: 8px;
+  }
+}
+@media (max-width: 760px) {
+  .guild-booth-grid {
+    gap: 55px 9px;
+    padding: 65px 14px;
+  }
+  .district-booth {
+    padding: 16px 5px;
+    font-size: 11px;
+  }
+  .district-booth small {
+    font-size: 9px;
+  }
+  .district-map {
+    min-height: 440px;
+  }
+  .court-services {
+    gap: 22px;
+    padding: 120px 20px;
+  }
+  .court-services .district-booth {
+    font-size: 14px;
+  }
+  .daily-calendar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+  .calendar-days {
+    width: 100%;
+  }
+  .monthly-offers {
+    grid-template-columns: 1fr;
+  }
+  .quest-summary {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .tavern-services {
+    padding: 35px 18px;
+  }
+  .tavern-recruits {
+    gap: 12px;
+  }
+  .tavern-recruit {
+    width: 110px;
+  }
+  .monthly-shop {
+    padding: 18px;
+  }
+  .site-header .resources {
+    gap: 10px;
+  }
+  .site-header .resources small {
+    display: none;
+  }
+}
+@media (max-width: 600px) {
+  .tutorial-bar {
+    position: fixed;
+    bottom: calc(65px + env(safe-area-inset-bottom));
+    left: 0;
+    right: 0;
+    padding: 6px 10px;
+    gap: 5px;
+    z-index: 40;
+    font-size: 11px;
+    border-top: 1px solid #5e5278;
+    border-bottom: 1px solid #5e5278;
+  }
+  .tutorial-bar span {
+    max-width: calc(100% - 127px);
+    line-height: 1.4;
+  }
+  .tutorial-bar .text-button {
+    font-size: 10px;
+    padding: 4px;
+  }
+  .app {
+    padding-bottom: 140px;
+  }
+  .opening-story {
+    font-size: 18px;
+  }
+  .camp-resource-strip {
+    padding: 10px;
+    font-size: 11px;
+    gap: 9px;
+  }
+  .evernight-camp-card {
+    padding: 18px;
+  }
+  .camp-metrics b {
+    font-size: 16px;
+  }
+  .camp-name-row h2 {
+    font-size: 24px;
+  }
+  .arena-wager {
+    padding: 15px;
+  }
+  .guild-booth-grid {
+    gap: 48px 6px;
+    padding: 58px 8px;
+  }
+  .district-booth {
+    font-size: 10px;
+  }
+  .guild-booth-grid .district-booth svg {
+    width: 22px;
+    height: 22px;
+  }
+  .calendar-date {
+    min-height: 38px;
+  }
+  .monthly-offers article {
+    padding: 15px;
+  }
+  .tavern-recruit {
+    width: 105px;
+  }
+  .camp-resource-list {
+    font-size: 12px;
+  }
+  .quest-card {
+    padding: 17px;
+  }
+  .quest-controls select {
+    flex: 1;
+  }
+  .tutorial-bar[hidden] {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *:before,
+  *:after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.tavern-entrance {
+  position: absolute;
+  left: 22%;
+  top: 23%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: #1c263de8;
+  border: 1px solid #b49973;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 12px;
+  color: #efd5ae;
+}
+.tavern-entrance svg {
+  width: 32px;
+  height: 32px;
+}
+.camp-map,
+.market-map {
+  isolation: isolate;
+}
+.evernight-tree.readonly .tree-choice.locked {
+  opacity: 1;
+}
+
+.landscape-terrain,
+.portrait-terrain {
+  filter: brightness(0.5) saturate(0.7);
+}
+.camp-building svg,
+.vendor-map svg {
+  filter: brightness(0.8);
+}
+.camp-fire {
+  filter: drop-shadow(0 0 12px #ffb86e);
+}
+.codex-page,
+.codex-index,
+.catalog-tools,
+.challenge-setup,
+.equip-target,
+.service-panel,
+.build-site-list button,
+.option-grid button {
+  background: #172235;
+  color: #e4e9f1;
+  border-color: #41536b;
+}
+.codex-page p,
+.codex-page td,
+.codex-index-entry strong,
+.codex-index-entry small {
+  color: #d4deee;
+}
+.codex-page .table-scroll {
+  max-width: 100%;
+  overflow: auto;
+}
+.codex-page table {
+  font-size: 12px;
+}
+.codex-page th {
+  color: #d9bc8c;
+}
+.evernight-camp-card .camp-resource-list svg {
+  color: #aebed8;
+}
+.hero-card h3,
+.modal-title,
+.section-heading h2,
+.section-heading h1,
+.camp-detail h2,
+.detail-hero-name h2 {
+  color: #e7ebf4;
+}
+
+.district-booth strong,
+.district-booth small {
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+.calendar-days {
+  flex-shrink: 0;
+}
+.camp-resource-strip {
+  display: flex;
+}
+.site-header #settings-btn {
+  flex-shrink: 0;
+}

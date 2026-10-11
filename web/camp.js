@@ -1,4 +1,5 @@
-import { gatherProfessions } from "./nightfall.js?v=13";
+import * as Ever from "./evernight.js?v=14";
+import { gatherProfessions } from "./nightfall.js?v=14";
 import {
   gatheringFacets,
   CORE_STATS,
@@ -33,8 +34,8 @@ import {
   PETS,
   makePet,
   EVOLUTIONS,
-} from "./data.js?v=13";
-import { BUILDINGS, COOKING, BREWS } from "./world.js?v=13";
+} from "./data.js?v=14";
+import { BUILDINGS, COOKING, BREWS } from "./world.js?v=14";
 export const gemsTotal = (g) =>
   g.gemstones.reduce((sum, v) => sum + gemValue(v), 0);
 export function addGems(g, value, kind = "ruby") {
@@ -92,7 +93,7 @@ export function idle(g, h) {
     !heroJob(h)
   );
 }
-export const campCapacity = (g) => 20 + 20 * (g.buildings.cabins || 0);
+export const campCapacity = (g) => 40 + 20 * (g.buildings.cabins || 0);
 export const cabinCost = (g) =>
   Object.fromEntries(
     Object.entries(BUILDINGS.cabins.cost).map(([k, v]) => [
@@ -122,6 +123,11 @@ export function buildCamp(g, key) {
   )
     return false;
   g.buildings[key] = (g.buildings[key] || 0) + 1;
+  Ever.awardCampXp(
+    g,
+    def.upgradeFrom ? 250 : key === "cabins" ? 220 : 160,
+    "construction",
+  );
   if (key === "archaeology")
     g.archaeologyZone =
       g.campZone === "center" ? g.campExpansions[0] : g.campZone;
@@ -201,6 +207,8 @@ export function beginSharpen(g, id) {
   return true;
 }
 export function updateCampClock(g) {
+  Ever.consumeMeals(g);
+  Ever.collectCampXp(g);
   for (const h of g.roster) {
     if (h.trainingJob && h.trainingJob.ends <= g.lastClock) {
       const key = "training:" + h.trainingJob.stat,
@@ -214,6 +222,7 @@ export function updateCampClock(g) {
           " training. Permanent training Talent improved.",
         h.trainingJob.ends,
       );
+      Ever.awardCampXp(g, 25, "training");
       h.trainingJob = null;
       h.currentHp = stats(h).hp;
     }
@@ -254,8 +263,7 @@ export function beginRecovery(g, h, now, defeat = false) {
   delete h.petBuff;
   const max = stats(h).hp;
   const starting = Math.max(1, Math.min(max, h.currentHp ?? max));
-  const fed = g.food > 0;
-  if (fed) g.food--;
+  const fed = Ever.fed(g, h);
   const seconds = (defeat ? 90 : 30) * (fed ? 0.5 : 1);
   h.currentHp = starting;
   h.recoveryHp = starting;
@@ -436,8 +444,10 @@ export function chooseClassNode(g, h, nodeId) {
   const path = classTree(h).find((p) => p.nodes.some((n) => n.id === nodeId)),
     node = path?.nodes.find((n) => n.id === nodeId);
   if (!node || !classNodeState(h, node).available) return false;
-  h.classPath = path.id;
-  h.specialization = path.id;
+  if (node.kind === "subclass") {
+    h.classPath = path.id;
+    h.specialization = path.id;
+  }
   h.classNodes.push(nodeId);
   h.currentHp = stats(h).hp;
   note(
@@ -473,7 +483,8 @@ export function evolveObject(g, kind, id, choice = null) {
   if (
     g.screen !== "camp" ||
     !["weapon", "armor", "pet"].includes(kind) ||
-    (kind === "weapon" && !g.buildings.blacksmith && !g.buildings.armory)
+    (kind === "weapon" && !g.buildings.blacksmith && !g.buildings.armory) ||
+    (kind !== "weapon" && !g.buildings.armory)
   )
     return false;
   const owner = g.roster.find((h) =>
@@ -533,7 +544,7 @@ export function evolveObject(g, kind, id, choice = null) {
             ? "armor piece"
             : "weapon") +
         " transformed at " +
-        (kind === "weapon" ? "the Blacksmith." : "the Bonfire."),
+        (kind === "weapon" ? "the Blacksmith." : "the Equipment Workshop."),
     );
   }
   return true;
@@ -612,6 +623,7 @@ export function expandCamp(g, key) {
     !payCost(g, expansionCost(g, key))
   )
     return false;
+  Ever.awardCampXp(g, 350, "construction");
   g.campExpansions.push(key);
   g.campZone = key;
   return true;
@@ -647,6 +659,9 @@ export function releaseHero(g, h) {
     return false;
   g.inventory.push(...allGear(h));
   if (h.companion) g.companions.push(h.companion);
+  const reward = Ever.retirementValue(h);
+  g.gold += reward.gold;
+  addGems(g, reward.gems);
   g.roster = g.roster.filter((v) => v !== h);
   g.staging = g.staging.filter((id) => id !== h.id);
   g.marketParty = g.marketParty.filter((id) => id !== h.id);

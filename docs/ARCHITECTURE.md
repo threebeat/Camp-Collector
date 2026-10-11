@@ -1,6 +1,6 @@
 # Architecture
 
-This describes the implementation at version 0.13.0. It is a map of the present code, not a commitment to keep its boundaries or technology forever.
+This describes the implementation at version 0.14.0. It is a map of the present code, not a commitment to keep its boundaries or technology forever.
 
 ## Runtime boundaries
 
@@ -19,6 +19,8 @@ The hosted backend is an ESM Worker. It serves embedded web assets and the authe
 | Time and commands | `web/simulation.js` | State within one browser session, fixed steps, concurrent parties, catch-up, observation and action dispatch |
 | Worker transport | `web/expedition-worker.js`, `web/client.js` | Messages, responses, fallback simulation and local save checkpoints |
 | Night-world commands/screens | `web/nightfall.js`, `web/nightfall-ui.js` | Professions, visitors, armor crafting/comparison, save additions, profile/district sheets and island configuration |
+| Evernight model/screens | `web/evernight.js`, `web/evernight-ui.js`, `web/evernight.css` | Meals, Camp XP, world tiers, portals, guilds, Arena wagers, monthly collections and dark UI |
+| Visibility | `web/lighting.js` | Shared night vision, light sources, terrain occlusion and fog sampling |
 | Interface | `web/app.js`, `web/index.html`, `web/styles.css`, `web/nightfall.css` | Navigation, Camp/Market scenes, route selection, services, character inspector and battle controls |
 | Presentation | `web/art.js`, `web/landmarks.js`, `web/renderer.js`, `web/chatter.js`, `web/map-interaction.js` | SVG art, geography, canvas scenes, occasional dialogue and pointer-based drag/drop |
 | Explanations and backups | `web/codex.js`, `web/saves.js` | Searchable mechanical/lore content, backup export and validated import |
@@ -61,7 +63,7 @@ These guards make the board functional, but do not prove the caller actually ear
 
 ## Build and deployment
 
-`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=13` cache URLs. Generated output is excluded from source control.
+`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=14` cache URLs. Generated output is excluded from source control.
 
 The hosting manifest binds the existing Sites project with `d1: 'DB'` and no R2 bucket. Sites applies committed `drizzle/` migrations before uploading the Worker. The original source origin and owner-private audience must be preserved when publishing unless the owner directs otherwise. A separate GitHub remote can coexist; it is not a replacement deployment ID.
 
@@ -78,3 +80,13 @@ New state includes accepted Side quest IDs, frozen generated contracts, service 
 Profession slots count together with legacy gathering Talents, deduplicated by key, before enforcing the eight-slot maximum. Snapshot sanitization handles both representations. New authored Mythical armor is excluded from normal item generation and crafting, and accepted canonically by challenge snapshots.
 
 UI sheets dispatch through the existing simulation boundary. Model restrictions remain authoritative within the local simulation; views only present available choices. Browser-local ownership is still not a server-authoritative economy.
+
+## Version 0.14 state and light boundaries
+
+`normalizeEvernight()` appends Camp XP/source/ledger records, world difficulty, twelve-hour meal clock, nourishment, settings/tutorial/story progress, guild standing/purchase receipts, Quest pins/sort, utility lights and Arena stakes. It admits old waiting recruits once into new capacity, then clears the obsolete queue. Existing calling IDs receive the new prerequisite foundation. Save validation bounds new fields and preserves optional older current-season records. `collectCampXp()` counts lifetime XP deltas by stable owned IDs rather than counting equipment placement.
+
+`consumeMeals()` settles missed periods in O(roster) time; it cannot loop over months of elapsed time. Active characters defer food XP until their checkpoint returns. World difficulty and Arena rule/stake data freeze into each expedition, and stake settlement has an idempotent receipt flag. Boss Sigils are boss-completion rewards and portal spend is guarded against repeat unlocks. Guild and monthly stock use canonical definitions and owned purchase receipts.
+
+Detection and fog sampling use shared `lighting.js` geometry. Moving lights, fire and magic illuminate regions; racial/Attribute/Talent sight can reveal darkness. Trees/rocks use circle ray intersections and buildings use rectangular intersections. The renderer clips light gradients to shadow polygons on a reusable fog canvas; the engine snapshots explored cell memory. Enemy targeting and selection use actual visibility. This is 2D real-time lighting, with no light-fuel simulation.
+
+The challenge sanitizer accepts canonical light equipment and new class nodes; it reconstructs bounded derived stats instead of trusting client values. The existing authenticated challenge protocol remains separate from local Arena wagers and still cannot prove local ownership.

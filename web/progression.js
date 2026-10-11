@@ -1,5 +1,6 @@
-import { questById } from "./journeys.js?v=13";
-import * as Night from "./nightfall.js?v=13";
+import * as Ever from "./evernight.js?v=14";
+import { questById } from "./journeys.js?v=14";
+import * as Night from "./nightfall.js?v=14";
 import {
   GAME_SEASON,
   MYTHICAL_HEROES,
@@ -62,14 +63,14 @@ import {
   modifierFits,
   validModifiers,
   petInfo,
-} from "./data.js?v=13";
-import * as Camp from "./camp.js?v=13";
+} from "./data.js?v=14";
+import * as Camp from "./camp.js?v=14";
 import {
   BRANCHES,
   calendarDay,
   calendarMonth,
   CALENDAR_BONUSES,
-} from "./world.js?v=13";
+} from "./world.js?v=14";
 import {
   journeyInfo,
   journeyRequirements,
@@ -81,8 +82,8 @@ import {
   trackQuest,
   difficultyAllowed,
   REGION_CHAMPIONS,
-} from "./journeys.js?v=13";
-import { seeded } from "./engine.js?v=13";
+} from "./journeys.js?v=14";
+import { seeded } from "./engine.js?v=14";
 export const SLOT_MILESTONES = [0, 12, 35, 75];
 export const activeExpeditions = (g) =>
   g.expeditions.filter((r) => r.status === "active");
@@ -143,20 +144,15 @@ export function toggleStage(g, id) {
 export function destinationInfo(g, choice = g.destination) {
   if (choice.mode === "journey") return journeyInfo(g, choice);
   if (choice.mode === "island") return Night.islandInfo(g);
-  const {
-    mode,
-    location,
-    node = 0,
-    branch = null,
-    difficulty = "normal",
-    event = "daily",
-  } = choice;
+  const { mode, location, node = 0, branch = null, event = "daily" } = choice;
+  const difficulty = g.worldDifficulty || "normal";
   const d = DIFFICULTIES[difficulty];
   if (!d) return null;
   if (mode === "arena")
     return {
       ...choice,
-      name: "The Four Banners",
+      name: Ever.arenaRule(g).name,
+      arenaRule: Ever.arenaRule(g).id,
       location: "cinder",
       mode: "arena",
       encounters: 1,
@@ -220,33 +216,12 @@ export function setDestination(g, choice) {
   if (!["crossroads", "calendar", "challenges", "arena"].includes(g.screen))
     return false;
   const next = { ...g.destination, ...choice };
-  if (next.mode === "journey") {
-    const loc = next.location || "greenway";
-    if (!g.regionUnlocks.includes(loc)) return false;
-    if (
-      choice.location &&
-      choice.location !== g.destination.location &&
-      !difficultyAllowed(g, loc, next.difficulty)
-    )
-      next.difficulty = "normal";
-    if (
-      choice.difficulty &&
-      choice.difficulty !== "normal" &&
-      !(next.routeIndex || 0)
-    )
-      return false;
-    if ((next.routeIndex || 0) === 0) next.difficulty = "normal";
-    if (next.difficulty === "story") next.difficulty = "normal";
-    if (!difficultyAllowed(g, loc, next.difficulty || "normal")) return false;
-  } else {
-    if (
-      next.mode !== "trial" &&
-      !g.portalUnlocked &&
-      (next.difficulty || "normal") !== "normal"
-    )
-      return false;
-    next.route = "main";
-  }
+  if (
+    next.mode === "journey" &&
+    !g.regionUnlocks.includes(next.location || "greenway")
+  )
+    return false;
+  next.difficulty = g.worldDifficulty || "normal";
   const info = destinationInfo(g, next);
   if (!info) return false;
   g.destination = { ...next, location: info.location };
@@ -281,6 +256,7 @@ export function visitMarket(g, ids) {
   )
     return false;
   g.marketParty = [...ids];
+  g.marketDistrict = "square";
   g.screen = "market";
   for (const v of VENDORS) marketStock(g, v.id);
   return true;
@@ -335,11 +311,14 @@ export function startExpedition(g, options = {}, now = g.lastClock) {
     return false;
   const req = journeyRequirements(g, config, heroes);
   if (req.missing.length) return false;
+  const wager = config.mode === "arena" ? Ever.payWager(g) : null;
+  if (config.mode === "arena" && !wager) return false;
   g.food -= req.food;
   for (const h of heroes) h.deployed = true;
   g.expeditionCount++;
   const r = {
     ...config,
+    wager,
     id: uid("expedition"),
     number: g.expeditionCount,
     foodReserved: req.food,
@@ -558,10 +537,7 @@ export function recover(g, h) {
 }
 export function salvageValue(kind, obj) {
   return kind === "hero"
-    ? {
-        gold: 35 + obj.level * 5 + heroRarity(obj) * 15,
-        gems: 1 + Math.floor(obj.level / 25),
-      }
+    ? Ever.retirementValue(obj)
     : {
         gold:
           Math.round(
@@ -596,6 +572,7 @@ export function recycle(g, kind, id, sell = false) {
         obj.favorite))
   )
     return false;
+  if (kind === "hero") return Camp.releaseHero(g, obj);
   const value = salvageValue(kind, obj);
   if (kind === "hero") returnBelongings(g, obj);
   if (kind === "pet") g.gemstones.push(...(obj.sockets || []).filter(Boolean));
@@ -636,6 +613,12 @@ function stockedItem(key, level) {
 }
 function makeStock(vendor, epoch = 0) {
   const random = seeded(epoch * 7919 + vendor.charCodeAt(0) * 101);
+  if (vendor === "lights")
+    return ["hooded-lantern", "witchlight-lantern"].flatMap((key) =>
+      Array.from({ length: 6 }, () =>
+        offer("item", { item: makeItem(key), gold: ITEMS[key].price, gems: 0 }),
+      ),
+    );
   if (vendor === "guild") {
     const classes = Object.keys(CLASSES).filter(
         (k) => !["witch", "stormcaller"].includes(k),
@@ -687,7 +670,9 @@ function makeStock(vendor, epoch = 0) {
       );
   }
   if (vendor === "forge") {
-    const keys = Object.keys(ITEMS).filter((k) => !ITEMS[k].mythicalOnly);
+    const keys = Object.keys(ITEMS).filter(
+      (k) => !ITEMS[k].mythicalOnly && !ITEMS[k].guildOnly,
+    );
     return keys
       .map((key) =>
         offer("item", {
@@ -760,9 +745,11 @@ function makeStock(vendor, epoch = 0) {
         offer("pet", { pet: makePet("sprite", 42), gold: 420, gems: 0 }),
       ]);
   if (vendor === "atelier")
-    return Object.keys(COSMETICS).map((key) =>
-      offer("cosmetic", { key, gold: COSMETICS[key].price, gems: 0 }),
-    );
+    return Object.keys(COSMETICS)
+      .filter((key) => COSMETICS[key].monthly === undefined)
+      .map((key) =>
+        offer("cosmetic", { key, gold: COSMETICS[key].price, gems: 0 }),
+      );
   return [];
 }
 export function marketStock(g, vendor) {
@@ -820,13 +807,15 @@ export function gemShopStock(g) {
   refreshStock(g);
   if (g.gemShop) return g.gemShop;
   return (g.gemShop = [
-    ...Object.keys(COSMETICS).map((key, i) =>
-      offer("cosmetic", {
-        key,
-        gold: 0,
-        gems: COSMETICS[key].gems || 3 + i * 2,
-      }),
-    ),
+    ...Object.keys(COSMETICS)
+      .filter((key) => COSMETICS[key].monthly === undefined)
+      .map((key, i) =>
+        offer("cosmetic", {
+          key,
+          gold: 0,
+          gems: COSMETICS[key].gems || 3 + i * 2,
+        }),
+      ),
     ...Object.keys(MYTHICAL_WEAPONS).map((key, i) =>
       offer("item", {
         item: makeMythicalWeapon(key),
@@ -861,7 +850,7 @@ export function buyGemShop(g, id) {
 export function trialInfo(g, choice) {
   const m = calendarMonth(g.lastClock),
     kind = choice.challengeId || "daily",
-    difficulty = choice.difficulty || "normal",
+    difficulty = g.worldDifficulty || "normal",
     scale = DIFFICULTIES[difficulty]?.reward;
   if (!scale) return null;
   let out;
@@ -1037,6 +1026,7 @@ export function forge(g, kind, key) {
     def.eggOnly ||
     def.fossilOnly ||
     def.mythicalOnly ||
+    def.guildOnly ||
     g.gold < Math.round(def.price * 1.8) ||
     g.gems < 1
   )
@@ -1121,7 +1111,7 @@ export function recordDefeat(g, r, foe) {
     return false;
   r.waveDefeated.push(foe.id);
   r.earned.kills++;
-  if (r.mode === "trial") return true;
+  if (["trial", "arena"].includes(r.mode)) return true;
   if (r.earned.kills % 2 === 0) Camp.materialDrop(g, r);
   const luck = r.supplies?.includes("luck");
   if (
@@ -1148,7 +1138,9 @@ export function recordDefeat(g, r, foe) {
   bank(g, r, Math.round((3 + Math.floor((r.level || 1) / 5)) * r.reward));
   if (r.earned.kills % 8 === 0) {
     const random = seeded(r.seed + r.stage * 1997 + r.earned.kills),
-      keys = Object.keys(ITEMS).filter((k) => !ITEMS[k].mythicalOnly);
+      keys = Object.keys(ITEMS).filter(
+        (k) => !ITEMS[k].mythicalOnly && !ITEMS[k].guildOnly,
+      );
     const key = keys[Math.floor(random() * keys.length)],
       level = Math.max(
         1,
@@ -1181,6 +1173,8 @@ export function checkpointBattle(g, r, b) {
         "xp",
         "items",
         "armor",
+        "light",
+        "totalXp",
         "talents",
         "skills",
         "attributes",
@@ -1220,8 +1214,8 @@ function milestone(g, r) {
         classId: reward === "Ent" ? "guardian" : "engineer",
         level: 5,
       });
-      welcomeHero(g, h);
-      r.earned.characters = (r.earned.characters || 0) + 1;
+      if (welcomeHero(g, h))
+        r.earned.characters = (r.earned.characters || 0) + 1;
     } else if (first && COSMETICS[reward] && !g.cosmetics.includes(reward))
       g.cosmetics.push(reward);
     if (reward === "eggs") {
@@ -1309,8 +1303,8 @@ function milestone(g, r) {
           classId: r.milestone === "Ent" ? "guardian" : "engineer",
           level: 5,
         });
-        welcomeHero(g, h);
-        r.earned.characters = (r.earned.characters || 0) + 1;
+        if (welcomeHero(g, h))
+          r.earned.characters = (r.earned.characters || 0) + 1;
         note(h, "Found a new home after " + r.name + ".", g.lastClock);
       }
       r.completion = "Optional path cleared. Its special reward joined Camp.";
@@ -1372,10 +1366,15 @@ export function endExpedition(g, r, reason = "recall", now = g.lastClock) {
   r.phase = "returned";
   r.pendingSeconds = 0;
   r.battleState = null;
-  if (reason === "complete") milestone(g, r);
+  if (r.mode === "arena") Ever.settleWager(g, r);
+  else if (reason === "complete") milestone(g, r);
   for (const h of g.roster.filter((h) => r.party.includes(h.id))) {
     if (reason === "defeat")
       h.currentHp = Math.max(1, Math.round(stats(h).hp * 0.2));
+    if (h.pendingMealXp) {
+      gainXp(h, h.pendingMealXp);
+      h.pendingMealXp = 0;
+    }
     Camp.beginRecovery(g, h, now, reason === "defeat");
     note(
       h,
@@ -1390,15 +1389,16 @@ export function endExpedition(g, r, reason = "recall", now = g.lastClock) {
       now,
     );
   }
+  r.recruited = 0;
   if (reason === "complete")
     for (const h of r.recruits) {
       h.boss = false;
       h.currentHp = stats(h).hp;
       h.recoveryUntil = 0;
-      if (!g.roster.some((a) => a.id === h.id)) welcomeHero(g, h);
+      if (!g.roster.some((a) => a.id === h.id) && welcomeHero(g, h))
+        r.recruited++;
       note(h, "Finished the journey and made Camp a permanent home.", now);
     }
-  r.recruited = reason === "complete" ? r.recruits.length : 0;
   r.recruits = [];
   r.temporaryParty = [];
   notify(
@@ -1421,6 +1421,8 @@ export function resolveBattle(g, r, result, now = g.lastClock) {
         "xp",
         "items",
         "armor",
+        "light",
+        "totalXp",
         "talents",
         "skills",
         "attributes",
@@ -1447,8 +1449,9 @@ export function resolveBattle(g, r, result, now = g.lastClock) {
     endExpedition(g, r, "defeat", now);
     return { survived: false };
   }
-  const gold =
-      r.mode === "trial" ? 0 : Math.round((6 + r.stage * 2) * r.reward),
+  const gold = ["trial", "arena"].includes(r.mode)
+      ? 0
+      : Math.round((6 + r.stage * 2) * r.reward),
     xp = 18 + r.stage * 3;
   bank(g, r, gold);
   let revived = 0;
@@ -1463,7 +1466,8 @@ export function resolveBattle(g, r, result, now = g.lastClock) {
     for (const other of party(g, r))
       if (other.id !== h.id) h.bonds[other.id] = (h.bonds[other.id] || 0) + 1;
   }
-  Camp.gatherAfterBattle(g, r, party(g, r));
+  if (r.mode !== "arena") Camp.gatherAfterBattle(g, r, party(g, r));
+  Ever.awardCampXp(g, 12 * r.reward, "victories");
   if (r.mode === "island") {
     g.islandFloor = Math.max(g.islandFloor || 0, r.stage + 1);
     if (r.stage === 24 && !g.questClaims.includes("island-treasure")) {
@@ -1528,7 +1532,9 @@ export function useStop(g, r) {
       h.currentHp = Math.min(stats(h).hp, h.currentHp + stats(h).hp * 0.4);
     s.message = "The spring restores 40% health.";
   } else if (s.type === "chest") {
-    const keys = Object.keys(ITEMS).filter((k) => !ITEMS[k].mythicalOnly);
+    const keys = Object.keys(ITEMS).filter(
+      (k) => !ITEMS[k].mythicalOnly && !ITEMS[k].guildOnly,
+    );
     s.loot = makeItem(
       keys[Math.floor(random() * keys.length)],
       1,
@@ -1761,19 +1767,22 @@ export function migrateSave(saved, now = Date.now()) {
   )
     g.destination.target = REGIONS[g.destination.location]?.first || "clearing";
   Night.normalizeNightfall(g);
+  Ever.normalizeEvernight(g);
   return validateSave(g);
 }
 export function claimQuest(g, id) {
   const q = questById(g, id),
     state = q && questState(g, q);
   if (
-    !["camp", "market"].includes(g.screen) ||
+    !["camp", "market", "quests"].includes(g.screen) ||
     !state?.unlocked ||
     state.claimed ||
     !state.complete
   )
     return false;
   g.questClaims.push(id);
+  Ever.awardCampXp(g, q.category === "Main" ? 100 : 50, "quests");
+  if (q.guild) g.guildStanding[q.guild] = (g.guildStanding[q.guild] || 0) + 20;
   for (const [key, value] of Object.entries(q.reward))
     if (key === "gold") g.gold += value;
     else if (key === "food") g.food += value;
@@ -1796,6 +1805,7 @@ export function validateSave(g) {
       "expeditions",
       "expedition",
       "arena",
+      "quests",
       "codex",
       "calendar",
       "challenges",
@@ -1863,6 +1873,42 @@ export function validateSave(g) {
     Camp.gemsTotal(g) !== g.gems
   )
     return null;
+  if (
+    (g.worldDifficulty !== undefined &&
+      !["normal", "hard", "nightmare"].includes(g.worldDifficulty)) ||
+    (g.campXp !== undefined && (!Number.isFinite(g.campXp) || g.campXp < 0)) ||
+    (g.mealAt !== undefined && !Number.isFinite(g.mealAt)) ||
+    (g.storyPage !== undefined &&
+      (!Number.isInteger(g.storyPage) || g.storyPage < 0 || g.storyPage > 3)) ||
+    (g.tutorialStep !== undefined &&
+      (!Number.isInteger(g.tutorialStep) ||
+        g.tutorialStep < 0 ||
+        g.tutorialStep > 5)) ||
+    (g.questPins !== undefined &&
+      (!Array.isArray(g.questPins) ||
+        g.questPins.some((id) => typeof id !== "string"))) ||
+    (g.guildStanding !== undefined &&
+      (!g.guildStanding ||
+        Object.values(g.guildStanding).some(
+          (n) => !Number.isFinite(n) || n < 0,
+        ))) ||
+    (g.materials.bossSigils !== undefined &&
+      (!Number.isInteger(g.materials.bossSigils) ||
+        g.materials.bossSigils < 0)) ||
+    (g.arenaWager !== undefined &&
+      (!g.arenaWager ||
+        !Number.isInteger(g.arenaWager.gold) ||
+        g.arenaWager.gold < 10 ||
+        g.arenaWager.gold > 1000 ||
+        !Number.isInteger(g.arenaWager.amount) ||
+        g.arenaWager.amount < 0 ||
+        g.arenaWager.amount > 100 ||
+        (g.arenaWager.resource &&
+          !["wood", "stone", "ore", "herbs", "meat", "hide"].includes(
+            g.arenaWager.resource,
+          ))))
+  )
+    return null;
   const progression = (a) =>
     a &&
     Number.isInteger(a.level) &&
@@ -1901,6 +1947,7 @@ export function validateSave(g) {
     Array.isArray(h.armor) &&
     h.armor.length <= 4 &&
     h.armor.filter(Boolean).every(item) &&
+    (!h.light || (ITEMS[h.light.key]?.type === "light" && item(h.light))) &&
     Array.isArray(h.talents) &&
     h.talents.every(progression) &&
     Array.isArray(h.classNodes) &&
@@ -1977,21 +2024,13 @@ export function validateSave(g) {
 }
 
 function welcomeHero(g, h) {
-  if (g.roster.length < Camp.campCapacity(g)) g.roster.push(h);
-  else {
-    g.waitingRecruits.push(h);
-    notify(
-      g,
-      h.name +
-        " waits outside Camp. Build a cabin or make room to welcome them.",
-    );
+  if (g.roster.length >= Camp.campCapacity(g)) {
+    notify(g, "Camp is full. " + h.name + " continued down the road.");
+    return false;
   }
-}
-export function claimArrival(g, id) {
-  if (!inCamp(g) || g.roster.length >= Camp.campCapacity(g)) return false;
-  const h = g.waitingRecruits.find((h) => h.id === id);
-  if (!h) return false;
-  g.waitingRecruits = g.waitingRecruits.filter((v) => v !== h);
   g.roster.push(h);
   return h;
+}
+export function claimArrival() {
+  return false;
 }

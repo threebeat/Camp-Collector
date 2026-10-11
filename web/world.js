@@ -1,4 +1,4 @@
-import { LOCATIONS, periodKey } from "./data.js?v=13";
+import { LOCATIONS, periodKey } from "./data.js?v=14";
 export const MATERIALS = {
   wood: {
     name: "Wood",
@@ -178,7 +178,7 @@ export const MONTH_THEMES = [
     "Follow the rain to hidden forest shrines.",
   ],
   ["The bloom court", "greenway", "The mushroom court opens its gates."],
-  ["Sunlit caravans", "cinder", "Keep watch over the long country roads."],
+  ["Lantern caravans", "cinder", "Keep watch over the long country roads."],
   ["Ember festival", "cinder", "Lanterns and firelight fill the fields."],
   ["Starfall trails", "greenway", "Seek the paths beneath falling stars."],
   ["The amber harvest", "cinder", "Gather the year’s final golden crop."],
@@ -286,7 +286,7 @@ export const CONTEXT = {
   training:
     "Training adds a permanent Talent: 3 points per level, increased by Talent rarity. All sessions on this character increase the next cost and duration. Timers use real time.",
   recovery:
-    "Every returning adventurer rests and gradually heals to full. Stocked food halves the timer. Everyone is ready when it reaches zero.",
+    "Every returning adventurer rests and gradually heals to full. Food is consumed every twelve hours: supplied characters recover twice as quickly. Everyone is ready when it reaches zero.",
   gems: "Gem value is the spendable currency. Chipped = 1, Cut = 3, Flawless = 9, Royal = 27. Gems in companion sockets are excluded from your purse.",
   calendar:
     "One single-encounter Challenge per UTC date. Only today’s battle is available; a new one arrives each UTC date. First victories pay clear rewards. Bonuses count different days, not replays.",
@@ -311,7 +311,7 @@ MATERIALS.relic = {
 BUILDINGS.bonfire = {
   name: "Bonfire",
   icon: "flame",
-  text: "Spend class points or transform armor and companions.",
+  text: "Spend class points and set world difficulty.",
   x: 46,
   y: 55,
   service: "bonfire",
@@ -346,7 +346,7 @@ BUILDINGS.farm = {
 BUILDINGS.cabins = {
   name: "Cabins",
   icon: "camp",
-  text: "Each cabin adds room for 20 adventurers. Your Camp starts with capacity for 20.",
+  text: "Each cabin adds room for 20 adventurers. Your Camp starts with capacity for 40.",
   x: 48,
   y: 48,
   expansion: "west",
@@ -388,11 +388,11 @@ BUILDINGS.archaeology = {
   service: "archaeology",
 };
 CONTEXT.capacity =
-  "Your Camp holds 20 adventurers, plus 20 for each cabin. New arrivals wait outside when full; make room to welcome them. Releasing a character returns their belongings, gives no currency, and permanently removes that character. Recycling gives gold and gems instead.";
+  "Your Camp holds 40 adventurers, plus 20 for each cabin. A full Camp misses character rewards. Retiring an idle adventurer returns equipment, light and companion plus gold and a small gem reward that grows with level. Favorites and your last three adventurers are protected.";
 CONTEXT.calendar =
-  "Today’s Daily Battle is the only daily challenge available. Monthly bonuses count different victorious dates. NPC challenges allow harder difficulties; higher tiers pay only the increase over rewards already claimed for that challenge period.";
+  "Today’s Daily Battle is the only daily challenge available. The calendar marks completed and missed dates; monthly bonuses count different victorious dates. Global difficulty is chosen at the Bonfire. Higher-tier clears pay only the increase over already claimed rewards for that period.";
 CONTEXT.weaponForms +=
-  " Weapon transforms require a built Blacksmith; armor and companion forms remain at the Bonfire. Dinosaur eggs and fossils belong at Archaeology.";
+  " Weapon transforms require a built Blacksmith; armor and companion forms require a built Equipment Workshop. Dinosaur eggs and fossils belong at Archaeology.";
 
 // Current night-world services. Older building flags are retained only for save migration.
 delete BUILDINGS.outfitter;
@@ -450,3 +450,18 @@ CONTEXT.weaponForms +=
   " The Equipment Workshop also transforms all equipment and companions.";
 CONTEXT.lore =
   "The sun never returned. Campfires keep the roads and their travelers alive. Beyond their glow, familiar things wear unfamiliar faces. A little camp comfort; a little camp horror.";
+
+MATERIALS.hide = {
+  name: "Hides",
+  icon: "paw",
+  text: "Hunters gather hides for light and medium armor.",
+};
+MATERIALS.bossSigils = {
+  name: "Boss sigils",
+  icon: "moon",
+  text: "Final bosses drop these on successful regional journeys. Spend one at Eldrin to open a chosen map.",
+};
+CONTEXT.capacity =
+  "Camp starts with 40 spaces. Each cabin adds 20. Full Camps cannot hire or keep loot recruits. Retiring returns belongings and pays a reward that grows with level.";
+CONTEXT.classPoints =
+  "Levels 10, 20, 40, 60 and 80 grant class points: talent, subclass, talent, subclass, talent.";

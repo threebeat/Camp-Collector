@@ -11,7 +11,7 @@ import * as Camp from '../web/camp.js';
 import {REGIONS,regionalRoutes} from '../web/journeys.js';
 import {cleanItem,cleanTeam} from '../worker/api.js';
 const NOW=Date.UTC(2026,9,11,10),fresh=()=>initialGame(seeded(47),NOW);
-function funded(){const g=fresh();g.buildings.blacksmith=1;g.buildings.archaeology=1;g.gold=100000;Camp.addGems(g,200);for(const k in g.materials)g.materials[k]=200;return g;}
+function funded(){const g=fresh();g.buildings.blacksmith=1;g.buildings.armory=1;g.buildings.archaeology=1;g.gold=100000;Camp.addGems(g,200);for(const k in g.materials)g.materials[k]=200;return g;}
 function closeRun(g,r,winner=0){r.phase='battle';return P.resolveBattle(g,r,{winner,time:35,heroes:P.party(g,r).map(h=>({id:h.id,hp:winner===0?stats(h).hp*.5:0}))},g.lastClock);}
 
 test('all ordinary progression uses exactly three rarity thresholds and never levels into Mythical',()=>{
@@ -21,19 +21,19 @@ test('all ordinary progression uses exactly three rarity thresholds and never le
  }
  assert.equal(heroRarity(generateHero({level:1,boss:true})),2);
  assert.equal(itemRarity({...makeItem('musket',60),mythical:true}),4);
- const h=generateHero({level:100});assert.equal(classPoints(h),3);const mythical={...makeItem('dawncore',60),mythical:true,evolution:3,prefix:'flaming',affix:'might',enchantment:'meteor'};assert.equal(itemRarity(cleanItem(mythical)),4);
+ const h=generateHero({level:100});assert.equal(classPoints(h),5);const mythical={...makeItem('dawncore',60),mythical:true,evolution:3,prefix:'flaming',affix:'might',enchantment:'meteor'};assert.equal(itemRarity(cleanItem(mythical)),4);
 });
 test('every class tree requires an actual ancestor and locks alternatives at both later forks',()=>{
  const g=funded(),h=g.roster[0];h.level=60;
  assert.equal(Camp.chooseClassNode(g,h,'breaker:power:surge'),false);
- assert.ok(Camp.chooseClassNode(g,h,'breaker:0'));
+ assert.ok(Camp.chooseClassNode(g,h,'vanguard:foundation'));assert.ok(Camp.chooseClassNode(g,h,'breaker:0'));
  assert.equal(Camp.chooseClassNode(g,h,'duelist:0'),false);
  assert.ok(Camp.chooseClassNode(g,h,'breaker:control'));
  assert.equal(Camp.chooseClassNode(g,h,'breaker:power'),false);
  assert.ok(Camp.chooseClassNode(g,h,'breaker:control:shelter'));
  assert.equal(Camp.chooseClassNode(g,h,'breaker:control:surge'),false);
  assert.ok(validClassNodes(h));assert.equal(classPoints(h),0);
- const other={...structuredClone(h),classPath:'breaker',classNodes:['breaker:0','breaker:power','breaker:power:surge']};
+ const other={...structuredClone(h),classPath:'breaker',classNodes:['vanguard:foundation','breaker:0','breaker:power','breaker:power:surge']};
  assert.ok(stats(other).attack>stats(h).attack);assert.ok(stats(h).hp>stats(other).hp);
  assert.ok(classTree(h).flatMap(p=>p.nodes).some(n=>n.parent==='breaker:control'));
 });
@@ -101,7 +101,7 @@ test('Camp expansions charge escalating costs and unlock real farms, gardens and
  const g=funded();g.materials.wood=400;const first=Camp.expansionCost(g,'east'),gold=g.gold;assert.ok(Camp.expandCamp(g,'east'));assert.equal(g.gold,gold-first.gold);assert.ok(Camp.expansionCost(g,'west').gold>first.gold);assert.equal(Camp.expandCamp(g,'east'),false);
  assert.ok(Camp.buildCamp(g,'farm'));assert.equal(Camp.buildCamp(g,'cabins'),false);
  g.lastClock+=600000;const food=g.food;assert.ok(Camp.harvestCamp(g,'farm'));assert.equal(g.food,food+4);assert.equal(Camp.harvestCamp(g,'farm'),false);
- assert.ok(Camp.expandCamp(g,'west'));assert.ok(Camp.buildCamp(g,'cabins'));assert.equal(Camp.campCapacity(g),40);assert.ok(Camp.buildCamp(g,'cabins'));assert.equal(Camp.campCapacity(g),60);const h=generateHero({classId:'bard',level:40});g.roster.push(h);const belongings=h.items[0];assert.ok(Camp.releaseHero(g,h));assert.ok(!g.roster.includes(h));assert.ok(g.inventory.includes(belongings));
+ assert.ok(Camp.expandCamp(g,'west'));assert.ok(Camp.buildCamp(g,'cabins'));assert.equal(Camp.campCapacity(g),60);assert.ok(Camp.buildCamp(g,'cabins'));assert.equal(Camp.campCapacity(g),80);const h=generateHero({classId:'bard',level:40});g.roster.push(h);const belongings=h.items[0];assert.ok(Camp.releaseHero(g,h));assert.ok(!g.roster.includes(h));assert.ok(g.inventory.includes(belongings));
  assert.ok(Camp.expandCamp(g,'south'));assert.ok(Camp.buildCamp(g,'garden'));g.lastClock+=300000;const herbs=g.materials.herbs;assert.ok(Camp.harvestCamp(g,'garden'));assert.equal(g.materials.herbs,herbs+1);g.screen='market';assert.equal(Camp.setCampZone(g,'east'),false);
 });
 test('Owlkin and Bearkin have full growth tables, unique racial attributes, silhouettes, and Market recruitment',()=>{

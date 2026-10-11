@@ -32,10 +32,13 @@ const home = await app.fetch(new Request("https://camp.test/"), {}, {});
 assert.equal(home.status, 200);
 const html = await home.text();
 assert.ok(html.includes('id="brand-name"'));
-assert.ok(html.includes("app.js?v=13"));
+assert.ok(html.includes("app.js?v=14"));
 assert.ok(!html.includes("Little Legends"));
 for (const path of [
   "app.js",
+  "evernight.js",
+  "evernight-ui.js",
+  "lighting.js",
   "nightfall.js",
   "nightfall-ui.js",
   "landmarks.js",
@@ -58,7 +61,7 @@ for (const path of [
   "client.js",
 ]) {
   const asset = await app.fetch(
-    new Request("https://camp.test/" + path + "?v=13"),
+    new Request("https://camp.test/" + path + "?v=14"),
     {},
     {},
   );
@@ -93,7 +96,7 @@ console.log(
 );
 
 const nightCss = await app.fetch(
-  new Request("https://camp.test/nightfall.css?v=13"),
+  new Request("https://camp.test/nightfall.css?v=14"),
   {},
   {},
 );

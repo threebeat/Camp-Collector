@@ -1,6 +1,6 @@
 # Current content reference
 
-Generated with `node scripts/generate-content-reference.mjs` for version 0.13.0. These tables describe current content; all names, counts, balance and progression choices may change. Stable IDs are useful save references, not a requirement to keep every design forever.
+Generated with `node scripts/generate-content-reference.mjs` for version 0.14.0. These tables describe current content; all names, counts, balance and progression choices may change. Stable IDs are useful save references, not a requirement to keep every design forever.
 
 ## Races
 
@@ -9,17 +9,17 @@ Race foundation values precede class, levels and equipment. Growth tables are in
 | Race | Vitality | Armor | Strength | Mind | Agility | Endurance | Racial trait |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Human | 12 | 1 | 8 | 8 | 10 | 8 | Adaptable · earns 20% more experience |
-| Dwarf | 16 | 3 | 10 | 6 | 6 | 12 | Stoneborn · resists knockback |
+| Dwarf | 16 | 3 | 10 | 6 | 6 | 12 | Stoneborn · resists knockback Sees 220 units in darkness. |
 | Elf | 10 | 1 | 7 | 11 | 14 | 7 | Keen eyes · +25 ranged reach |
 | Orc | 16 | 2 | 13 | 4 | 9 | 11 | Heavy hands · +3 attack, stronger knockback |
-| Gnome | 9 | 1 | 6 | 12 | 12 | 8 | Quick thinking · abilities recharge 15% faster |
-| Shade | 10 | 0 | 8 | 11 | 16 | 6 | Elusive · 12% chance to evade attacks |
+| Gnome | 9 | 1 | 6 | 12 | 12 | 8 | Quick thinking · abilities recharge 15% faster Sees 200 units in darkness. |
+| Shade | 10 | 0 | 8 | 11 | 16 | 6 | Elusive · 12% chance to evade attacks Sees 280 units in darkness. |
 | Fae | 8 | 0 | 5 | 14 | 17 | 5 | Winged · flies over water and obstacles |
 | Sylph | 9 | 0 | 6 | 12 | 17 | 6 | Slipstream · +8 speed and 8% evasion |
 | Automaton | 17 | 3 | 11 | 7 | 6 | 14 | Alloy body · 40% heavier |
 | Nereid | 11 | 1 | 7 | 12 | 12 | 9 | Tidal memory · regenerates 1 HP per second |
-| Kobold | 10 | 1 | 9 | 6 | 15 | 8 | Nimble hands · abilities recharge 10% faster |
-| Myconid | 15 | 2 | 7 | 10 | 6 | 12 | Spore shelter · nearby allies regenerate 1 HP per second |
+| Kobold | 10 | 1 | 9 | 6 | 15 | 8 | Nimble hands · abilities recharge 10% faster Sees 240 units in darkness. |
+| Myconid | 15 | 2 | 7 | 10 | 6 | 12 | Spore shelter · nearby allies regenerate 1 HP per second Sees 210 units in darkness. |
 | Drakeling | 15 | 2 | 12 | 8 | 10 | 10 | Dragon spark · +3 attack and stronger pushes |
 | Celestial | 10 | 1 | 6 | 15 | 11 | 8 | Starlight · 15% stronger healing |
 | Ent | 20 | 4 | 12 | 7 | 4 | 15 | Old roots · heavy body resists knockback |
@@ -52,6 +52,78 @@ Internal IDs can differ from player-facing names. Hexweaver (`witch`) and Stormw
 | psion / Psion | mind +7 | light | Focus (wand, staff) | Gravity well — Crushes groups with a Gravity Curse that pulls units together. |
 | duelist / Duelist | strength +5, agility +3 | medium | Weapon (blade, sidearm); Weapon (blade, sidearm) | Crescent strike — Sweeps nearby enemies with a physical Explosion. |
 | monk / Monk | strength +4, mind +3 | light | Weapon (blunt, polearm); Tool (tool) | Quiet thunder — Strikes nearby opponents with a physical Explosion and strong knockback. |
+
+## Class point sequence and subclasses
+
+Points at 10 / 20 / 40 / 60 / 80 alternate talent, subclass, talent, advanced subclass and talent. Every path begins with Firekeeper discipline; Forceful or Measured technique follows the first subclass, with Evernight mastery after the advanced subclass. This is separate from equipment transformations at 20 / 40 / 60.
+
+| Class | First subclasses (20) | Advanced subclasses (60) |
+| --- | --- | --- |
+| Vanguard | Earthbreaker; Duelist | Earthbreaker Ascendant; Earthbreaker Warden; Duelist Ascendant; Duelist Warden |
+| Guardian | Warden; Bulwark | Warden Ascendant; Warden Warden; Bulwark Ascendant; Bulwark Warden |
+| Ranger | Deadeye; Outrider | Deadeye Ascendant; Deadeye Warden; Outrider Ascendant; Outrider Warden |
+| Cleric | Dawnkeeper; Lightwarden | Dawnkeeper Ascendant; Dawnkeeper Warden; Lightwarden Ascendant; Lightwarden Warden |
+| Tinker | Machinist; Siegewright | Machinist Ascendant; Machinist Warden; Siegewright Ascendant; Siegewright Warden |
+| Veilblade | Nightblade; Phantom | Nightblade Ascendant; Nightblade Warden; Phantom Ascendant; Phantom Warden |
+| Summoner | Packkeeper; Grovecaller | Packkeeper Ascendant; Packkeeper Warden; Grovecaller Ascendant; Grovecaller Warden |
+| Mage | Embermage; Gravitist; Frostweaver; Hexweaver; Stormcaller | Embermage Ascendant; Embermage Warden; Gravitist Ascendant; Gravitist Warden; Frostweaver Ascendant; Frostweaver Warden; Hexweaver Ascendant; Hexweaver Warden; Stormcaller Ascendant; Stormcaller Warden |
+| Bard | Anthemist; Battle Skald | Anthemist Ascendant; Anthemist Warden; Battle Skald Ascendant; Battle Skald Warden |
+| Artillerist | Bombardier; Longshot | Bombardier Ascendant; Bombardier Warden; Longshot Ascendant; Longshot Warden |
+| Envoy | Diplomat; Heartbinder | Diplomat Ascendant; Diplomat Warden; Heartbinder Ascendant; Heartbinder Warden |
+| Trapper | Snarewright; Trailwarden | Snarewright Ascendant; Snarewright Warden; Trailwarden Ascendant; Trailwarden Warden |
+| Minelayer | Demolitionist; Sapper | Demolitionist Ascendant; Demolitionist Warden; Sapper Ascendant; Sapper Warden |
+| Alchemist | Pyrochemist; Wardchemist | Pyrochemist Ascendant; Pyrochemist Warden; Wardchemist Ascendant; Wardchemist Warden |
+| Druid | Thornkeeper; Vinewarden | Thornkeeper Ascendant; Thornkeeper Warden; Vinewarden Ascendant; Vinewarden Warden |
+| Paladin | Dawnblade; Beacon | Dawnblade Ascendant; Dawnblade Warden; Beacon Ascendant; Beacon Warden |
+| Necromancer | Echo caller; Gravewarden | Echo caller Ascendant; Echo caller Warden; Gravewarden Ascendant; Gravewarden Warden |
+| Psion | Singularist; Repulsor | Singularist Ascendant; Singularist Warden; Repulsor Ascendant; Repulsor Warden |
+| Duelist | Bladedancer; Riposter | Bladedancer Ascendant; Bladedancer Warden; Riposter Ascendant; Riposter Warden |
+| Monk | Monk Master; Monk Keeper | Monk Master Ascendant; Monk Master Warden; Monk Keeper Ascendant; Monk Keeper Warden |
+
+## Camp, food and world tiers
+
+Character XP contributes 25%; equipment and companion XP contributes 10%. Victories, quests, construction and expansions also grow your Camp. Camps have levels, never rarities. Level 1 requires 100 XP; each next requirement increases by 60. Camps stop at level 100. Capacity begins at 40 and gains 20 per cabin; full Camps miss character rewards. Food consumes one portion per adventurer every twelve hours; each portion grants five base XP, with racial modifiers. Fed recovery is twice as fast and visitor-cycle wanderer chance rises to 80% from 35%. Final boss journeys give one Boss Sigil; one Sigil opens any chosen unopened map.
+
+| World tier | Distinct bosses required | Foe health | Foe damage | Reward multiplier |
+| --- | --- | --- | --- | --- |
+| Adventurer | 0 | 1 | 1 | 1 |
+| Veteran | 1 | 1.4 | 1.25 | 1.5 |
+| Nightmare | 3 | 2 | 1.65 | 2.2 |
+
+## Light and night vision
+
+Utility lights are separate from the eight general equipment slots. Terrain occludes detection and fog consistently. Ordinary sight is 55; Elf/Nereid sight is 95. Vampire sight is 300, Werewolf 250 and learned Night vision 190. The strongest sight applies.
+
+| Race | Night sight radius |
+| --- | --- |
+| Dwarf | 220 |
+| Gnome | 200 |
+| Kobold | 240 |
+| Myconid | 210 |
+| Shade | 280 |
+| Elf | 95 |
+| Nereid | 95 |
+
+| Light ID | Name | Radius |
+| --- | --- | --- |
+| hooded-lantern | Hooded lantern | 190 |
+| witchlight-lantern | Witchlight lantern | 275 |
+| guild-scouts | Runner witchlight | 275 |
+
+## Guilds
+
+Lessons add ten standing and claimed guild patrols add twenty. At twenty standing, the level-20 member item unlocks once per twelve hours; its base 60-gold price discounts by standing / 500 up to 40%. All eight booths offer a 35-gold stat lesson.
+
+| ID / guild | Profession / stat | Patrol resource | Exclusive item |
+| --- | --- | --- | --- |
+| miners / Stonekeepers | Miner | ore | Stonekeeper pick |
+| foresters / Rootwardens | Lumberjack | wood | Rootwarden axe |
+| hunters / Wildwatch | Hunter | hide | Wildwatch longbow |
+| arcanists / Veil Scholars | mind | herbs | Veil scholar staff |
+| guardians / Oathbearers | vitality | stone | Oathbearer aegis |
+| scouts / Lantern Runners | agility | wood | Runner witchlight |
+| artisans / Ironhands | armor | ore | Ironhand sword |
+| healers / Quiet Mercy | vitality | herbs | Mercy focus |
 
 ## Weapon bases
 
@@ -161,6 +233,16 @@ Armor occupies separate Head, Chest, Legs and Boots slots. Accessory and tool co
 | light-night-boots | Steps of the Unrung Bell | armor / light / boots | Authored Mythical boots from floor 25. +6 Armor, +4 Agility; the bell-shaped soles glow violet. |
 | medium-night-boots | Steps of the Unrung Bell | armor / medium / boots | Authored Mythical boots from floor 25. +6 Armor, +4 Agility; the bell-shaped soles glow violet. |
 | heavy-night-boots | Steps of the Unrung Bell | armor / heavy / boots | Authored Mythical boots from floor 25. +6 Armor, +4 Agility; the bell-shaped soles glow violet. |
+| hooded-lantern | Hooded lantern | light | Equipped utility light. Reveals a 190-unit radius to nearby allies and enemies. |
+| witchlight-lantern | Witchlight lantern | light | Equipped utility light. Reveals a 275-unit radius without consuming supplies. |
+| guild-miners | Stonekeeper pick | mining | +4 Strength and +2 Endurance. A miner’s trusted pick. Guild signature: +2 armor. Available only to guild members. |
+| guild-foresters | Rootwarden axe | woodcutting | +5 Strength. A woodcutter’s axe. Guild signature: +2 endurance. Available only to guild members. |
+| guild-hunters | Wildwatch longbow | weapon | +8 attack, +70 range. Fits Bow. Guild signature: +2 strength. Available only to guild members. |
+| guild-arcanists | Veil scholar staff | focus | +3 attack, +4 mind, +1 endurance. Fits Staff. Guild signature: +2 mind. Available only to guild members. |
+| guild-guardians | Oathbearer aegis | offhand | +3 Armor and +2 Endurance. Guild signature: +2 vitality. Available only to guild members. |
+| guild-scouts | Runner witchlight | light | Equipped utility light. Reveals a 275-unit radius without consuming supplies. Guild signature: +2 agility. Available only to guild members. |
+| guild-artisans | Ironhand sword | weapon | +7 attack. Fits Blade. Guild signature: +2 armor. Available only to guild members. |
+| guild-healers | Mercy focus | focus | +5 mind. Fits Wand / focus. Guild signature: +2 vitality. Available only to guild members. |
 
 ## Attributes and Talents
 
@@ -168,8 +250,8 @@ Attributes are passive conditions or traits; Miner, Lumberjack and Hunter are Gu
 
 | Attribute | Effect |
 | --- | --- |
-| Vampire | Vampiric hunger: restores 6% of damage dealt as health. +2 Mind. Any race can be a Vampire. |
-| Werewolf | +3 Strength. Below half health, attacks and movement are 20% faster. |
+| Vampire | Vampiric hunger: restores 6% of damage dealt as health. +2 Mind. Any race can be a Vampire. Sees 300 units in darkness. |
+| Werewolf | +3 Strength. Below half health, attacks and movement are 20% faster. Sees 250 units in darkness. |
 | Blessed | +2 Mind and +2 Endurance. |
 | Cursed | +4 Mind, −1 Armor. |
 | Strong | +3 Strength. |
@@ -189,6 +271,7 @@ Attributes are passive conditions or traits; Miner, Lumberjack and Hunter are Gu
 | --- | --- |
 | Miner | Unlocks a Mining tool slot. With a pickaxe equipped, gathers 3 extra stone and 1 ore after every victory. |
 | Lumberjack | Unlocks a Woodcutting tool slot. With an axe equipped, gathers 4 extra wood after every victory. |
+| Night vision | See 190 units through unlit terrain. Learn from the Lantern Runners after two lessons. |
 | training:vitality | Permanent vitality bonus, increased by repeated timed training. |
 | training:armor | Permanent armor bonus, increased by repeated timed training. |
 | training:strength | Permanent strength bonus, increased by repeated timed training. |
@@ -221,8 +304,44 @@ Appearance overrides preserve mechanical race, class, stats, slots and pet behav
 | dusk | Duskweave | Character palette | 5 | A coat the color of the evening sky. |
 | crimson | Crimson traveler | Character palette | 7 | A red coat for long roads. |
 | golden | Champion’s gold | Character palette | 9 | Arena champions wear the sunlight. |
-| starlit | Starlit mantle | Character palette | 11 | A silver-star cape with a soft violet aura. |
-| roseguard | Roseguard colors | Character palette | 13 | Rose cloth, copper trim, and dancing petals. |
+| monthly-0-0 | Winter lanterns · mantle | character | 4 | A traveling mantle inspired by winter lanterns. Changes appearance; grants no combat bonuses. |
+| monthly-0-1 | Winter lanterns · colors | character | 7 | Company colors inspired by winter lanterns. Changes appearance; grants no combat bonuses. |
+| monthly-0-2 | Winter lanterns · regalia | character | 10 | Ceremonial regalia inspired by winter lanterns. Changes appearance; grants no combat bonuses. |
+| monthly-1-0 | The silver thaw · mantle | character | 4 | A traveling mantle inspired by the silver thaw. Changes appearance; grants no combat bonuses. |
+| monthly-1-1 | The silver thaw · colors | character | 7 | Company colors inspired by the silver thaw. Changes appearance; grants no combat bonuses. |
+| monthly-1-2 | The silver thaw · regalia | character | 10 | Ceremonial regalia inspired by the silver thaw. Changes appearance; grants no combat bonuses. |
+| monthly-2-0 | Seed and song · mantle | character | 4 | A traveling mantle inspired by seed and song. Changes appearance; grants no combat bonuses. |
+| monthly-2-1 | Seed and song · colors | character | 7 | Company colors inspired by seed and song. Changes appearance; grants no combat bonuses. |
+| monthly-2-2 | Seed and song · regalia | character | 10 | Ceremonial regalia inspired by seed and song. Changes appearance; grants no combat bonuses. |
+| monthly-3-0 | Rainwood mysteries · mantle | character | 4 | A traveling mantle inspired by rainwood mysteries. Changes appearance; grants no combat bonuses. |
+| monthly-3-1 | Rainwood mysteries · colors | character | 7 | Company colors inspired by rainwood mysteries. Changes appearance; grants no combat bonuses. |
+| monthly-3-2 | Rainwood mysteries · regalia | character | 10 | Ceremonial regalia inspired by rainwood mysteries. Changes appearance; grants no combat bonuses. |
+| monthly-4-0 | The bloom court · mantle | character | 4 | A traveling mantle inspired by the bloom court. Changes appearance; grants no combat bonuses. |
+| monthly-4-1 | The bloom court · colors | character | 7 | Company colors inspired by the bloom court. Changes appearance; grants no combat bonuses. |
+| monthly-4-2 | The bloom court · regalia | character | 10 | Ceremonial regalia inspired by the bloom court. Changes appearance; grants no combat bonuses. |
+| monthly-5-0 | Lantern caravans · mantle | character | 4 | A traveling mantle inspired by lantern caravans. Changes appearance; grants no combat bonuses. |
+| monthly-5-1 | Lantern caravans · colors | character | 7 | Company colors inspired by lantern caravans. Changes appearance; grants no combat bonuses. |
+| monthly-5-2 | Lantern caravans · regalia | character | 10 | Ceremonial regalia inspired by lantern caravans. Changes appearance; grants no combat bonuses. |
+| monthly-6-0 | Ember festival · mantle | character | 4 | A traveling mantle inspired by ember festival. Changes appearance; grants no combat bonuses. |
+| monthly-6-1 | Ember festival · colors | character | 7 | Company colors inspired by ember festival. Changes appearance; grants no combat bonuses. |
+| monthly-6-2 | Ember festival · regalia | character | 10 | Ceremonial regalia inspired by ember festival. Changes appearance; grants no combat bonuses. |
+| monthly-7-0 | Starfall trails · mantle | character | 4 | A traveling mantle inspired by starfall trails. Changes appearance; grants no combat bonuses. |
+| monthly-7-1 | Starfall trails · colors | character | 7 | Company colors inspired by starfall trails. Changes appearance; grants no combat bonuses. |
+| monthly-7-2 | Starfall trails · regalia | character | 10 | Ceremonial regalia inspired by starfall trails. Changes appearance; grants no combat bonuses. |
+| monthly-8-0 | The amber harvest · mantle | character | 4 | A traveling mantle inspired by the amber harvest. Changes appearance; grants no combat bonuses. |
+| monthly-8-1 | The amber harvest · colors | character | 7 | Company colors inspired by the amber harvest. Changes appearance; grants no combat bonuses. |
+| monthly-8-2 | The amber harvest · regalia | character | 10 | Ceremonial regalia inspired by the amber harvest. Changes appearance; grants no combat bonuses. |
+| monthly-9-0 | Harvest of shadows · mantle | character | 4 | A traveling mantle inspired by harvest of shadows. Changes appearance; grants no combat bonuses. |
+| monthly-9-1 | Harvest of shadows · colors | character | 7 | Company colors inspired by harvest of shadows. Changes appearance; grants no combat bonuses. |
+| monthly-9-2 | Harvest of shadows · regalia | character | 10 | Ceremonial regalia inspired by harvest of shadows. Changes appearance; grants no combat bonuses. |
+| monthly-10-0 | The drowned vigil · mantle | character | 4 | A traveling mantle inspired by the drowned vigil. Changes appearance; grants no combat bonuses. |
+| monthly-10-1 | The drowned vigil · colors | character | 7 | Company colors inspired by the drowned vigil. Changes appearance; grants no combat bonuses. |
+| monthly-10-2 | The drowned vigil · regalia | character | 10 | Ceremonial regalia inspired by the drowned vigil. Changes appearance; grants no combat bonuses. |
+| monthly-11-0 | The long night · mantle | character | 4 | A traveling mantle inspired by the long night. Changes appearance; grants no combat bonuses. |
+| monthly-11-1 | The long night · colors | character | 7 | Company colors inspired by the long night. Changes appearance; grants no combat bonuses. |
+| monthly-11-2 | The long night · regalia | character | 10 | Ceremonial regalia inspired by the long night. Changes appearance; grants no combat bonuses. |
+| starlit | Starlit mantle | Character palette | 83 | A silver-star cape with a soft violet aura. |
+| roseguard | Roseguard colors | Character palette | 85 | Rose cloth, copper trim, and dancing petals. |
 | sunplate | Sunplate guise | character | 12 | Replace the entire character silhouette with a masked copper sentinel and a sun shield. Mechanics and identity stay the same. |
 | clockwork | Clockwork guise | character | 14 | A complete brass automaton silhouette, luminous eyes and blue reactor. Works on any race or class. |
 | moonwraith | Moonwraith guise | character | 13 | A complete floating moon spirit with a crescent crown. Works on any character. |
@@ -264,10 +383,10 @@ Later region names appear here for developers; the Crossroads picker only reveal
 | blacksmith | Blacksmith | Improve weapons, choose transformative modifiers, or craft a new Common weapon. | 65 gold, 12 wood, 8 stone |
 | kitchen | Kitchen | Upgrade the Pantry into a Kitchen. Stock food, cook six meals efficiently, and choose ingredients for expedition dishes. | 90 gold, 18 wood, 12 stone |
 | alchemist | Alchemist | Combine gems, transmute them, and brew consumables. | 160 gold, 20 wood, 24 stone, 8 ore |
-| bonfire | Bonfire | Spend class points or transform armor and companions. | Available initially |
+| bonfire | Bonfire | Spend class points and set world difficulty. | Available initially |
 | crossroads | Crossroads | Open the regional road map and plan a journey. | Available initially |
 | farm | Farm plots | Harvest 2 food every five minutes, up to 24 stored food. | 110 gold, 18 wood, 8 stone; expansion: east |
-| cabins | Cabins | Each cabin adds room for 20 adventurers. Your Camp starts with capacity for 20. | 140 gold, 24 wood, 12 stone; expansion: west |
+| cabins | Cabins | Each cabin adds room for 20 adventurers. Your Camp starts with capacity for 40. | 140 gold, 24 wood, 12 stone; expansion: west |
 | garden | Herb garden | Harvest herbs for your Kitchen and Alchemist every five minutes, up to 12 stored herbs. | 100 gold, 16 wood, 8 stone; expansion: south |
 | archaeology | Archaeology Camp | Hatch dinosaur eggs and grow companions from fossils. Requires any repaired Camp expansion. | 180 gold, 20 wood, 30 stone, 6 ore; expansion: any |
 | armory | Equipment Workshop | Buy, craft, sell and transform armor and equipment. Weapon work is also available at the Blacksmith. | 90 gold, 15 wood, 12 stone |

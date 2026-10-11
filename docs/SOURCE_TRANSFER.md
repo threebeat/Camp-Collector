@@ -8,6 +8,6 @@ The owner created `threebeat/Camp-Collector` as an empty repository. The game wa
 git clone archives/v12-source-history.bundle recovered-v12
 ```
 
-The current source and future development live in this repository. `dist/` is generated and excluded from new source commits. No player saves or credentials were imported. `tests/fixtures/v6-save.json` is the pre-existing synthetic migration test fixture.
+The owner renamed the repository to `threebeat/Evernight` for version 0.14. The current source and future development live in this repository. `dist/` is generated and excluded from new source commits. No player saves or credentials were imported. `tests/fixtures/v6-save.json` is the pre-existing synthetic migration test fixture.
 
 The existing Sites remote, project identifier, D1 binding, and access rules are preserved. The repository is public because that is the repository the owner supplied; the game deployment remains private.

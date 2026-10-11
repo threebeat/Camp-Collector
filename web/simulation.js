@@ -1,6 +1,7 @@
-import { questById } from "./journeys.js?v=13";
-import * as Night from "./nightfall.js?v=13";
-import { Battle } from "./engine.js?v=13";
+import * as Ever from "./evernight.js?v=14";
+import { questById } from "./journeys.js?v=14";
+import * as Night from "./nightfall.js?v=14";
+import { Battle } from "./engine.js?v=14";
 import {
   LOCATIONS,
   initialGame,
@@ -9,9 +10,9 @@ import {
   VENDORS,
   ITEMS,
   uid,
-} from "./data.js?v=13";
-import * as Camp from "./camp.js?v=13";
-import * as P from "./progression.js?v=13";
+} from "./data.js?v=14";
+import * as Camp from "./camp.js?v=14";
+import * as P from "./progression.js?v=14";
 
 // The clock lives outside the view. Every party gets the same fixed simulation steps.
 export const STEP = 1 / 30;
@@ -22,6 +23,7 @@ export class ExpeditionSimulation {
       P.migrateSave(saved, now) ||
       initialGame(Math.random, now);
     Night.normalizeNightfall(this.g);
+    Ever.normalizeEvernight(this.g);
     Night.refreshVisitors(this.g);
     this.battles = new Map();
     this.observation = { id: null, visible: false, speed: 1, paused: false };
@@ -63,6 +65,9 @@ export class ExpeditionSimulation {
           mode: r.mode,
           supplies: r.supplies,
           recruitLimit: Math.max(0, 2 - r.recruits.length),
+          ...(r.mode === "arena"
+            ? { arenaRule: r.arenaRule, hazards: false }
+            : {}),
           enemyTeams:
             r.mode === "arena"
               ? [
@@ -113,6 +118,7 @@ export class ExpeditionSimulation {
       ),
       elapsed = (clock - this.g.lastClock) / 1000;
     this.g.lastClock = clock;
+    Ever.consumeMeals(this.g);
     P.refreshStock(this.g);
     Night.refreshVisitors(this.g);
     if (this.g.screen === "shop") P.gemShopStock(this.g);
@@ -204,6 +210,7 @@ export class ExpeditionSimulation {
         P.checkpointBattle(this.g, r, b);
         r.battleState = b.toState();
       }
+    Ever.collectCampXp(this.g);
     // Finished reports are small and bounded; active parties and their checkpoints are never pruned.
     const reports = this.g.expeditions.filter((r) => r.status === "returned");
     if (reports.length > 30) {
@@ -227,6 +234,66 @@ export class ExpeditionSimulation {
       h = g.roster.find((h) => h.id === args.id);
     let result = false;
     switch (type) {
+      case "light":
+        result = Ever.equipLight(g, h, args.itemId);
+        break;
+      case "worldDifficulty":
+        result = Ever.setWorldDifficulty(g, args.key);
+        break;
+      case "openPortal":
+        result = Ever.openPortal(g, args.location);
+        break;
+      case "guildLesson":
+        result = Ever.guildLesson(g, h, args.guild);
+        break;
+      case "guildQuest":
+        result = Ever.guildQuest(g, args.guild);
+        break;
+      case "guildBuy":
+        result = Ever.guildBuy(g, args.guild);
+        break;
+      case "monthlyBuy":
+        result = Ever.monthlyBuy(g, args.id);
+        break;
+      case "wager":
+        result = Ever.setWager(g, args.gold, args.resource, args.amount);
+        break;
+      case "story":
+        if (g.storyPage < 3) {
+          g.storyPage++;
+          result = true;
+        }
+        break;
+      case "settings":
+        if (
+          ["tutorial", "reducedMotion"].includes(args.key) &&
+          typeof args.value === "boolean"
+        ) {
+          g.settings[args.key] = args.value;
+          if (args.key === "tutorial" && args.value && g.tutorialStep >= 5)
+            g.tutorialStep = 0;
+          result = true;
+        }
+        break;
+      case "tutorial":
+        g.tutorialStep = Math.min(5, g.tutorialStep + 1);
+        result = true;
+        break;
+      case "pinQuest":
+        if (questById(g, args.id)) {
+          g.questPins = g.questPins.includes(args.id)
+            ? g.questPins.filter((id) => id !== args.id)
+            : [...g.questPins, args.id];
+          result = true;
+        }
+        break;
+      case "questSort":
+        if (["progress", "name", "category"].includes(args.key)) {
+          g.questSort = args.key;
+          result = true;
+        }
+        break;
+
       case "profession":
         result = Night.trainProfession(g, h, args.key);
         break;
@@ -256,7 +323,7 @@ export class ExpeditionSimulation {
           q.category !== "Main" &&
           !g.sideQuests.includes(q.id) &&
           !g.questClaims.includes(q.id) &&
-          g.sideQuests.filter((id) => !g.questClaims.includes(id)).length < 8
+          g.sideQuests.filter((id) => !g.questClaims.includes(id)).length < 100
         ) {
           g.sideQuests.push(q.id);
           if (q.contract) g.questContracts.push(q);
@@ -267,11 +334,20 @@ export class ExpeditionSimulation {
       case "marketDistrict":
         if (
           g.screen === "market" &&
-          ["square", "guildhall", "board", "outfitter", "clinic"].includes(
-            args.key,
-          )
+          [
+            "square",
+            "guildhall",
+            "commons",
+            "board",
+            "outfitter",
+            "clinic",
+            "arena",
+            "tavern",
+          ].includes(args.key)
         ) {
-          g.marketDistrict = args.key;
+          g.marketDistrict = ["board", "outfitter"].includes(args.key)
+            ? "commons"
+            : args.key;
           result = true;
         }
         break;
@@ -296,6 +372,7 @@ export class ExpeditionSimulation {
             "market",
             "expeditions",
             "arena",
+            "quests",
             "codex",
             "calendar",
             "challenges",

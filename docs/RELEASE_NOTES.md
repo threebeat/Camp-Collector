@@ -1,5 +1,22 @@
 # Release notes
 
+## 0.14.0 — Evernight
+
+The owner renamed the game/repository and made permanent night the core world mechanic. Existing current-season saves, the private Site and append-only database history are preserved.
+
+- Dark screens and real-time carried-light shadows, AI visibility, remembered fog and racial/Attribute/Talent night vision. Lamps equip in a dedicated utility slot.
+- Three required opening pages, an optional guide attached to desktop/phone navigation, Skip and currency-adjacent settings. Camp has Build below its name, clickable Camp XP, four metrics and actual resources.
+- Camp progression from XP/actions, 40 starting adventurer spaces plus 20 per cabin, twelve-hour food consumption/XP/recovery/wanderer benefits, and unified retirement returning belongings with level-based rewards. Waiting arrivals are removed.
+- Bonfire class choices and global world tiers; armor/companion transformations at the Workshop. Active party configurations remain frozen.
+- Market district maps, eight guild booths with training/quests/standing/exclusive discounts, Commons Outfitter/Board, Tavern hiring and Arena grounds. Arena stakes gold/resources with duel, four-team, tigers or mine-floor rules; losing/recalling forfeits the stake.
+- Dedicated searchable/sortable/pinnable Quest journal. Final boss journeys yield one Boss Sigil; the Portal Mage spends it to open any chosen region.
+- UTC Daily Battle month calendar and twelve themed Shop collections with once-only monthly appearance ownership.
+- Consolidated Codex pages and five class points alternating talent/subclass/talent/subclass/talent, while preserving learned branch IDs. Equipment transformations retain their separate thresholds.
+
+Verification: 157 local Node tests plus bundled build/artifact validation pass. The expanded remote browser workflow and its result are recorded in QA.md. GitHub pipelines verify/package changes; production publishing uses the authenticated Sites operation.
+
+Previous recommendations on bundling, source recovery, player agency/profiles/content and automated phone-layout checks were reviewed and addressed. Physical devices, retention/economy tuning, cross-device saves, conflict handling and authoritative ownership remain future work. Personal saves/economy stay browser-local; offline battle time reconstructs on return.
+
 ## 0.13.0 — The long night
 
 The owner chose Camp Collector and permanent-night lore. Existing v12 saves are preserved; no new season or SQL wipe is introduced.

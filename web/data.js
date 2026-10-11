@@ -6,7 +6,7 @@ import {
   ENCHANTMENTS,
   WEAPON_MODIFIERS,
   weaponModifiers,
-} from "./weapons.js?v=13";
+} from "./weapons.js?v=14";
 export {
   WEAPONS,
   WEAPON_KINDS,
@@ -23,7 +23,7 @@ import {
   modifierFits,
   objectModifiers,
   validModifiers,
-} from "./modifiers.js?v=13";
+} from "./modifiers.js?v=14";
 export {
   ARMOR_MODIFIERS,
   PET_MODIFIERS,
@@ -1154,7 +1154,7 @@ export const LOCATIONS = {
 export const VENDORS = [
   {
     id: "guild",
-    name: "The Hiring Hall",
+    name: "The Tavern",
     icon: "army",
     tag: "Characters",
     text: "A new name. A lasting place in your company.",
@@ -1285,6 +1285,45 @@ export const COSMETICS = {
     text: "Arena champions wear the sunlight.",
   },
 };
+export const MONTHLY_COLLECTIONS = [
+  "Winter lanterns",
+  "The silver thaw",
+  "Seed and song",
+  "Rainwood mysteries",
+  "The bloom court",
+  "Lantern caravans",
+  "Ember festival",
+  "Starfall trails",
+  "The amber harvest",
+  "Harvest of shadows",
+  "The drowned vigil",
+  "The long night",
+];
+const monthHues = [200, 220, 140, 175, 295, 42, 20, 260, 38, 280, 190, 240];
+for (let month = 0; month < MONTHLY_COLLECTIONS.length; month++) {
+  for (let variant = 0; variant < 3; variant++) {
+    const hue = (monthHues[month] + variant * 18) % 360;
+    COSMETICS["monthly-" + month + "-" + variant] = {
+      name:
+        MONTHLY_COLLECTIONS[month] +
+        " · " +
+        ["mantle", "colors", "regalia"][variant],
+      hue,
+      color: `hsl(${hue} 50% 68%)`,
+      type: "character",
+      monthly: month,
+      gems: [4, 7, 10][variant],
+      price: 0,
+      text:
+        ["A traveling mantle", "Company colors", "Ceremonial regalia"][
+          variant
+        ] +
+        " inspired by " +
+        MONTHLY_COLLECTIONS[month].toLowerCase() +
+        ". Changes appearance; grants no combat bonuses.",
+    };
+  }
+}
 export const CONSUMABLES = {
   tonic: {
     name: "Travel tonic",
@@ -1855,6 +1894,7 @@ export function itemInfo(item) {
   return out;
 }
 export function gainItemXp(item, amount) {
+  item.totalXp = (item.totalXp || 0) + Math.round(amount);
   item.xp = (item.xp || 0) + Math.round(amount);
   let levels = 0;
   while (item.level < 100 && item.xp >= itemXpNeeded(item.level)) {
@@ -1936,6 +1976,8 @@ export function generateHero(options = {}, random = Math.random) {
     transformations: [],
     ...options,
   };
+  if (h.light === undefined) h.light = makeItem("hooded-lantern");
+  h.totalXp ??= 0;
   h.skills ||= {};
   h.companion ||= null;
   h.cosmetic ||= null;
@@ -1953,6 +1995,7 @@ export function generateHero(options = {}, random = Math.random) {
     h.items.forEach((item, i) => {
       item.id = h.id + "-gear-" + i;
     });
+  if (options.id?.startsWith("foe-") && h.light) h.light.id = h.id + "-light";
   h.appearance.height ??= 0.92 + random() * 0.16;
   h.appearance.width ??= 0.9 + random() * 0.2;
   h.appearance.crown ??= Math.floor(random() * 4);
@@ -1986,7 +2029,12 @@ export function lineage(h) {
   return LINEAGES[h.race]?.find((s) => s.id === h.lineage) || null;
 }
 export function className(h) {
-  return school(h)?.name || CLASSES[h.classId].label;
+  const advanced = (h.classNodes || []).find((n) =>
+    /:(surge|shelter)$/.test(n),
+  );
+  return advanced
+    ? school(h)?.name + (advanced.endsWith(":surge") ? " Ascendant" : " Warden")
+    : school(h)?.name || CLASSES[h.classId].label;
 }
 export function combatClass(h) {
   const id = h.classId;
@@ -2242,6 +2290,7 @@ export function note(h, text, at = Date.now()) {
 }
 export function gainXp(h, amount) {
   const xp = Math.round(amount * (RACES[h.race].xp || 1));
+  h.totalXp = (h.totalXp || 0) + xp;
   h.xp += xp;
   for (const item of allGear(h))
     gainItemXp(item, Math.max(1, Math.round(amount * 0.65)));
@@ -2258,7 +2307,7 @@ export function gainXp(h, amount) {
   if (h.level >= 100) h.xp = 0;
   if (levels) {
     h.currentHp = stats(h).hp;
-    if (rarity(h.level) > rarity(h.level - levels))
+    if (CLASS_LEVELS.some((l) => h.level >= l && h.level - levels < l))
       note(h, "Earned a class point. Visit the Bonfire to specialize.");
   }
   return levels;
@@ -2410,6 +2459,21 @@ export function initialGame(random = Math.random, now = Date.now()) {
   return {
     version: 12,
     season: GAME_SEASON,
+    evernightRevision: 1,
+    campXp: 0,
+    campXpLedger: {},
+    campXpSources: {},
+    worldDifficulty: "normal",
+    mealAt: now,
+    mealsServed: 0,
+    settings: { tutorial: true, reducedMotion: false },
+    storyPage: 0,
+    tutorialStep: 0,
+    questPins: [],
+    questSort: "progress",
+    guildStanding: {},
+    guildPurchases: [],
+    arenaWager: { gold: 10, resource: null, amount: 0 },
     waitingRecruits: [],
     challengeTiers: {},
     campExpansions: [],
@@ -2464,6 +2528,7 @@ export function initialGame(random = Math.random, now = Date.now()) {
       relic: 0,
       fossils: 0,
       hide: 0,
+      bossSigils: 0,
     },
     food: 6,
     gemstones: [],
@@ -2916,7 +2981,7 @@ export function talentInfo(t) {
   return { ...TALENTS[t.key], kind: "Talent" };
 }
 export function allGear(h) {
-  return [...(h.items || []), ...(h.armor || [])].filter(Boolean);
+  return [...(h.items || []), ...(h.armor || []), h.light].filter(Boolean);
 }
 export const ARMOR_WEIGHTS = {
   light: "Light",
@@ -3062,7 +3127,7 @@ export function characterSize(h) {
     s[1] * (h.appearance?.width || 1) * (CLASS_WIDTHS[h.classId] || 1),
   ];
 }
-export const CLASS_LEVELS = [20, 40, 60];
+export const CLASS_LEVELS = [10, 20, 40, 60, 80];
 export function classPoints(h) {
   return Math.max(
     0,
@@ -3071,13 +3136,23 @@ export function classPoints(h) {
   );
 }
 export function classTree(h) {
-  return (SCHOOLS[h.classId] || []).map((path) => {
+  const foundation = {
+    id: h.classId + ":foundation",
+    parent: "root",
+    level: 10,
+    kind: "talent",
+    name: "Firekeeper discipline",
+    text: "+2 Vitality and +2 Endurance. Your first point learns a talent.",
+  };
+  const paths = (SCHOOLS[h.classId] || []).map((path) => {
     const root = path.id + ":0",
       nodes = [
         {
           id: root,
-          parent: "root",
+          parent: foundation.id,
           level: 20,
+          kind: "subclass",
+          path: path.id,
           name: path.name,
           text: path.text,
         },
@@ -3088,87 +3163,123 @@ export function classTree(h) {
         id: parent,
         parent: root,
         level: 40,
+        kind: "talent",
+        path: path.id,
         name: style === "power" ? "Forceful technique" : "Measured technique",
         text:
           style === "power"
             ? "+25% ability potency and +4 attacking stat."
             : "15% shorter cooldowns, +25 reach and +4 Endurance.",
       });
-      for (const finish of ["surge", "shelter"])
+      for (const finish of ["surge", "shelter"]) {
+        const id = parent + ":" + finish;
         nodes.push({
-          id: parent + ":" + finish,
+          id,
           parent,
           level: 60,
-          name: finish === "surge" ? "Legendary surge" : "Legendary shelter",
+          kind: "subclass",
+          path: path.id,
+          name: path.name + (finish === "surge" ? " Ascendant" : " Warden"),
           text:
             finish === "surge"
-              ? "Larger ground effects, stronger summons, and +6 Mind / Strength."
+              ? "Larger effects, stronger summons, +6 Mind / Strength."
               : "Stronger shields, easier persuasion, +6 Vitality / Endurance.",
         });
+        nodes.push({
+          id: id + ":mastery",
+          parent: id,
+          level: 80,
+          kind: "talent",
+          path: path.id,
+          name: "Evernight mastery",
+          text: "+8 Vitality, +8 Endurance and +15% ability potency.",
+        });
+      }
     }
-    return {
-      id: path.id,
-      name: path.name,
-      text: path.text,
-      nodes: nodes.map((n) => ({ ...n, locked: classNodeState(h, n).locked })),
-    };
+    return { ...path, nodes };
   });
+  return [
+    { id: "foundation", name: CLASSES[h.classId].label, nodes: [foundation] },
+    ...paths,
+  ].map((p) => ({
+    ...p,
+    nodes: p.nodes.map((n) => ({ ...n, locked: classNodeState(h, n).locked })),
+  }));
+}
+function classTreeDefinitions(h) {
+  const defs = [{ id: h.classId + ":foundation", parent: "root", level: 10 }];
+  for (const p of SCHOOLS[h.classId] || []) {
+    defs.push({
+      id: p.id + ":0",
+      parent: h.classId + ":foundation",
+      level: 20,
+    });
+    for (const style of ["power", "control"]) {
+      const id = p.id + ":" + style;
+      defs.push({ id, parent: p.id + ":0", level: 40 });
+      for (const f of ["surge", "shelter"])
+        defs.push(
+          { id: id + ":" + f, parent: id, level: 60 },
+          { id: id + ":" + f + ":mastery", parent: id + ":" + f, level: 80 },
+        );
+    }
+  }
+  return defs;
 }
 export function classNodeState(h, n) {
-  const chosen = h.classNodes || [],
-    ancestor = n.parent === "root" || chosen.includes(n.parent),
-    sibling = chosen.some(
-      (id) =>
-        id !== n.id &&
-        ((id.endsWith(":0") && n.parent === "root") ||
-          (n.level === 40 &&
-            id.split(":").length === 2 &&
-            !id.endsWith(":0")) ||
-          (n.level === 60 && id.split(":").length === 3)),
-    );
+  const c = h.classNodes || [],
+    defs = classTreeDefinitions(h),
+    learned = c.includes(n.id),
+    sibling = c.some(
+      (id) => id !== n.id && defs.find((v) => v.id === id)?.level === n.level,
+    ),
+    path = !!n.path && !!h.classPath && n.path !== h.classPath;
   return {
-    learned: chosen.includes(n.id),
-    locked: !!sibling || (!!h.classPath && !n.id.startsWith(h.classPath + ":")),
+    learned,
+    locked: sibling || path,
     available:
-      ancestor &&
+      (n.parent === "root" || c.includes(n.parent)) &&
       !sibling &&
-      !chosen.includes(n.id) &&
+      !path &&
+      !learned &&
       h.level >= n.level &&
       classPoints(h) > 0,
   };
 }
 export function validClassNodes(h) {
-  const nodes = h.classNodes || [];
-  if (nodes.length > CLASS_LEVELS.filter((l) => h.level >= l).length)
-    return false;
-  if (!nodes.length) return true;
-  const defs = classTree({ ...h, classNodes: [] }).flatMap((p) => p.nodes);
-  return nodes.every((id, i) => {
-    const n = defs.find((n) => n.id === id);
-    return (
-      n &&
-      n.id.startsWith(h.classPath + ":") &&
-      n.level === CLASS_LEVELS[i] &&
-      n.parent === (i ? nodes[i - 1] : "root")
-    );
-  });
+  const nodes = h.classNodes || [],
+    defs = classTreeDefinitions(h);
+  return (
+    nodes.length <= CLASS_LEVELS.filter((l) => h.level >= l).length &&
+    nodes.every((id, i) => {
+      const n = defs.find((n) => n.id === id);
+      return (
+        n &&
+        n.level === CLASS_LEVELS[i] &&
+        n.parent === (i ? nodes[i - 1] : "root") &&
+        (!i || id.startsWith(h.classPath + ":"))
+      );
+    })
+  );
 }
 export function migrateClassNodes(h) {
-  const old = h.classNodes || [];
+  let old = h.classNodes || [];
   if (old.some((id) => /:\d+$/.test(id) && !id.endsWith(":0"))) {
-    h.classNodes = [h.classPath + ":0"];
-    if (old.length >= 2) h.classNodes.push(h.classPath + ":power");
-    if (old.length >= 3) h.classNodes.push(h.classPath + ":power:surge");
-    h.legacyClassMastery = Math.max(h.legacyClassMastery || 0, old.length - 3);
+    const n = old.length;
+    old = [h.classPath + ":0"];
+    if (n >= 2) old.push(h.classPath + ":power");
+    if (n >= 3) old.push(h.classPath + ":power:surge");
+    h.legacyClassMastery = Math.max(h.legacyClassMastery || 0, n - 3);
   }
-  h.classNodes = (h.classNodes || []).slice(
-    0,
-    CLASS_LEVELS.filter((l) => h.level >= l).length,
-  );
+  if (old.length && old[0] !== h.classId + ":foundation")
+    old = [h.classId + ":foundation", ...old];
+  h.classNodes = old.slice(0, CLASS_LEVELS.filter((l) => h.level >= l).length);
 }
 export function classEffects(h) {
   const path = school(h),
-    depth = (h.classNodes || []).length,
+    depth =
+      (h.classNodes || []).length -
+      (h.classNodes?.includes(h.classId + ":foundation") ? 1 : 0),
     power = h.classNodes?.some((n) => n.endsWith(":power")),
     control = h.classNodes?.some((n) => n.endsWith(":control")),
     surge = h.classNodes?.some((n) => n.endsWith(":surge")),
@@ -3180,7 +3291,8 @@ export function classEffects(h) {
         (path?.power ? path.power - 1 : 0.15) +
         (power ? 0.25 : 0) +
         (surge ? 0.2 : 0) +
-        legacy * 0.08
+        legacy * 0.08 +
+        (h.classNodes?.some((n) => n.endsWith(":mastery")) ? 0.15 : 0)
       : 1,
     cooldown: control ? 0.85 : 1,
     range: control ? 25 : 0,
@@ -3189,12 +3301,24 @@ export function classEffects(h) {
     charmThreshold: shelter ? 0.7 : depth >= 2 ? 0.65 : 0.55,
     shieldScale: shelter ? 1.8 : depth >= 2 ? 1.35 : 1,
     bonus: {
+      vitality:
+        (h.classNodes?.includes(h.classId + ":foundation") ? 2 : 0) +
+        (h.classNodes?.some((n) => n.endsWith(":mastery")) ? 8 : 0) +
+        (shelter ? 6 : 0),
+      endurance:
+        (h.classNodes?.includes(h.classId + ":foundation") ? 2 : 0) +
+        (h.classNodes?.some((n) => n.endsWith(":mastery")) ? 8 : 0) +
+        (control ? 4 : 0) +
+        (shelter ? 6 : 0),
       ...(power
         ? { [CLASSES[h.classId].magical ? "mind" : "strength"]: 4 }
         : {}),
-      ...(control ? { endurance: 4 } : {}),
-      ...(surge ? { strength: 6, mind: 6 } : {}),
-      ...(shelter ? { vitality: 6, endurance: 6 } : {}),
+      ...(surge
+        ? {
+            strength: 6 + (power && !CLASSES[h.classId].magical ? 4 : 0),
+            mind: 6 + (power && CLASSES[h.classId].magical ? 4 : 0),
+          }
+        : {}),
     },
   };
 }
@@ -3235,7 +3359,7 @@ export function evolutionName(obj, kind) {
 }
 export function transformationOptions(obj, kind = "weapon") {
   const stage = obj.evolution || 0,
-    level = CLASS_LEVELS[stage],
+    level = [20, 40, 60][stage],
     cost = 4 + stage * 6,
     domain =
       kind === "pet"
@@ -4007,3 +4131,67 @@ CONSUMABLES.tea = {
   price: 0,
   text: "A chosen herb dish. +4 Mind and +2 Agility for one expedition.",
 };
+
+ITEMS["hooded-lantern"] = {
+  name: "Hooded lantern",
+  type: "light",
+  price: 8,
+  icon: "flame",
+  lightRadius: 190,
+  lightColor: "#ffc36a",
+  desc: "Equipped utility light. Reveals a 190-unit radius to nearby allies and enemies.",
+};
+ITEMS["witchlight-lantern"] = {
+  name: "Witchlight lantern",
+  type: "light",
+  price: 60,
+  icon: "spark",
+  lightRadius: 275,
+  lightColor: "#b3a0ff",
+  desc: "Equipped utility light. Reveals a 275-unit radius without consuming supplies.",
+};
+TALENTS["Night vision"] = {
+  name: "Night vision",
+  text: "See 190 units through unlit terrain. Learn from the Lantern Runners after two lessons.",
+};
+ATTRIBUTES.Vampire.text += " Sees 300 units in darkness.";
+ATTRIBUTES.Werewolf.text += " Sees 250 units in darkness.";
+for (const [race, n] of Object.entries({
+  Dwarf: 220,
+  Gnome: 200,
+  Kobold: 240,
+  Myconid: 210,
+  Shade: 280,
+}))
+  RACES[race].text += " Sees " + n + " units in darkness.";
+VENDORS.push({
+  id: "lights",
+  name: "The Lanternwright",
+  icon: "flame",
+  tag: "Lights",
+  text: "Equip a light before walking into Evernight.",
+});
+export const GUILD_EQUIPMENT = {
+  miners: ["pickaxe", "Stonekeeper pick", "armor"],
+  foresters: ["axe", "Rootwarden axe", "endurance"],
+  hunters: ["longbow", "Wildwatch longbow", "strength"],
+  arcanists: ["sunstaff", "Veil scholar staff", "mind"],
+  guardians: ["aegis", "Oathbearer aegis", "vitality"],
+  scouts: ["witchlight-lantern", "Runner witchlight", "agility"],
+  artisans: ["ironblade", "Ironhand sword", "armor"],
+  healers: ["lens", "Mercy focus", "vitality"],
+};
+for (const [guild, [base, name, stat]] of Object.entries(GUILD_EQUIPMENT)) {
+  ITEMS["guild-" + guild] = {
+    ...ITEMS[base],
+    name,
+    guildOnly: guild,
+    price: 60,
+    [stat]: (ITEMS[base][stat] || 0) + 2,
+    desc:
+      ITEMS[base].desc +
+      " Guild signature: +2 " +
+      stat +
+      ". Available only to guild members.",
+  };
+}

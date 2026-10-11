@@ -1,3 +1,4 @@
+import { vision } from "./lighting.js?v=14";
 import {
   CLASSES,
   RACES,
@@ -15,17 +16,17 @@ import {
   RARITIES,
   heroRarity,
   makeItem,
-} from "./data.js?v=13";
-import * as Night from "./nightfall.js?v=13";
-import * as Camp from "./camp.js?v=13";
+} from "./data.js?v=14";
+import * as Night from "./nightfall.js?v=14";
+import * as Camp from "./camp.js?v=14";
 import {
   QUESTS,
   generatedContracts,
   allQuests,
   questState,
   activeQuests,
-} from "./journeys.js?v=13";
-import { portraitSvg, itemSvg, petSvg, icon } from "./art.js?v=13";
+} from "./journeys.js?v=14";
+import { portraitSvg, itemSvg, petSvg, icon } from "./art.js?v=14";
 
 // Screens are separate from the simulation and receive its command boundary.
 export function createNightfallUi(c) {
@@ -87,7 +88,7 @@ export function createNightfallUi(c) {
           ),
         )
         .join("")}</div>
-      <h3>Companion</h3><div class="profile-companion">${h.companion ? petSvg(h.companion) : icon("paw", 42)}<p>${h.companion ? esc(h.companion.key) + " · Lv " + h.companion.level : "There is room for a friend."}</p>${button("Choose companion", `data-service="pet" data-for="${h.id}" ${ready ? "" : "disabled"}`, "secondary-button")}</div>
+      <h3>Light & sight</h3>${button((h.light ? itemInfo(h.light).name : "No light") + " · " + vision(h).label + " · " + vision(h).sight + " sight", `data-light-profile="${h.id}"`, "equipment-slot")}<h3>Companion</h3><div class="profile-companion">${h.companion ? petSvg(h.companion) : icon("paw", 42)}<p>${h.companion ? esc(h.companion.key) + " · Lv " + h.companion.level : "There is room for a friend."}</p>${button("Choose companion", `data-service="pet" data-for="${h.id}" ${ready ? "" : "disabled"}`, "secondary-button")}</div>
       <h3>Attributes & professions</h3><div class="detail-chip-list">${characterAttributes(
         h,
       )
@@ -121,7 +122,7 @@ export function createNightfallUi(c) {
         .join(
           "",
         )}</div><label class="field-label" for="memory-text">Add a memory</label><textarea id="memory-text" class="modal-select" maxlength="180" placeholder="A little moment worth keeping…"></textarea>${button("Keep this memory", `data-memory="${h.id}"`, "secondary-button")}
-      <div class="character-service-grid">${button("Growth tables", `data-growth="${h.id}"`, "secondary-button")}${button("Train a stat", `data-service="training" data-for="${h.id}" ${ready ? "" : "disabled"}`, "secondary-button")}${button("Equipment Workshop", 'data-service="armory"', "secondary-button")}${button("Let them go", `data-release="${h.id}" ${!ready || h.favorite || g.roster.length <= 3 ? "disabled" : ""}`, "text-button danger")}${button("Recycle", `data-recycle-hero="${h.id}" ${!ready || h.favorite || g.roster.length <= 3 ? "disabled" : ""}`, "text-button danger")}</div>`,
+      <div class="character-service-grid">${button("Growth tables", `data-growth="${h.id}"`, "secondary-button")}${button("Train a stat", `data-service="training" data-for="${h.id}" ${ready ? "" : "disabled"}`, "secondary-button")}${button("Equipment Workshop", 'data-service="armory"', "secondary-button")}${button("Retire adventurer", `data-release="${h.id}" ${!ready || h.favorite || g.roster.length <= 3 ? "disabled" : ""}`, "text-button danger")}</div>`,
       button("← All adventurers", "data-tent-list", "secondary-button"),
     );
   }
@@ -136,7 +137,7 @@ export function createNightfallUi(c) {
     openModal(
       esc(className(h)),
       "Class · behavior, equipment and calling",
-      `<p class="modal-note">${esc(d.behavior)}</p><p>${esc(d.abilityText)}</p><div class="stat-six">${CORE_STATS.map((k) => `<div><strong>+${d.base[k] || 0}</strong><small>${k}</small></div>`).join("")}</div><h3>Starting equipment</h3><p>${d.slots.map((s) => esc(s.label) + " (" + esc(s.types.join(", ")) + ")").join(" · ")}</p><p>Armor: ${d.armorWeight} · Head, Chest, Legs, Boots${h.race === "Celestial" ? " (crown replaces Head)" : ""}</p><h3>Choose a calling</h3>${safeTree}<p class="small">Class points at levels 20, 40 and 60. Each choice locks its siblings.</p><details><summary>Class growth</summary>${growthHtml(d.growthTable)}</details>`,
+      `<p class="modal-note">${esc(d.behavior)}</p><p>${esc(d.abilityText)}</p><div class="stat-six">${CORE_STATS.map((k) => `<div><strong>+${d.base[k] || 0}</strong><small>${k}</small></div>`).join("")}</div><h3>Starting equipment</h3><p>${d.slots.map((s) => esc(s.label) + " (" + esc(s.types.join(", ")) + ")").join(" · ")}</p><p>Armor: ${d.armorWeight} · Head, Chest, Legs, Boots${h.race === "Celestial" ? " (crown replaces Head)" : ""}</p><h3>Choose a calling</h3>${safeTree}<p class="small">Class points at levels 10, 20, 40, 60 and 80: talent, subclass, talent, subclass, talent. Each choice locks its siblings.</p><details><summary>Class growth</summary>${growthHtml(d.growthTable)}</details>`,
       owned(h) && game().screen === "camp" ? returnProfile(h) : "",
     );
   }
@@ -297,7 +298,7 @@ export function createNightfallUi(c) {
           .flatMap((h) =>
             Night.compatibleSlots(h, i).map(
               (v) =>
-                `<article class="equip-target">${portraitSvg(h)}<h3>${esc(h.name)} · ${v.s.label}</h3>${comparisonHtml(h, i, v.index, v.armor)}${button("Equip", `data-${v.armor ? "equip-armor" : "equip"}="${id}" data-for="${h.id}" data-index="${v.index}"`)}</article>`,
+                `<article class="equip-target">${portraitSvg(h)}<h3>${esc(h.name)} · ${v.s.label}</h3>${comparisonHtml(h, i, v.index, v.armor)}${button("Equip", `data-${v.light ? "equip-light" : v.armor ? "equip-armor" : "equip"}="${id}" data-for="${h.id}" data-index="${v.index}"`)}</article>`,
             ),
           )
           .join("") || "<p>No ready characters have a compatible slot.</p>"
@@ -305,7 +306,10 @@ export function createNightfallUi(c) {
     );
   }
   function comparisonHtml(h, item, index, armor = false) {
-    const old = h[armor ? "armor" : "items"][index];
+    const old =
+      ITEMS[item.key]?.type === "light"
+        ? h.light
+        : h[armor ? "armor" : "items"][index];
     return `<div class="equipment-comparison"><p>Equipped: <strong>${old ? esc(itemInfo(old).name) : "Empty slot"}</strong></p><table><caption>${esc(h.name)} · character stats after equipping</caption><thead><tr><th>Stat</th><th>Current</th><th>New</th><th>Change</th></tr></thead><tbody>${
       Night.comparison(h, item, index, armor)
         .filter((v) => Math.abs(v.delta) > 0.01)

@@ -1,6 +1,9 @@
-import * as Night from "./nightfall.js?v=13";
-import { createNightfallUi } from "./nightfall-ui.js?v=13";
-import { regionLandmarks } from "./landmarks.js?v=13";
+import * as Ever from "./evernight.js?v=14";
+import { createEvernightUi } from "./evernight-ui.js?v=14";
+import { vision, revealed } from "./lighting.js?v=14";
+import * as Night from "./nightfall.js?v=14";
+import { createNightfallUi } from "./nightfall-ui.js?v=14";
+import { regionLandmarks } from "./landmarks.js?v=14";
 import {
   GAME_SEASON,
   MYTHICAL_HEROES,
@@ -68,10 +71,10 @@ import {
   objectModifiers,
   modifierPool,
   petInfo,
-} from "./data.js?v=13";
-import { Battle, distance } from "./engine.js?v=13";
-import { Renderer } from "./renderer.js?v=13";
-import { icon, portraitSvg, petSvg, itemSvg, cosmeticSvg } from "./art.js?v=13";
+} from "./data.js?v=14";
+import { Battle, distance } from "./engine.js?v=14";
+import { Renderer } from "./renderer.js?v=14";
+import { icon, portraitSvg, petSvg, itemSvg, cosmeticSvg } from "./art.js?v=14";
 import {
   activeExpeditions,
   expeditionSlots,
@@ -85,8 +88,8 @@ import {
   stockResetAt,
   trialInfo,
   trialClaimKey,
-} from "./progression.js?v=13";
-import * as Camp from "./camp.js?v=13";
+} from "./progression.js?v=14";
+import * as Camp from "./camp.js?v=14";
 import {
   BUILDINGS,
   BRANCHES,
@@ -97,8 +100,8 @@ import {
   CALENDAR_BONUSES,
   COOKING,
   BREWS,
-} from "./world.js?v=13";
-import { CODEX } from "./codex.js?v=13";
+} from "./world.js?v=14";
+import { CODEX } from "./codex.js?v=14";
 import {
   REGIONS,
   REGION_ORDER,
@@ -112,11 +115,11 @@ import {
   questState,
   activeQuests,
   bossDefeated,
-} from "./journeys.js?v=13";
-import { attachResidentDragging } from "./map-interaction.js?v=13";
-import { createClient } from "./client.js?v=13";
-import { CampChatter } from "./chatter.js?v=13";
-import { exportCamp, readCampBackup } from "./saves.js?v=13";
+} from "./journeys.js?v=14";
+import { attachResidentDragging } from "./map-interaction.js?v=14";
+import { createClient } from "./client.js?v=14";
+import { CampChatter } from "./chatter.js?v=14";
+import { exportCamp, readCampBackup } from "./saves.js?v=14";
 const campChatter = new CampChatter();
 const $ = (id) => document.getElementById(id),
   esc = (s) =>
@@ -255,6 +258,7 @@ async function act(type, args = {}, message = "") {
   }
 }
 function closeModal() {
+  if (game?.storyPage < 3) return;
   modalRefresh = null;
   $("modal").close();
 }
@@ -445,43 +449,14 @@ function campaignMap() {
   return `<section class="world-map region-${loc}" style="--region:${l.color}"><div class="map-caption"><span class="eyebrow">${l.name}</span><span>${cleared} / 5 milestones · dashed trails are optional</span></div><svg viewBox="0 0 760 320" preserveAspectRatio="none" aria-hidden="true"><path d="M0 130Q100 10 250 92T490 80T760 60V320H0Z" fill="currentColor" opacity=".18"/><path d="M0 275Q140 150 300 230T570 163T760 224V320H0Z" fill="currentColor" opacity=".16"/>${loc === "marsh" ? '<path d="M350-20q-65 135 25 190t-25 180" stroke="#8da5a9" stroke-width="68" fill="none"/><path d="M339 160h62" stroke="#c9b98e" stroke-width="28"/>' : loc === "cinder" ? '<g fill="#ad8969" stroke="#e3d0aa" stroke-width="2"><path d="M126 37h29v22h-29Z"/><path d="m121 37 20-17 19 17Z"/><path d="M570 240h36v26h-36Z"/><path d="m564 240 25-19 25 19Z"/></g>' : '<g fill="#9c7c91"><path d="M425 39q18-29 36 0Z"/><path d="M440 39v12" stroke="#e0cca9" stroke-width="7"/></g>'}<path d="M61 198C122 218 151 97 213 128S298 210 372 198 450 43 532 87 636 114 692 154" fill="none" stroke="#bdad88" stroke-width="14"/><path d="M61 198C122 218 151 97 213 128S298 210 372 198 450 43 532 87 636 114 692 154" fill="none" stroke="#f1e9d4" stroke-width="3" stroke-dasharray="5 9"/>${branches.map((b) => `<path d="M${positions[b.node][0] * 7.6} ${positions[b.node][1] * 3.2}Q${b.x * 7.6 + 30} ${b.y * 3.2 - 25} ${b.x * 7.6} ${b.y * 3.2}" fill="none" stroke="#948b67" stroke-width="5" stroke-dasharray="6 6"/>`).join("")}${[110, 300, 470, 640].map((x, i) => `<path d="m${x} ${45 + (i % 2) * 210} 14-30 14 30Z" fill="currentColor" opacity=".48"/>`).join("")}</svg>${nodes.map((n, i) => `<button class="map-node ${i < cleared ? "cleared" : ""} ${i > cleared ? "locked" : ""} ${game.destination.mode === "campaign" && game.destination.node === i && !game.destination.branch ? "selected" : ""}" data-node="${i}" style="left:${positions[i][0]}%;top:${positions[i][1]}%" ${i > cleared ? "disabled" : ""} aria-label="${n[0]} · ${n[1]} encounters"><b>${i < cleared ? "✓" : i + 1}</b><span>${n[0]}</span>${i === cleared ? "<small>NEXT MILESTONE</small>" : ""}</button>`).join("")}${branches.map((b) => `<button class="map-branch ${game.destination.branch === b.id ? "selected" : ""} ${b.node > cleared ? "locked" : ""}" style="left:${b.x}%;top:${b.y}%" data-branch="${b.id}" data-node-index="${b.node}" ${b.node > cleared ? "disabled" : ""}><b>${game.branchClears[loc + ":" + b.id] ? "✓" : "✧"}</b><span>${b.name}</span><small>OPTIONAL PATH</small></button>`).join("")}</section>`;
 }
 function difficultyControls() {
-  const journey = game.destination.mode === "journey";
-  if (journey && !(game.destination.routeIndex || 0))
-    return '<p class="modal-note">Direct road · fixed 1× difficulty and 1× rewards. Choose a detour to raise the challenge.</p>';
-  if (
-    (journey && !bossDefeated(game, game.destination.location)) ||
-    (!journey && game.destination.mode !== "trial" && !game.portalUnlocked)
-  )
-    return `<div class="difficulty-lock">${icon("shield", 18)}<span>Defeat this region’s boss to unlock harder map difficulties.</span></div>`;
-  return `<div class="difficulty-grid">${Object.entries(DIFFICULTIES)
-    .filter(([id]) => !journey || id !== "story")
-    .map(([id, d]) =>
-      button(
-        `<strong>${d.name}</strong><span>${d.reward}× rewards</span><small>${d.health}× HP · ${d.damage}× damage</small>`,
-        `data-difficulty="${id}" aria-pressed="${game.destination.difficulty === id}"`,
-        game.destination.difficulty === id
-          ? "difficulty-card selected"
-          : "difficulty-card",
-      ),
-    )
-    .join("")}</div>`;
+  const d = DIFFICULTIES[game.worldDifficulty];
+  return `<p class="modal-note">World difficulty: ${d.name} · ${d.reward}× rewards. Change it at the Bonfire.</p>`;
 }
 function crossroadsView() {
   return crossroadsV7View();
 }
 function arenaView() {
-  const free = expeditionSlots(game) > activeExpeditions(game).length;
-  return (
-    heading(
-      "FOUR BANNERS. ONE VICTOR.",
-      "The Arena",
-      "Three characters. Three rival companies. One battlefield.",
-      button("Back to Camp", 'data-nav="camp"', "secondary-button"),
-    ) +
-    workspace(
-      `<section class="arena-banner"><div><span class="eyebrow">THE FOUR BANNERS</span><h2>A company against the crowd.</h2><p>Face three AI teams in a simultaneous battle royale. Lions and chariots sometimes join the fight. Win 170 base gold, combat rewards, and the Champion’s gold cosmetic.</p><div class="arena-banners">${["You", "Ember", "Thistle", "Gilded"].map((s, i) => `<span style="--banner:${["#7c9b91", "#b66f60", "#9b87ae", "#bfaa71"][i]}">${icon("flag", 28)}${s}</span>`).join("")}</div><p class="small">${game.arenaWins} victories · opponents scale to your staged team’s average level · your characters return safely after defeat.</p></div></section>${slotMeter()}${difficultyControls()}<div class="launch-bar"><div><strong>${game.staging.length} / 3 characters staged</strong><p>One expedition slot · no entry fee · Arena opponents cannot be recruited.</p></div>${button("Enter the Arena", 'id="launch-btn" ' + (game.staging.length !== 3 || !free || catchingUp ? "disabled" : ""))}</div>${collection(game.roster, "Choose your three", "staging")}`,
-    )
-  );
+  return everUi.arenaView();
 }
 function expeditionsView() {
   const active = activeExpeditions(game),
@@ -602,13 +577,7 @@ function offerInfo(o) {
 }
 function marketView() {
   if (game.marketDistrict && game.marketDistrict !== "square")
-    return (
-      heading(
-        "THE LANTERN MARKET",
-        "A place in the night",
-        "Trades, stories and useful strangers.",
-      ) + workspace(nightUi.districtView())
-    );
+    return workspace(everUi.districtMap());
   if (marketMode === "vendors" && vendor === "all") return marketMapView();
   let stock = VENDORS.filter(
     (v) => vendor === "all" || vendor === v.id,
@@ -1217,6 +1186,20 @@ function showSell() {
   );
 }
 function useService(service, id) {
+  if (
+    game.screen === "market" &&
+    ["guildhall", "questboard", "slots", "clinic"].includes(service)
+  ) {
+    act("marketDistrict", {
+      key:
+        service === "guildhall"
+          ? "guildhall"
+          : service === "clinic"
+            ? "clinic"
+            : "commons",
+    });
+    return;
+  }
   const campServices = {
     archaeology: showArchaeology,
     farm: () => showCampPlot("farm"),
@@ -1299,7 +1282,7 @@ function help() {
   openModal(
     esc(game.campName || "Your Camp"),
     "A company worth getting to know.",
-    `<div class="help-list"><p><strong>Begin at the Crossroads.</strong> Your three level-5 adventurers are yours to keep. Click the Crossroads sign in Camp. Choose a destination and a highlighted route, then assemble a party and pack supplies on the next screen.</p><p><strong>Background is always 1×.</strong> Expeditions continue in a dedicated browser worker. If the browser suspends or closes this page, they catch up at 1× when you return. Fast speed works only while overseeing a focused battle. Leaving the view or selecting fast speed enables AUTO. With AUTO off, each cleared encounter waits for Continue.</p><p><strong>New regions.</strong> Defeat the boss at Thornwatch Castle to meet Eldrin beside the Crossroads. His portal opens the next map. Each region’s boss unlocks the next region and difficulty controls for that map.</p><p><strong>Move your adventurers.</strong> Tap or click a resident, then drag them onto a service in Camp or a vendor at the Market. Touch and mouse work the same way.</p><p><strong>Build a home.</strong> Click Camp’s labeled buildings. Gather materials to build Training Grounds, a Blacksmith, the Outfitter, Kitchen, and Alchemist.</p><p><strong>Everyone comes home.</strong> Adventurers recover to full health over real time. Stock food to shorten the wait. Finish a destination to keep its recruits.</p><p><strong>New pages.</strong> Challenges contain a new single battle each day, monthly milestones, and player teams with pledged loot. The gem-only Shop offers cosmetics and Mythical gear. Market vendors restock every 12 hours.</p><p>This update begins a fresh Camp season with three level-5 adventurers. Progress is saved on this device; challenges use a shared board.</p></div>`,
+    `<div class="help-list"><p><strong>Routes and lights.</strong> Lock a road at the Crossroads, then choose three to six ready adventurers and pack supplies. Lanterns have a dedicated slot in each character profile. Firelight reveals terrain and enemies; underground races and night vision can see farther without a lamp.</p><p><strong>World difficulty.</strong> Change the world tier at the Bonfire after boss victories. It affects new departures, including NPC Challenges. Route danger still multiplies strength and rewards. Active expeditions keep their departure settings.</p><p><strong>New maps.</strong> Final regional bosses drop one Boss Sigil per successful journey. Meet the portal mage after the first forest boss and spend a Sigil to choose any unopened region. Repeating a boss requires its full journey.</p><p><strong>Background time.</strong> Expeditions run at 1× away from the battle view and catch up when this device resumes. Faster speeds require observing a focused battle. AUTO continues encounters; turn it off to use Continue.</p><p><strong>Camp.</strong> Construction and upgrades, victories, quests and earned character and equipment XP increase Camp level. Capacity begins at 40 and each cabin adds 20. Full Camps cannot acquire recruits. Retirement returns equipment and companions and grants a reward that grows with character level.</p><p><strong>Food and recovery.</strong> Each adventurer consumes one food every 12 hours and earns five XP per meal. Keeping food stocked halves recovery and attracts wanderers. Journey provisions are charged separately on departure.</p><p><strong>Services.</strong> The Bonfire teaches class trees. The Blacksmith transforms weapons; the Equipment Workshop transforms weapons, armor and companions. Eight Market guilds offer lessons, quests and discounted member goods. The Tavern hires travelers. The Arena risks your wager for gold and resource returns.</p><p><strong>Your progress.</strong> Quest pins, search and sorting live in the Quest journal. The Challenges calendar records this month's days in UTC; the Shop has twelve monthly collections. Saves are stored on this device. Use Settings to export and restore a backup.</p></div>`,
     button("Export Camp", 'id="export-camp"', "secondary-button") +
       button("Import Camp", 'id="import-camp"', "secondary-button") +
       button("Read the Codex", 'data-nav="codex"', "secondary-button"),
@@ -1888,6 +1871,7 @@ function bindActions(root = document) {
     syncObservation({ speed: Number(b.dataset.speed), paused: false }),
   );
   nightUi.bind(root);
+  everUi.bind(root);
 }
 function bind() {
   bindActions();
@@ -1968,7 +1952,10 @@ function bind() {
         y: ((e.clientY - rect.top) / rect.height) * H,
       },
       units = battle.units
-        .filter((u) => !u.structure && !u.summon)
+        .filter(
+          (u) =>
+            !u.structure && !u.summon && (u.team === 0 || revealed(battle, u)),
+        )
         .map((u) => ({
           u,
           d: distance({ x: u.x, y: u.y - 19 - (u.flying ? 12 : 0) }, point),
@@ -1995,7 +1982,7 @@ function render(force = false) {
     ["camp", "Camp", "camp"],
     ["expeditions", "Expeditions", "flag"],
     ["challenges", "Challenges", "shield"],
-    ["arena", "Arena", "sword"],
+    ["quests", "Quests", "book"],
     ["shop", "Shop", "spark"],
     ["codex", "Codex", "book"],
   ]
@@ -2014,6 +2001,7 @@ function render(force = false) {
     challenges: challengesView,
     shop: gemShopView,
     arena: arenaView,
+    quests: everUi.questsView,
     codex: codexView,
     expeditions: expeditionsView,
     expedition: expeditionView,
@@ -2034,7 +2022,12 @@ function render(force = false) {
     renderer.draw(battle, now / 1000);
   }
   updateHud();
-  document.title = `${game.screen === "camp" ? "The Camp" : game.screen === "crossroads" ? "Local map" : game.screen === "party" ? "Assemble your party" : game.screen === "market" ? "The Market" : game.screen === "arena" ? "The Arena" : game.screen === "shop" ? "The Gem Shop" : game.screen === "calendar" ? "Challenges" : game.screen === "challenges" ? "Challenges" : game.screen === "codex" ? "The Codex" : game.screen === "expedition" ? currentExpedition()?.name || "Expedition" : "Expeditions"} · ${game.campName || "Your Camp"} · Camp Collector`;
+  everUi.tutorial();
+  document.body.classList.toggle(
+    "body-reduced-motion",
+    !!game.settings.reducedMotion,
+  );
+  document.title = `${game.screen === "camp" ? "The Camp" : game.screen === "crossroads" ? "Local map" : game.screen === "party" ? "Assemble your party" : game.screen === "market" ? "The Market" : game.screen === "arena" ? "The Arena" : game.screen === "shop" ? "The Gem Shop" : game.screen === "calendar" ? "Challenges" : game.screen === "challenges" ? "Challenges" : game.screen === "codex" ? "The Codex" : game.screen === "expedition" ? currentExpedition()?.name || "Expedition" : "Expeditions"} · ${game.campName || "Your Camp"} · Evernight`;
 }
 function updateHud() {
   if (!game) return;
@@ -2080,7 +2073,7 @@ function updateHud() {
     ? "Your companies are catching up with the road. Background time is being simulated at 1×."
     : "";
   const brand = $("brand-name");
-  if (brand) brand.textContent = "Camp Collector";
+  if (brand) brand.textContent = "Evernight";
   const resource = $("resource-food");
   if (resource)
     resource.innerHTML =
@@ -2356,7 +2349,7 @@ function showPantry() {
   openModal(
     "The Pantry",
     "A little food makes coming home easier.",
-    `<div class="pantry-display">${icon("heart", 48)}<strong>${game.food}</strong><span>food in storage</span></div><p class="modal-note">Each returning adventurer uses one food to halve recovery time. Recovery gradually restores all HP. ${info("recovery")}</p><div class="card-actions">${[1, 5, 10].map((n) => button("Stock " + n + " food · " + n * 4 + " gold", `data-food="${n}" ${game.gold < n * 4 ? "disabled" : ""}`, "secondary-button")).join("")}</div><p>Upgrade this Pantry into a Kitchen to cook six meals per batch and choose special dishes.</p>${game.buildings.kitchen ? "" : button("Upgrade to Kitchen", 'data-building="kitchen"', "secondary-button")}`,
+    `<div class="pantry-display">${icon("heart", 48)}<strong>${game.food}</strong><span>food in storage</span></div><p class="modal-note">Each adventurer consumes one food per twelve hours. Supplied characters recover twice as quickly, attract more wanderers, and gain 5 bonus XP per meal. Recovery gradually restores all HP. ${info("recovery")}</p><div class="card-actions">${[1, 5, 10].map((n) => button("Stock " + n + " food · " + n * 4 + " gold", `data-food="${n}" ${game.gold < n * 4 ? "disabled" : ""}`, "secondary-button")).join("")}</div><p>Upgrade this Pantry into a Kitchen to cook six meals per batch and choose special dishes.</p>${game.buildings.kitchen ? "" : button("Upgrade to Kitchen", 'data-building="kitchen"', "secondary-button")}`,
     "",
     showPantry,
   );
@@ -2448,36 +2441,46 @@ function showSockets(h, index = 0) {
   );
 }
 function onboarding(force = false) {
-  if (game.campNamed && !force) return;
+  if (!force) {
+    everUi.story();
+    return;
+  }
   openModal(
-    "A place to call home",
-    "Give your camp a name.",
-    `<div class="onboarding-faces">${game.roster
-      .slice(0, 3)
-      .map((h) => portraitSvg(h))
-      .join(
-        "",
-      )}</div><p>${game.firstExpedition ? "The world turned permanently to night. You keep a fire beside the lantern Market. Three level-5 adventurers have agreed to stay. Meet them at the Character tent, then follow the Quest Board to your first journey." : "Your adventurers and progress are safe. Name the camp they come home to."}</p><label class="field-label" for="camp-name-input">Camp name</label><input id="camp-name-input" class="modal-select" maxlength="36" placeholder="e.g. Willow Rest" value="${esc(game.campName)}"><p class="small muted">This name becomes your camp’s identity.</p>`,
-    button("Welcome home", 'id="confirm-camp-name"'),
+    "Camp name",
+    "Choose a name for your home",
+    `<label class="field-label" for="camp-name-input">Camp name</label><input id="camp-name-input" maxlength="36" value="${esc(game.campName)}">`,
+    button("Save name", 'id="confirm-camp-name"'),
   );
   $("confirm-camp-name").onclick = async () => {
     const name = $("camp-name-input").value.trim();
-    if (!name) {
-      toast("Give your camp a name.");
-      return;
-    }
-    if (await act("nameCamp", { name }, "Welcome to " + name + "."))
-      closeModal();
+    if (name && (await act("nameCamp", { name }))) closeModal();
   };
 }
+function showSettings() {
+  openModal(
+    "Settings",
+    "Evernight · saved on this device",
+    `<div class="settings-options"><label><input id="setting-tutorial" type="checkbox" ${game.settings.tutorial ? "checked" : ""}> Background tutorial</label><label><input id="setting-motion" type="checkbox" ${game.settings.reducedMotion ? "checked" : ""}> Reduce motion</label><p>The game follows your device's motion preference as well. Personal saves are local to this browser.</p></div>`,
+    button("Backups & game guide", 'id="settings-guide"', "secondary-button") +
+      button("Codex", 'data-nav="codex"', "secondary-button"),
+  );
+  $("setting-tutorial").onchange = (e) =>
+    act("settings", { key: "tutorial", value: e.target.checked });
+  $("setting-motion").onchange = (e) =>
+    act("settings", { key: "reducedMotion", value: e.target.checked });
+  $("settings-guide").onclick = help;
+}
 function codexTable(entry) {
+  if (entry.details)
+    return `<div class="table-scroll"><table><thead><tr><th>Name</th><th>Effect and restrictions</th></tr></thead><tbody>${entry.details.map((d) => "<tr><th>" + esc(d.name) + "</th><td>" + esc(d.text) + "</td></tr>").join("")}</tbody></table></div>`;
+
   if (entry.category === "Races") {
     const r = RACES[entry.name];
     return `<h3>Level 1 foundation</h3><table><tbody>${CORE_STATS.map((k) => `<tr><th>${title(k)}</th><td>${r.base[k]}</td></tr>`).join("")}</tbody></table><h3>Growth per level</h3>${growthTableHtml(r.growthTable)}`;
   }
   if (entry.category === "Classes") {
     const c = CLASSES[entry.key];
-    return `<h3>At level 1</h3><table><tbody><tr><th>Active ability</th><td>${c.ability}</td></tr><tr><th>Base cooldown</th><td>${c.cooldown}s · costs 18 stamina</td></tr><tr><th>Slots</th><td>${c.slots.map((s) => s.label).join(", ")}</td></tr><tr><th>Attack scaling</th><td>${c.magical ? "Mind × 1.2" : "Strength × 1.4"}</td></tr></tbody></table><h3>Class growth per level</h3>${growthTableHtml(c.growthTable)}`;
+    return `<h3>At level 1</h3><table><tbody><tr><th>Active ability</th><td>${c.ability}</td></tr><tr><th>Base cooldown</th><td>${c.cooldown}s · costs 18 stamina</td></tr><tr><th>Slots</th><td>${c.slots.map((s) => s.label).join(", ")}</td></tr><tr><th>Attack scaling</th><td>${c.magical ? "Mind × 1.2" : "Strength × 1.4"}</td></tr></tbody></table><h3>Class growth per level</h3>${growthTableHtml(c.growthTable)}<h3>Class tree & subclasses</h3>${everUi.tree({ ...game.roster[0], classId: entry.key, classPath: null, classNodes: [], level: 1 }, true)}`;
   }
   return "";
 }
@@ -2830,6 +2833,32 @@ function updateDetailLive() {
     $("detail-xp-fill").style.width = (h.xp / xpNeeded(h.level)) * 100 + "%";
 }
 
+const everUi = createEvernightUi({
+  getGame: () => game,
+  button,
+  esc,
+  openModal,
+  act,
+  closeModal,
+  heroPicker,
+  collection,
+  navigate,
+  render,
+  capacity: Camp.campCapacity,
+  monthlyOffers: Ever.monthlyOffers,
+  renameCamp: () => onboarding(true),
+  showProfessions: (h) => nightUi.showGuild(h),
+  visitMarket: async () => {
+    await act("visitMarket", {
+      ids: game.roster
+        .filter((h) => available(game, h))
+        .slice(0, 3)
+        .map((h) => h.id),
+    });
+  },
+  marketVisit: showMarketVisit,
+  service: useService,
+});
 const nightUi = createNightfallUi({
   getGame: () => game,
   esc,
@@ -2870,14 +2899,17 @@ client = createClient(onUpdate);
 await client.ready;
 await syncObservation({ speed: 1, paused: false });
 onboarding();
-$("settings-btn").innerHTML = icon("info", 19);
-$("settings-btn").onclick = help;
+$("modal").addEventListener("cancel", (e) => {
+  if (game.storyPage < 3) e.preventDefault();
+});
+$("settings-btn").innerHTML = icon("settings", 19);
+$("settings-btn").onclick = showSettings;
 $("brand-home").onclick = (e) => {
   e.preventDefault();
   navigate("camp");
 };
 $("modal").addEventListener("click", (e) => {
-  if (e.target === $("modal")) closeModal();
+  if (e.target === $("modal") && game.storyPage >= 3) closeModal();
 });
 document.addEventListener("visibilitychange", () => {
   syncObservation({ paused: false });
@@ -2971,26 +3003,8 @@ function frame(now) {
 }
 requestAnimationFrame(frame);
 function campV7View() {
-  const active = activeExpeditions(game);
-  return (
-    heading(
-      "A FIRE IN THE PERMANENT NIGHT",
-      esc(game.campName || "Your Camp"),
-      "Select an adventurer. Drag them onto a building to use its service.",
-      `<div class="heading-actions">${button("Build at Camp", "data-build-sites", "secondary-button")}</div>`,
-    ) +
-    workspace(
-      `${campScene()}<div class="camp-resource-strip"><span>${icon("heart", 16)}<b>${game.food}</b> food ${info("recovery")}</span>${Object.entries(
-        MATERIALS,
-      )
-        .map(
-          ([key, m]) =>
-            `<span title="${esc(m.text)}">${icon(m.icon, 16)}<b>${game.materials[key] || 0}</b> ${m.name}</span>`,
-        )
-        .join(
-          "",
-        )}</div>${game.firstExpedition ? '<div class="welcome-note"><strong>The sun never returned. The campfires stayed.</strong> Three adventurers have agreed to stay. Meet them at the Character tent, then follow the Quest Board onto the road.</div>' : ""}${questBoard()}${active.length ? `<div class="section-heading"><h2>On the road</h2>${button("Active expeditions", 'data-nav="expeditions"', "text-button")}</div><div class="expedition-grid">${active.map(expeditionCard).join("")}</div>` : ""}`,
-    )
+  return workspace(
+    `${everUi.resourceStrip()}${campScene()}${everUi.questSummary()}`,
   );
 }
 function campWalkers() {
@@ -3019,13 +3033,10 @@ function animateResidents(now) {
 }
 
 function questBoard() {
-  return `<section class="quest-board"><div class="section-heading"><div><span class="eyebrow">A REASON TO LEAVE THE FIRE</span><h2>Quests</h2><p>One main story, with smaller goals along the way.</p></div><span>${game.questClaims.length} completed</span></div><h3>Main quest</h3>${nightUi.questList("Main")}<h3>Side quests & stories</h3>${nightUi.questList("Side")}<p class="small">Find more quests on the Market Board or from people marked with a question mark.</p></section>`;
+  return everUi.questSummary();
 }
 function campBar() {
-  const ready = game.roster.filter((h) => available(game, h)),
-    training = game.roster.filter((h) => Camp.heroJob(h)),
-    points = game.roster.reduce((n, h) => n + classPoints(h), 0);
-  return `<section class="camp-detail"><span class="eyebrow">YOUR HOME</span><h2>${esc(game.campName || "Your Camp")}</h2>${button("Rename camp", "data-rename-camp", "text-button")}<div class="camp-bar-art">${icon("camp", 64)}</div><p>${game.campExpansions.length} / 3 Camp expansions · Beyond the firelight, the long night watches. Each returning traveler brings a little more of the world home.</p><div class="camp-metrics"><div><b>${game.roster.length} / ${Camp.campCapacity(game)}</b><span>Adventurers ${info("capacity")}</span></div><div><b>${ready.length}</b><span>Ready</span></div><div><b>${activeExpeditions(game).length} / ${expeditionSlots(game)}</b><span>Traveling parties</span></div><div><b>${game.lifetimeEncounters}</b><span>Victories</span></div><div><b>${game.food}</b><span>Food stocked</span></div><div><b>${game.waitingRecruits.length}</b><span>Waiting arrivals</span></div></div>${points ? `<p class="welcome-note">${points} class point${points === 1 ? "" : "s"} waiting at the Bonfire.</p>` : ""}${training.map((h) => `<p>${esc(h.name)} · ${statusOf(h).detail} remaining at ${Camp.heroJob(h).kind === "training" ? "Training Grounds" : "Blacksmith"}</p>`).join("")}${button("Meet your adventurers", 'data-service="characters"', "secondary-button")}${button("Gather at the Bonfire", 'data-service="bonfire"', "secondary-button")}<p class="small muted">Select a resident to see their character bar. Deselect them to return here.</p></section>`;
+  return everUi.campBar();
 }
 function roadPath(region, e) {
   const a = region.nodes.find((n) => n.id === e.a),
@@ -3045,7 +3056,7 @@ function regionMap() {
     tracked = QUESTS.find(
       (q) => q.id === game.trackedQuest && q.location === loc,
     );
-  return `<section class="route-map-shell"><div class="map-toolbar"><span>${LOCATIONS[loc].name} · ${seen.size} / ${region.nodes.length} discovered</span><div>${button("−", 'data-map-zoom="-1" aria-label="Zoom out"', "icon-button")}${button("+", 'data-map-zoom="1" aria-label="Zoom in"', "icon-button")}${button("Fit map", "data-map-fit", "secondary-button")}</div></div><div class="region-map-viewport" id="region-map-viewport"><div class="region-map" style="--map-scale:${mapZoom};--map-tint:${LOCATIONS[loc].color}" aria-label="${LOCATIONS[loc].name} local roads"><svg viewBox="0 0 900 1300" preserveAspectRatio="none" aria-hidden="true"><defs><pattern id="contours" width="160" height="180" patternUnits="userSpaceOnUse"><path d="M-40 30q140-80 210 30M-40 55q140-80 210 30" fill="none" stroke="#72835d" stroke-width="2" opacity=".15"/></pattern></defs><rect width="900" height="1300" fill="#e0e4cb"/><rect width="900" height="1300" fill="${LOCATIONS[loc].color}" opacity=".17"/><rect width="900" height="1300" fill="url(#contours)"/>${Array.from(
+  return `<section class="route-map-shell"><div class="map-toolbar"><span>${LOCATIONS[loc].name} · ${seen.size} / ${region.nodes.length} discovered</span><div>${button("−", 'data-map-zoom="-1" aria-label="Zoom out"', "icon-button")}${button("+", 'data-map-zoom="1" aria-label="Zoom in"', "icon-button")}${button("Fit map", "data-map-fit", "secondary-button")}</div></div><div class="region-map-viewport" id="region-map-viewport"><div class="region-map" style="--map-scale:${mapZoom};--map-tint:${LOCATIONS[loc].color}" aria-label="${LOCATIONS[loc].name} local roads"><svg viewBox="0 0 900 1300" preserveAspectRatio="none" aria-hidden="true"><defs><pattern id="contours" width="160" height="180" patternUnits="userSpaceOnUse"><path d="M-40 30q140-80 210 30M-40 55q140-80 210 30" fill="none" stroke="#72835d" stroke-width="2" opacity=".15"/></pattern></defs><rect width="900" height="1300" fill="#17283a"/><rect width="900" height="1300" fill="${LOCATIONS[loc].color}" opacity=".17"/><rect width="900" height="1300" fill="url(#contours)"/>${Array.from(
     { length: 64 },
     (_, i) => {
       const x = (i * 173 + 43) % 880,
@@ -3106,7 +3117,7 @@ function crossroadsV7View() {
       routes
         .map((r) =>
           button(
-            `<span class="eyebrow" style="color:${r.index === d?.routeIndex ? "#0079be" : "#424c46"}">${r.index === d?.routeIndex ? "●" : "○"} ROUTE ${r.index + 1}${d?.routeIndex === r.index ? " · SELECTED" : ""}</span><strong>${r.label}</strong><span class="route-counts"><b>${r.combats}</b> combat · <b>${r.events}</b> non-combat</span><span>${routeDifficulty(r, loc)} difficulty · ${((r.index === 0 ? 1 : DIFFICULTIES[d?.difficulty || "normal"].reward) * r.danger).toFixed(2)}× rewards</span><small><b>${r.foodPerHero} food per adventurer</b>${r.foodPerHero ? " · " + r.foodPerHero * 3 + " for a party of three" : " · No supplies required"}</small><small class="route-waypoints">${r.ids
+            `<span class="eyebrow" style="color:${r.index === d?.routeIndex ? "#0079be" : "#424c46"}">${r.index === d?.routeIndex ? "●" : "○"} ROUTE ${r.index + 1}${d?.routeIndex === r.index ? " · SELECTED" : ""}</span><strong>${r.label}</strong><span class="route-counts"><b>${r.combats}</b> combat · <b>${r.events}</b> non-combat</span><span>${routeDifficulty(r, loc)} difficulty · ${(DIFFICULTIES[game.worldDifficulty || "normal"].reward * r.danger).toFixed(2)}× rewards</span><small><b>${r.foodPerHero} food per adventurer</b>${r.foodPerHero ? " · " + r.foodPerHero * 3 + " for a party of three" : " · No supplies required"}</small><small class="route-waypoints">${r.ids
               .slice(1)
               .map((id) => region.nodes.find((n) => n.id === id).name)
               .join(" → ")}</small>`,
@@ -3116,7 +3127,7 @@ function crossroadsV7View() {
         )
         .join("") ||
       '<p class="locked-note">Explore neighboring roads to reveal this destination.</p>'
-    }</div>${boss ? `<details class="map-difficulty"><summary>Region difficulty · ${DIFFICULTIES[d?.difficulty || "normal"].name}</summary><p>You defeated this region’s boss. Raise difficulty for greater rewards.</p>${difficultyControls()}</details>` : `<div class="difficulty-lock">${icon("shield", 18)}<span><strong>Adventurer difficulty</strong><small>Defeat ${region.nodes.find((n) => n.id === region.exit).name} to unlock difficulty controls${region.next ? " and the next map" : ""}.</small></span></div>`}<div class="route-confirm">${button("Lock route · Choose party " + icon("arrow", 16), "data-lock-route " + (!d?.unlocked ? "disabled" : ""))}<small>Choose your adventurers and pack supplies on the next screen.</small></div></section></div>`
+    }</div>${difficultyControls()}<div class="route-confirm">${button("Lock route · Choose party " + icon("arrow", 16), "data-lock-route " + (!d?.unlocked ? "disabled" : ""))}<small>Choose your adventurers and pack supplies on the next screen.</small></div></section></div>`
   );
 }
 function partyView() {
@@ -3197,7 +3208,7 @@ function v7Detail() {
     )
     .join(
       "",
-    )}</div></div><div class="detail-section"><div class="detail-section-label">Attributes & professions</div><div class="detail-chip-list">${characterAttributes(
+    )}</div></div><div class="detail-section"><div class="detail-section-label">Light & sight</div>${button((h.light ? itemInfo(h.light).name : "No light") + " · " + vision(h).label + " (" + vision(h).sight + ")", `data-light-profile="${h.id}"`, "equipment-slot")}</div><div class="detail-section"><div class="detail-section-label">Attributes & professions</div><div class="detail-chip-list">${characterAttributes(
     h,
   )
     .map((a, i) =>
@@ -3307,100 +3318,13 @@ function showArmor(h, index) {
 }
 let bonfireTab = "classes";
 function classTreeGraphic(h) {
-  const paths = classTree(h),
-    chosen = paths.find((p) => p.id === h.classPath),
-    points = [];
-  if (!chosen) {
-    points.push({
-      id: "root",
-      x: 300,
-      y: 240,
-      name: CLASSES[h.classId].label,
-      text: "Choose a calling at level 20.",
-    });
-    paths.forEach((p, i) => {
-      const angle = (((i * 360) / paths.length - 90) * Math.PI) / 180;
-      points.push({
-        ...p.nodes[0],
-        x: 300 + Math.cos(angle) * 190,
-        y: 240 + Math.sin(angle) * 155,
-      });
-    });
-  } else {
-    points.push({ id: "root", x: 300, y: 462, name: CLASSES[h.classId].label });
-    points.push({ ...chosen.nodes[0], x: 300, y: 335 });
-    chosen.nodes
-      .filter((n) => n.level === 40)
-      .forEach((n, i) => points.push({ ...n, x: i ? 455 : 145, y: 205 }));
-    chosen.nodes
-      .filter((n) => n.level === 60)
-      .forEach((n, i) =>
-        points.push({ ...n, x: [75, 220, 380, 525][i], y: 70 }),
-      );
-  }
-  return `<div class="branching-tree ${chosen ? "tree-focused" : "tree-overview"}" role="group" aria-label="Branching ${CLASSES[h.classId].label} class tree"><svg viewBox="0 0 600 510" aria-hidden="true">${points
-    .filter((n) => n.id !== "root")
-    .map((n) => {
-      const from = points.find((p) => p.id === n.parent) || points[0],
-        learned = h.classNodes.includes(n.id);
-      return `<path d="M${from.x} ${from.y} Q${from.x} ${(from.y + n.y) / 2} ${n.x} ${n.y}" fill="none" stroke="${learned ? "#ad8141" : n.locked ? "#c9c8b8" : "#8f9c78"}" stroke-width="${learned ? 5 : 3}" ${n.locked ? 'stroke-dasharray="5 6"' : ""}/>`;
-    })
-    .join("")}</svg>${points
-    .map((n) => {
-      const state = n.id === "root" ? {} : classNodeState(h, n);
-      return n.id === "root"
-        ? `<div class="tree-root" style="left:${n.x / 6}%;top:${n.y / 5.1}%">${icon(CLASSES[h.classId].icon, 27)}<strong>${n.name}</strong><small>YOUR CLASS</small></div>`
-        : button(
-            `<b>${state.learned ? "✓" : state.locked ? "×" : "◆"}</b><strong>${n.name}</strong><small>${n.level === 20 ? "UNCOMMON" : n.level === 40 ? "RARE" : "LEGENDARY"} · ${n.level}</small>`,
-            `data-class-node="${n.id}" data-for="${h.id}" title="${esc(n.text)}" style="left:${n.x / 6}%;top:${n.y / 5.1}%" ${!state.available || !available(game, h) ? "disabled" : ""}`,
-            "tree-skill " +
-              (state.learned ? "learned " : state.locked ? "locked " : "") +
-              (state.available ? "unlockable" : ""),
-          );
-    })
-    .join("")}</div>${
-    chosen
-      ? `<div class="locked-callings"><small>Other callings locked:</small>${paths
-          .filter((p) => p.id !== h.classPath)
-          .map((p) => "<span>× " + p.name + "</span>")
-          .join("")}</div>`
-      : ""
-  }<p class="tree-caption">${chosen ? "Follow either fork. Choosing a node permanently locks its sibling." : "The central class branches into different callings. Choose one to reveal its next forks."} ${info("classPoints")}</p>`;
+  return everUi.tree(h);
 }
 function showBonfire(h = chooseAvailable(selected)) {
-  if (!["classes", "armor", "pets"].includes(bonfireTab))
-    bonfireTab = "classes";
-  if (bonfireTab !== "classes") {
-    showTransforms(bonfireTab === "pets" ? "pet" : "armor", h);
-    return;
-  }
-  const body = h
-    ? heroPicker(h) +
-      `<div class="class-tree-intro">${portraitSvg(h)}<div><h3>${esc(h.name)} · ${classPoints(h)} unspent points</h3><p>Earn a point at levels 20, 40 and 60.</p><strong>${h.classPath ? "Chosen calling: " + className(h) : "Choose a path from the central class"}</strong></div></div>${classTreeGraphic(h)}`
-    : "<p>Return with an adventurer to choose a calling.</p>";
-  openModal(
-    "The Bonfire",
-    "Choose a calling. Armor and companions can find new forms here.",
-    bonfireTabs() + body,
-    "",
-    () => showBonfire(h && heroById(h.id)),
-  );
-  if (h) serviceHero(h, showBonfire);
+  everUi.bonfire(h);
 }
 function bonfireTabs() {
-  return `<div class="storage-tabs">${[
-    ["classes", "Class trees"],
-    ["armor", "Armor"],
-    ["pets", "Companions"],
-  ]
-    .map(([id, label]) =>
-      button(
-        label,
-        `data-bonfire-tab="${id}"`,
-        bonfireTab === id ? "secondary-button selected" : "text-button",
-      ),
-    )
-    .join("")}</div>`;
+  return '<p class="small">Equipment Workshop</p>';
 }
 function showTransforms(kind, h = null) {
   const objects = (
@@ -3475,7 +3399,7 @@ function showTransforms(kind, h = null) {
       .join("") || "<p>No matching belongings at Camp.</p>"
   }</div>`;
   openModal(
-    kind === "weapon" ? "The Blacksmith" : "The Bonfire",
+    kind === "weapon" ? "The Blacksmith" : "Equipment Workshop",
     kind === "weapon"
       ? "Weapon transformations"
       : "Armor and companion transformations",
@@ -3525,7 +3449,7 @@ function reviewClassNode(id, node) {
   openModal(
     n.name,
     "Spend one class point",
-    `<div class="character-preview">${portraitSvg(h)}</div><p class="modal-note">${n.text}</p><p>${h.classPath ? "Choose this fork of your " + path.name + " calling; its sibling will be locked." : "Choosing " + path.name + " locks every other branch. This character keeps their race, name, memories and bonds."}</p>`,
+    `<div class="character-preview">${portraitSvg(h)}</div><p class="modal-note">${n.text}</p><p>${n.parent === "root" ? "This talent begins your class tree. Your subclass choice comes next." : h.classPath ? "Choose this fork of your " + path.name + " calling; its sibling will be locked." : "Choosing " + path.name + " locks every other branch. This character keeps their race, name, memories and bonds."}</p>`,
     button("Keep thinking", "data-close", "secondary-button") +
       button("Learn this node", 'id="confirm-class-node"'),
   );
@@ -3537,20 +3461,14 @@ function reviewClassNode(id, node) {
 function showCharacters() {
   openModal(
     "The Character tent",
-    "Your adventurers · " +
-      game.roster.length +
-      " / " +
-      Camp.campCapacity(game) +
-      " capacity.",
+    game.roster.length + " / " + Camp.campCapacity(game) + " capacity",
     collection(game.roster, "Your characters", "owned", true).replaceAll(
       "data-hero=",
       "data-profile=",
-    ) +
-      `<div class="waiting-arrivals">${game.waitingRecruits.map((h) => '<div class="item-option"><span class="mini-portrait">' + portraitSvg(h) + "</span><span><strong>" + esc(h.name) + "</strong><small>Waiting for room at Camp</small></span>" + button("Welcome", `data-arrival="${h.id}" ${game.roster.length >= Camp.campCapacity(game) ? "disabled" : ""}`) + "</div>").join("")}</div>`,
+    ),
   );
-  const input = $("collection-search");
-  if (input)
-    input.oninput = (e) => {
+  if ($("collection-search"))
+    $("collection-search").oninput = (e) => {
       search = e.target.value;
       showCharacters();
       $("collection-search").focus();
@@ -3561,7 +3479,6 @@ function showCharacters() {
       showCharacters();
     };
 }
-
 function abilityDiagram(h, a) {
   const recipe =
       a.spell === "heal"
@@ -3619,15 +3536,12 @@ function abilityDiagram(h, a) {
       '<path d="m30 57 25-7-6 7m18-28 8 12m-13 27-8 13m42-21 15 4" fill="none" stroke="#af8c48" stroke-width="3"/>';
     caption = "STRIKE · EXPLOSION";
   }
-  return `<svg viewBox="0 0 140 110" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${caption}"><rect width="140" height="110" rx="12" fill="#e7e6d1"/>${scene}<text x="70" y="103" text-anchor="middle" font-size="8" fill="#5a6b51" font-family="sans-serif">${caption}</text></svg>`;
+  return `<svg viewBox="0 0 140 110" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${caption}"><rect width="140" height="110" rx="12" fill="#22334b"/>${scene}<text x="70" y="103" text-anchor="middle" font-size="8" fill="#5a6b51" font-family="sans-serif">${caption}</text></svg>`;
 }
 
 // Camp and Market use the same resident interaction on touch and desktop.
 function routeDifficulty(route, loc) {
-  const d =
-    route.index === 0
-      ? DIFFICULTIES.normal
-      : DIFFICULTIES[game.destination.difficulty || "normal"];
+  const d = DIFFICULTIES[game.worldDifficulty || "normal"];
   return d.name + " · " + (route.danger * d.health).toFixed(2) + "× enemy HP";
 }
 function portraitTerrain(kind) {
@@ -3658,36 +3572,7 @@ function portalScene() {
   return `<button class="camp-portal" data-portal data-drop-target="portal" aria-label="Eldrin the portalkeeper · Travel to unlocked regions"><svg viewBox="0 0 120 130" aria-hidden="true"><ellipse cx="48" cy="64" rx="31" ry="43" fill="#a5b7c1" fill-opacity=".45" stroke="#667d87" stroke-width="8"/><ellipse class="portal-shimmer" cx="48" cy="64" rx="23" ry="34" fill="#96a8c6" stroke="#e7d5aa" stroke-width="3"/><path d="M30 60q18-30 34 0t-34 11" stroke="#eadfbd" stroke-width="2" fill="none"/><ellipse cx="48" cy="113" rx="43" ry="9" fill="#5f745238"/><path d="m74 115 10-43h18l15 43Z" fill="#67788d" stroke="#4a5c70" stroke-width="2"/><circle cx="93" cy="66" r="12" fill="#d4bb93"/><path d="m75 57 17-32 20 32Z" fill="#5d718a"/><path d="M80 58h28" stroke="#d5bd86" stroke-width="3"/><path d="m83 68 10 24 12-24" fill="#e5dec8"/><path d="m108 117 2-50" stroke="#917f55" stroke-width="4"/><circle class="portal-shimmer" cx="111" cy="61" r="6" fill="#e3c784"/></svg><strong>Portalkeeper</strong><small>${game.regionUnlocks.length - 1} regions beyond the forest</small></button>`;
 }
 function showPortal() {
-  openModal(
-    "Eldrin, the portalkeeper",
-    "The castle has fallen. New roads are waiting.",
-    `<div class="portal-story">${portalScene()}<p>“Your Camp remains your home. I can open a passage to every region your company has earned.”</p></div><div class="portal-regions">${REGION_ORDER.filter(
-      (id) => game.regionUnlocks.includes(id),
-    )
-      .map((id) =>
-        button(
-          `${icon(LOCATIONS[id].icon, 21)} ${LOCATIONS[id].name}`,
-          `data-portal-region="${id}"`,
-          "secondary-button",
-        ),
-      )
-      .join(
-        "",
-      )}</div><p class="modal-note">Defeat each region’s final boss to open the next. Only your Camp can be built on.</p>`,
-  );
-  document.querySelectorAll("[data-portal-region]").forEach(
-    (b) =>
-      (b.onclick = async () => {
-        await navigate("crossroads");
-        await act("destination", {
-          mode: "journey",
-          location: b.dataset.portalRegion,
-          target: REGIONS[b.dataset.portalRegion].first,
-          routeIndex: 0,
-          difficulty: "normal",
-        });
-      }),
-  );
+  everUi.portal();
 }
 function showBuildSites() {
   openModal(
@@ -3753,14 +3638,16 @@ function marketMapView() {
       button("← Camp", 'data-nav="camp"', "secondary-button"),
     ) +
     workspace(
-      `${marketTabs()}${stockTimer()}<div class="market-map local-map" data-local-map="market"><svg class="landscape-terrain" viewBox="0 0 900 540" preserveAspectRatio="none" aria-hidden="true"><rect width="900" height="540" fill="#c1c6a2"/><path d="M-10 272Q240 185 450 272T915 290M440-30Q500 170 450 290T450 600" stroke="#dbcca7" stroke-width="54" fill="none"/><circle cx="450" cy="270" r="40" fill="#9faa9c" stroke="#dfd2b2" stroke-width="12"/><ellipse cx="450" cy="263" rx="29" ry="18" fill="#a1bec0"/>${[20, 120, 770, 880].map((x, i) => `<g fill="#6f8a5b"><circle cx="${x}" cy="${i % 2 ? 492 : 28}" r="35"/><circle cx="${x + 10}" cy="${i % 2 ? 480 : 15}" r="24" fill="#91a36e"/></g>`).join("")}</svg>${portraitTerrain("market")}${VENDORS.map(
-        (v) => {
-          const pos = MARKET_PLOTS[v.id];
+      `${marketTabs()}${stockTimer()}<div class="market-map local-map" data-local-map="market"><svg class="landscape-terrain" viewBox="0 0 900 540" preserveAspectRatio="none" aria-hidden="true"><rect width="900" height="540" fill="#c1c6a2"/><path d="M-10 272Q240 185 450 272T915 290M440-30Q500 170 450 290T450 600" stroke="#dbcca7" stroke-width="54" fill="none"/><circle cx="450" cy="270" r="40" fill="#9faa9c" stroke="#dfd2b2" stroke-width="12"/><ellipse cx="450" cy="263" rx="29" ry="18" fill="#a1bec0"/>${[20, 120, 770, 880].map((x, i) => `<g fill="#6f8a5b"><circle cx="${x}" cy="${i % 2 ? 492 : 28}" r="35"/><circle cx="${x + 10}" cy="${i % 2 ? 480 : 15}" r="24" fill="#91a36e"/></g>`).join("")}</svg>${portraitTerrain("market")}${VENDORS.filter(
+        (v) => v.id !== "guild",
+      )
+        .map((v) => {
+          const pos = MARKET_PLOTS[v.id] || [50, 17];
           return `<button class="market-map-stall" style="left:${pos[0]}%;top:${pos[1]}%;--stall-color:${{ guild: "#8b9f87", forge: "#b48168", arcane: "#a08cb4", night: "#8b9c92", menagerie: "#bd9f76", atelier: "#ad8e9e" }[v.id]}" data-vendor-map="${v.id}" data-drop-target="vendor:${v.id}">${vendorArt(v)}<strong>${v.name}</strong><small>${v.tag}</small></button>`;
-        },
-      ).join(
-        "",
-      )}${residentsView("market", visitors)}${nightUi.visitorScene("market")}${nightUi.marketArrows()}<div class="market-map-sign">THE MARKET SQUARE<small>${visitors.length} visiting adventurers</small></div></div><p class="map-help">${icon("army", 16)}${visitors.length ? "Pick up a visitor and drop them on a stall." : "Browse any stall, or return to Camp to bring adventurers."}</p>${marketServices()}<div class="market-visitor-list"><h3>Your visitors</h3>${visitors.map((h) => button(`${portraitSvg(h)}<span>${esc(h.name)}</span>`, `data-hero="${h.id}"`, "visitor-chip")).join("") || "<p>Exploring the Market alone.</p>"}</div>`,
+        })
+        .join(
+          "",
+        )}${button("The Last Lantern Tavern", 'data-market-district="tavern"', "tavern-entrance")}${residentsView("market", visitors)}${nightUi.visitorScene("market")}${everUi.marketArrows()}<div class="market-map-sign">THE MARKET SQUARE<small>${visitors.length} visiting adventurers</small></div></div><p class="map-help">${icon("army", 16)}${visitors.length ? "Pick up a visitor and drop them on a stall." : "Browse any stall, or return to Camp to bring adventurers."}</p>${marketServices()}<div class="market-visitor-list"><h3>Your visitors</h3>${visitors.map((h) => button(`${portraitSvg(h)}<span>${esc(h.name)}</span>`, `data-hero="${h.id}"`, "visitor-chip")).join("") || "<p>Exploring the Market alone.</p>"}</div>`,
     )
   );
 }
@@ -3769,6 +3656,7 @@ function offerFitsHero(o, h) {
   if (o.kind === "item") {
     if (o.item.unidentified) return CLASSES[h.classId].magical;
     const def = ITEMS[o.item.key];
+    if (def.type === "light") return true;
     return def.type === "armor"
       ? armorSlots(h).some(
           (slot, i) => slot.allowed && !armorRestriction(h, o.item, i),
@@ -4041,7 +3929,7 @@ function gemShopView() {
       "The Shop",
       "Cosmetics, Mythical adventurers and signature weapons. Apply your cosmetics at the Market’s Atelier.",
     ) +
-    `${stockTimer()}<div class="shop-intro"><span class="gem-art">◆</span><div><h2>${game.gems} gem value</h2><p>Collected gemstones are your currency here. Your gold stays available for Camp and Market services.</p></div></div><div class="storage-tabs">${[
+    `${everUi.monthlyShop()}${stockTimer()}<div class="shop-intro"><span class="gem-art">◆</span><div><h2>${game.gems} gem value</h2><p>Collected gemstones are your currency here. Your gold stays available for Camp and Market services.</p></div></div><div class="storage-tabs">${[
       ["all", "Everything"],
       ["cosmetic", "Cosmetics"],
       ["item", "Mythical weapons"],
@@ -4114,7 +4002,7 @@ function challengesView() {
       "Today’s Daily Battle, themed champions, and the bosses your company has overcome.",
     ) +
     challengeTabs() +
-    `<section class="challenge-theme"><span class="eyebrow">${new Date(game.lastClock).toLocaleDateString("en", { month: "long", year: "numeric", timeZone: "UTC" })} · ${m.name}</span><h2>${m.text}</h2><p>${count} / ${m.days} victorious daily dates this month.</p></section>${
+    `${everUi.calendar()}<section class="challenge-theme"><span class="eyebrow">${new Date(game.lastClock).toLocaleDateString("en", { month: "long", year: "numeric", timeZone: "UTC" })} · ${m.name}</span><h2>${m.text}</h2><p>${count} / ${m.days} victorious daily dates this month.</p></section>${
       challengeTab === "monthly"
         ? `<div class="calendar-bonuses">${CALENDAR_BONUSES.map((b) => {
             const n = b.days === "all" ? m.days : b.days;
@@ -4125,7 +4013,7 @@ function challengesView() {
       .map((d) => {
         const key = trialClaimKey(d),
           done = !!game.challengeTiers[key];
-        return `<article class="trial-card"><div class="trial-crest">${icon(d.challengeId === "daily" ? "shield" : "sword", 38)}</div><span class="eyebrow">${d.challengeId === "daily" ? "TODAY · DAY " + d.day : d.challengeId === "boss" ? "UNLOCKED BOSS" : title(d.challengeId) + " champion"} · SINGLE ENCOUNTER</span><h3>${d.name}</h3><p>Suggested level ${d.level} · ${LOCATIONS[d.location].name}</p><div class="trial-prize"><b>${d.victoryGold} gold</b><span>${d.victoryGems ? d.victoryGems + " gem value" : d.special === "food" ? "3 food" : d.special === "supplies" ? "Luck potion" : "Character XP"}${d.challengeId === "monthly" ? " + Starlit cosmetic" : ""}</span></div>${button(done ? "✓ Won · Choose difficulty" : "Choose party", `data-trial="${d.challengeId}" ${d.day ? 'data-day="' + d.day + '"' : ""} ${d.bossLocation ? 'data-boss-location="' + d.bossLocation + '"' : ""}`, "secondary-button")}<small>Choose difficulty before fighting. Higher tiers pay only the additional reward.</small></article>`;
+        return `<article class="trial-card"><div class="trial-crest">${icon(d.challengeId === "daily" ? "shield" : "sword", 38)}</div><span class="eyebrow">${d.challengeId === "daily" ? "TODAY · DAY " + d.day : d.challengeId === "boss" ? "UNLOCKED BOSS" : title(d.challengeId) + " champion"} · SINGLE ENCOUNTER</span><h3>${d.name}</h3><p>Suggested level ${d.level} · ${LOCATIONS[d.location].name}</p><div class="trial-prize"><b>${d.victoryGold} gold</b><span>${d.victoryGems ? d.victoryGems + " gem value" : d.special === "food" ? "3 food" : d.special === "supplies" ? "Luck potion" : "Character XP"}${d.challengeId === "monthly" ? " + Starlit cosmetic" : ""}</span></div>${button(done ? "✓ Won · Choose party" : "Choose party", `data-trial="${d.challengeId}" ${d.day ? 'data-day="' + d.day + '"' : ""} ${d.bossLocation ? 'data-boss-location="' + d.bossLocation + '"' : ""}`, "secondary-button")}<small>World difficulty is set at the Bonfire. Higher tiers pay only the unclaimed reward.</small></article>`;
       })
       .join("")}</div>`
   );
@@ -4146,19 +4034,7 @@ function showTrialParty() {
   openModal(
     "Choose your challenge company",
     d.name,
-    `<div class="modal-note">One combat encounter · Suggested level ${d.level}<br><strong>${DIFFICULTIES[d.difficulty].name} · ${d.reward}× rewards</strong><br>Victory pays ${extraGold} gold${extraGems ? " + " + extraGems + " gem value" : ""} at this tier. Your characters keep XP and return afterward.</div><div class="difficulty-grid">${Object.entries(
-      DIFFICULTIES,
-    )
-      .map(([id, v]) =>
-        button(
-          `<strong>${v.name}</strong><span>${v.reward}× rewards</span><small>${v.health}× HP · ${v.damage}× damage</small>`,
-          `data-trial-difficulty="${id}" aria-pressed="${d.difficulty === id}"`,
-          d.difficulty === id ? "difficulty-card selected" : "difficulty-card",
-        ),
-      )
-      .join(
-        "",
-      )}</div>${collection(game.roster, "Three to six adventurers", "staging")}`,
+    `<div class="modal-note">One combat encounter · Suggested level ${d.level}<br><strong>${DIFFICULTIES[d.difficulty].name} · ${d.reward}× rewards</strong><br>Victory pays ${extraGold} gold${extraGems ? " + " + extraGems + " gem value" : ""} at this tier. Your characters keep XP and return afterward.</div>${collection(game.roster, "Three to six adventurers", "staging")}`,
     button("Keep thinking", "data-close", "secondary-button") +
       button(
         "Start challenge",
@@ -4182,12 +4058,12 @@ function confirmRelease(id) {
   const h = heroById(id);
   if (!h) return;
   openModal(
-    "Let " + esc(h.name) + " go?",
+    "Retire " + esc(h.name) + "?",
     "This permanently removes the adventurer.",
-    `<div class="class-tree-intro">${portraitSvg(h)}<p>Their equipment and companion return to storage. No gold or gems are awarded. Keep at least three adventurers at Camp.</p></div>`,
+    `<div class="class-tree-intro">${portraitSvg(h)}<p>Their equipment, light and companion return to storage. Retirement pays ${Ever.retirementValue(h).gold} gold${Ever.retirementValue(h).gems ? " and " + Ever.retirementValue(h).gems + " gem value" : ""}. Keep at least three adventurers at Camp.</p></div>`,
     button("Stay together", "data-close", "secondary-button") +
       button(
-        "Let them go",
+        "Retire adventurer",
         `id="confirm-release" ${!available(game, h) || h.favorite || game.roster.length <= 3 ? "disabled" : ""}`,
         "primary-button danger",
       ),

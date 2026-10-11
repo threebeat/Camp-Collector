@@ -1,15 +1,19 @@
 # Verification record
 
-Version 0.13 builds on a recovered v12 baseline with 130 passing tests. The expanded suite has 142 passing Node tests, including save migration, profession ranks/tools, item compatibility, Kitchen upgrades, repeat-proof contract/visitor claims and all 25 island floors/reward replay. Build and bundled Worker validation pass.
+## Evernight 0.14
 
-The GitHub browser pipeline executes 12 scenarios: four flows each in desktop Chromium, Android Pixel 7 Chromium and iPhone 13 WebKit emulation. It checks horizontal fit, accessible tap alternatives, reduced motion, persisted tent memories, profiles, Market districts, profession promotion, scripted NPC/Board quests, comparisons, Attribute removal, storage equipment, Pantry replacement, crafting and island party preparation. It captures Camp, Market and lakeshore images and retains failure traces.
+The local suite passes **157 Node tests**, followed by build and bundled Worker validation. Fifteen new tests cover bounded twelve-hour meals, deployed meal XP, Camp XP ledgers, light equipment/AI/terrain shadows/fog checkpoints, world tiers and frozen parties, boss farming and chosen portals, guild standing/member receipts, Arena rules/mines/stakes, monthly cosmetics, migration and Codex consolidation. Existing combat, challenge transactions, save/worker transport, native rendering and full DOM service tests remain covered.
 
-The first browser run passed 7/12; five failures exposed duplicate hidden-dialog selectors and an automatic-closing race in the tests. Those test issues were corrected. The corrected run passed all 12 scenarios: [Game checks run 38137043359](https://github.com/threebeat/Camp-Collector/actions/runs/38137043359), commit `c352dfdf747ca8514dcc910ad2f87961761eec79`. Both the Node/artifact job and browser job succeeded.
+The browser pipeline now contains **21 scenarios**: seven flows across desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit emulation. It exercises the three-page opening, naming, four Camp metrics, tutorial placement/Skip/settings, saved profiles, all new district maps, eight guild booths, lessons/standing/shops, Tavern hiring, Quest organization, compatible light equipping, alternating class choices, global difficulty, chosen portals, calendar state, monthly collections, Arena stake deduction, reduced motion and horizontal fit. Screenshots and failure traces are retained in `browser-report`.
 
-Native contact sheets verify SVG parsing and show the southern lake/island inside the forest map bounds. Gear/race art is shared with battle rendering. The island's original marker position was corrected during this review.
+Browser run evidence will be recorded after the remote workflow finishes. Local DOM/native canvas tests establish model/command/render behavior; they do not establish actual browser layout.
 
-Browser emulation does not establish physical iOS/Android performance, OS suspension behavior, touch dragging ergonomics, hosted identity behavior or long-term progression balance. Keep those limits explicit. A first-road seeded test continues to require at least 90% success over 20 opening battles.
+## Prior release evidence
 
-## Next physical-device pass
+The 0.13 workflow passed 142 Node tests and 12 browser scenarios: [run 38137043359](https://github.com/threebeat/Evernight/actions/runs/38137043359). Original browser-selector issues were corrected before that release. Native SVG sheets verified shared equipment/race art and the corrected island marker.
 
-On an actual phone, try naming, a full tent profile, stored-gear equipping, long calling trees, Market district navigation, neutral recruitment, readable local-map zoom, tap and drag service access, battle/result timing, scrolling modal sheets and background/reopen catch-up. Include reduced motion and a full roster. Verify another browser/device creates separate personal state; do not claim cross-device save synchronization.
+## Limits and follow-up
+
+Browser emulation does not establish physical iOS/Android performance, OS suspension behavior, touch dragging ergonomics, hosted multi-account identity or long-term progression balance. The first-road seeded regression still requires at least 90% wins over twenty opening battles. Carried-light shadows should receive a frame-rate pass on an actual modest phone.
+
+On physical devices, try the opening, settings/tutorial, a full roster, long class/Codex sheets, district navigation, lights in dark/obstructed battles, Quest filters, monthly calendar, long Arena outcomes, tap/drag service access and background/reopen catch-up. Test both orientations and reduced motion. Another browser/device has separate personal state; cross-device synchronization is not implemented.

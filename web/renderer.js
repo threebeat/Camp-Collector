@@ -1,4 +1,10 @@
 import {
+  vision,
+  lightSources,
+  revealed,
+  sightPolygon,
+} from "./lighting.js?v=14";
+import {
   W,
   H,
   CLASSES,
@@ -10,9 +16,9 @@ import {
   hasAttribute,
   characterSize,
   allGear,
-} from "./data.js?v=13";
-import { seeded } from "./engine.js?v=13";
-import { portraitSvg, petSvg } from "./art.js?v=13";
+} from "./data.js?v=14";
+import { seeded } from "./engine.js?v=14";
+import { portraitSvg, petSvg } from "./art.js?v=14";
 const images = new Map();
 function imageFor(hero) {
   const key =
@@ -23,6 +29,7 @@ function imageFor(hero) {
     hero.cosmetic +
     JSON.stringify(hero.items) +
     JSON.stringify(hero.armor) +
+    JSON.stringify(hero.light) +
     JSON.stringify(hero.talents) +
     JSON.stringify(hero.attributes) +
     JSON.stringify(hero.companion);
@@ -53,6 +60,9 @@ export class Renderer {
     this.background = document.createElement("canvas");
     this.background.width = W * 1.5;
     this.background.height = H * 1.5;
+    this.fog = document.createElement("canvas");
+    this.fog.width = W;
+    this.fog.height = H;
     this.map = null;
     this.selected = null;
     this.showNames = true;
@@ -367,6 +377,86 @@ export class Renderer {
         c.fillRect(x - 1, y, 5, 3);
       }
   }
+
+  drawFog(b, t) {
+    const f = this.fog.getContext("2d"),
+      path = (ctx, s) => {
+        const points = sightPolygon(b, s);
+        ctx.beginPath();
+        points.forEach((p, i) =>
+          i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y),
+        );
+        ctx.closePath();
+      };
+    f.clearRect(0, 0, W, H);
+    f.globalCompositeOperation = "source-over";
+    f.fillStyle = "#070b18";
+    f.fillRect(0, 0, W, H);
+    f.globalCompositeOperation = "destination-out";
+    f.fillStyle = "rgba(0,0,0,.18)";
+    for (const n of b.fogSeen || [])
+      f.fillRect((n % 30) * 40, Math.floor(n / 30) * 40, 40, 40);
+    const lights = lightSources(b).filter((s) => revealed(b, s)),
+      senses = b.units
+        .filter(
+          (u) => u.team === 0 && !u.dead && !u.pet && !u.summon && !u.structure,
+        )
+        .map((u) => ({
+          x: u.x,
+          y: u.y,
+          r: vision(u.hero).sight,
+          nightVision: vision(u.hero).nightVision,
+          flying: u.flying,
+          kind: "vision",
+        }));
+    for (const s of [...lights, ...senses]) {
+      f.save();
+      path(f, s);
+      f.clip();
+      const radius =
+          s.r *
+          (s.kind === "lamp" ? 1 + Math.sin(t * 5 + s.x * 0.01) * 0.008 : 1),
+        g = f.createRadialGradient(
+          s.x,
+          s.y,
+          Math.max(1, radius * 0.58),
+          s.x,
+          s.y,
+          radius,
+        );
+      g.addColorStop(0, "rgba(0,0,0,1)");
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      f.fillStyle = g;
+      f.fillRect(s.x - s.r, s.y - s.r, s.r * 2, s.r * 2);
+      f.restore();
+    }
+    f.globalCompositeOperation = "source-over";
+    this.ctx.drawImage(this.fog, 0, 0);
+    for (const s of [...lights, ...senses.filter((s) => s.nightVision)]) {
+      this.ctx.save();
+      path(this.ctx, s);
+      this.ctx.clip();
+      this.ctx.globalCompositeOperation = "screen";
+      const g = this.ctx.createRadialGradient(s.x, s.y, 1, s.x, s.y, s.r * 0.7),
+        color = s.kind === "vision" ? "#739ed2" : s.color;
+      g.addColorStop(0, color + "35");
+      g.addColorStop(1, color + "00");
+      this.ctx.fillStyle = g;
+      this.ctx.fillRect(s.x - s.r, s.y - s.r, s.r * 2, s.r * 2);
+      this.ctx.restore();
+    }
+    this.ctx.save();
+    this.ctx.font = "12px system-ui";
+    this.ctx.fillStyle = "#d3dbea";
+    this.ctx.textAlign = "left";
+    this.ctx.fillText(
+      "Firelight reveals · blue sight is night vision",
+      16,
+      H - 12,
+    );
+    this.ctx.restore();
+  }
+
   draw(battle, wallTime = 0) {
     this.fit();
     if (
@@ -627,6 +717,7 @@ export class Renderer {
     }
     const sorted = [...battle.units].sort((a, b) => a.y - b.y);
     for (const u of sorted) {
+      if (u.team !== 0 && !revealed(battle, u)) continue;
       if (u.dead) {
         if (!u.structure) {
           ctx.globalAlpha = 0.26;
@@ -717,8 +808,10 @@ export class Renderer {
           );
         else circle(ctx, 0, -8, 8, PETS[u.petKey].color);
       } else if (u.hazard) {
-        ctx.fillStyle = u.hazard === "lion" ? "#c4a565" : "#8b7658";
-        if (u.hazard === "lion") {
+        ctx.fillStyle = ["lion", "tiger"].includes(u.hazard)
+          ? "#c4a565"
+          : "#8b7658";
+        if (["lion", "tiger"].includes(u.hazard)) {
           ctx.beginPath();
           ctx.ellipse(0, -12, 22, 11, 0, 0, 7);
           ctx.fill();
@@ -727,6 +820,16 @@ export class Renderer {
           circle(ctx, u.facing * 23, -20, 2, "#343d2f");
           ctx.fillRect(-15, -6, 5, 14);
           ctx.fillRect(12, -6, 5, 14);
+          if (u.hazard === "tiger") {
+            ctx.strokeStyle = "#433239";
+            ctx.lineWidth = 3;
+            for (const x of [-13, -4, 5, 14]) {
+              ctx.beginPath();
+              ctx.moveTo(x, -20);
+              ctx.lineTo(x + 3, -9);
+              ctx.stroke();
+            }
+          }
         } else {
           ctx.fillRect(-24, -21, 48, 23);
           circle(ctx, -17, 3, 8, "#4e5143");
@@ -1025,6 +1128,7 @@ export class Renderer {
       ctx.fillText(f.text, f.x, f.y - (1 - f.life / f.max) * 24);
     }
     ctx.globalAlpha = 1;
+    this.drawFog(battle, wallTime);
     const marked = battle.units.find((u) => u.uid === this.selected);
     if (marked) {
       const x = marked.x,

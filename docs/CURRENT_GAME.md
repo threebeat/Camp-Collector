@@ -1,122 +1,88 @@
 # Current game behavior
 
-This is the version-0.13 snapshot. Earlier conversation ideas evolved repeatedly; these notes describe the implemented game rather than treating every historical suggestion as a current requirement.
+This describes Evernight 0.14.0. Historical release notes explain earlier behavior; the owner's current direction takes precedence.
 
-## Starting and living at Camp
+## Opening and Camp
 
-The world has permanently turned to night. New players name a Camp beside a lantern-lit Market. They receive three individually named level-5 adventurers: a Human Vanguard, an Elf Ranger and a Nereid Cleric. All starting gear is Common. They begin with 30 gold, six food, one Trail supper and one expedition slot. A single Main Quest directs the first journey. Two Side Quests invite players to name Camp and stock the Pantry; completing them gives early resources without defeating a boss.
+A new player clicks through three required pages explaining the world of permanent night, their Camp beside the Market, and three volunteers: a level-5 Human Vanguard, Elf Ranger and Nereid Cleric. They name Camp on the last page. Starting resources are 30 gold, six food, one Trail supper and one expedition slot. The circumstances are not repeated across Camp. Named existing Camps skip the new opening.
 
-Camp contains walking residents and companions. Clicking selects a character and replaces the Camp bar with the inspector. The character tent opens a searchable roster, then its own detailed profile with equipment, companions, reciprocal friendships, editable memories and growth tables. Those management sections are absent from the smaller character inspector. Mouse, pen and touch pointer dragging can reposition a resident or drop them on a service; ordinary building taps provide an alternative. Market visitors can be selected before walking north to the vendor map.
+Desktop navigation is at the top; phone navigation is at the bottom. The optional guide attaches to it on non-expedition management screens. Skip hides it, and the currency-adjacent gear opens settings to restore the guide, choose reduced motion or manage backups. Gold and gems are the global counts; food belongs in Camp.
 
-The Camp bar contains rename, current/max adventurers, ready characters, traveling parties, victories, stocked food and waiting arrivals. The resource strip uses separate Stone and Ore icons and does not list eggs. Camp initially holds **20 adventurers**. Each built cabin adds **20**; repeated cabins have increasing costs. Recruitment/purchases respect capacity before payment. Earned milestone arrivals can wait until there is space. Charm also reserves available capacity across active parties.
+Camp shows its map and overview. Build sits directly below the editable name. The clickable Camp XP card opens its explanation, followed by four metrics: adventurers/capacity, ready/deployed adventurers, stocked food/next-period demand, and world difficulty. The map's top strip contains basic resources; the overview's resource list also exposes hides, Obsidian, Relic fragments, fossils and Boss Sigils. There is no aggregate resource count or repeated expansion copy.
 
-There is no retirement service. Release lets an idle, non-favorite adventurer leave and returns equipment/armor/companion to storage, with no currency reward. The last three characters are protected. Recycling is separate: it deliberately consumes a character for gold and scarce gem value, through a confirmation. Favorites and availability constraints apply to destructive actions.
+The initial capacity is **40**, plus **20 per cabin**. Purchases, creation, charm and journey rewards respect it. A full Camp misses character rewards; there is no waiting-arrivals service. Migration admits legacy queued adventurers into available new capacity once, then clears the old queue.
 
-## Camp services
+Camp XP has no rarity. Character lifetime XP contributes 25%; equipment and companion lifetime XP contribute 10%. An ID-based ledger prevents equipping/storing the same item or reloading from counting it twice. Victories, quest claims, construction/upgrades, expansions and opening regions also award XP. Level 1 needs 100 XP; each subsequent requirement rises by 60, up to level 100. Existing character/gear levels remain intact; the new Camp progression begins with its own ledger.
 
-| Service | Purpose |
+Every **12 hours**, the roster consumes one food per adventurer, including deployed adventurers. Each consumed portion gives five base character XP, subject to racial XP modifiers; deployed characters receive it on return so active checkpoints remain consistent. Partial supplies feed only available portions. Settlement is bounded by roster size even after a long absence. A fed company recovers twice as quickly and raises the chance of Camp wanderers (80% versus 35% each visitor cycle). Food is not additionally charged on returning from ordinary battles. Expeditions can still reserve explicitly listed travel supplies.
+
+Retire combines the previous Release and character Recycle actions. It returns all equipment, armor, utility light and companion, pays `floor(8 + 1.5 × level²)` gold and `floor(level / 30)` gem value, and requires an idle, non-favorite adventurer. The last three remain protected. Equipment recycling remains separate.
+
+## Services and districts
+
+| Place | Services |
 | --- | --- |
-| Character tent | Roster and detailed profiles with gear, companions, friends, memories, growth, recycling and release |
-| Storage | Searchable belongings and direct Equip → compatible character/slot choices, plus material, scroll, gem and supply tabs |
-| Bonfire | Spend class points; transform armor and companions |
-| Crossroads | Open the current regional road map and plan a journey |
-| Pantry | Buy food; food reduces returning-character recovery time |
-| Training Grounds | Permanently improve one stat with a timed training Talent; requires construction and at least four adventurers |
-| Blacksmith | Timed weapon improvement, weapon transformations and crafting Common weapon bases; replaces the Sharpening Bench |
-| Equipment Workshop | Craft basic armor; buy/sell through the Market; transform weapons, armor and companions |
-| Kitchen | Upgrade the Pantry in place; retains food buying, cooks six meals and ingredient-based Trail supper, stew and tea |
-| Alchemist | Brew supplies, combine gems and turn gems into selected materials |
-| Farm / Herb garden | Harvest food or herbs after repairing the corresponding Camp extension |
-| Cabins | Add twenty adventurer spaces per cabin in the west extension |
-| Archaeology Camp | Built after any Camp extension; hatch dinosaur eggs and grow fossil companions |
-| Lantern Dock | South lakeshore construction; high-tier arrivals and the 25-floor island expedition |
+| Character tent | Searchable roster; profiles, gear/light, companions, bonds, memories, growth and retirement |
+| Storage | Searchable belongings, compatible equipment/light choices, materials, scrolls, gems and supplies |
+| Bonfire | Spend class points and choose unlocked global difficulty |
+| Equipment Workshop | Craft armor and transform weapons, armor or companions |
+| Blacksmith | Timed weapon improvement, weapon transformations and ordinary weapon crafting |
+| Pantry / Kitchen | Buy food; upgrade in place to cook meals and ingredient dishes |
+| Training Grounds | Timed permanent stat training; construction and four adventurers required |
+| Alchemist / Farm / Garden | Supplies, gem combination/material conversion and renewable harvests |
+| Archaeology | Dinosaur eggs and fossil companions, after a Camp expansion |
+| Portal Mage | Unlocks after the first regional boss; spends Boss Sigils to open regions |
+| Market square | Important shops and entrances to the surrounding districts |
+| Guildhall | Two rows of four guild booths: lessons, quests, standing and member shops |
+| Lantern Commons | Outfitter equipment-slot additions and Quest Board |
+| Tavern | Five hireable visitors, rotating character stock and gathering services |
+| Lantern Clinic | Paid removal of eligible non-racial, non-Profession Attributes |
+| Arena grounds | Arena entrance and stakes screen |
 
-Unbuilt services stay out of the scene and appear in the Build dialog. East, west and south road repairs cost gold/materials; buying one increases the others' costs. The northern arrow visits the Market. Archaeology is placed in an owned extension. Eggs create a Fern raptor or rideable Saddleback dinosaur for 40 gold. Fossil recipes create an Ammonite, Trilobite or flying Amberwing, each for 55 gold plus its fossil requirement. Nesting valley supplies eggs; Amberwild's fossil sites supply fossils.
+Residents/companions walk on Camp and Market scenes. Clicking selects a concise allegiance-colored inspector. Profiles show richer information; race and class names open foundations/trees. Pointer dragging repositions characters or drops them on a service; ordinary taps remain an alternative. A fresh Market visit enters the square. Outfitter, Board, guilds, Clinic, Tavern and Arena have their own service maps.
 
-Training starts at 35 gold and 30 seconds. Every completed session on that character, even in a different stat, increases the next cost by 30 gold and multiplies duration by 1.65 up to one hour. A stat's training Talent adds 3 points per Talent level, scaled by rarity. The character is unavailable while training. Weapon improvement has ranks up to five, uses gold/ore and takes real time; it is separate from rarity transformations and adding slots.
+Stonekeepers, Rootwardens and Wildwatch teach Miner, Lumberjack and Hunter Profession Attributes at ranks I–III, retaining class and respecting the eight equipment-slot cap. Promotions cost 35 / 75 / 150 gold, with resources for higher ranks. All eight guilds offer a 35-gold stat lesson, four-encounter patrols and standing: lessons +10, completed guild patrols +20. At 20 standing, a guild-exclusive level-20 signature item becomes available once per twelve-hour stock period. Its 60-gold starting price discounts with standing, up to 40%. Lantern Runner lessons can teach Night vision after reaching 20 standing.
 
-## Character identities
+Market equipment stock refreshes every twelve hours and supports filters, comparison sheets and compatible equipping. Attributes cannot be purchased directly. Neutral visitors rotate every three hours; Camp food affects wanderer frequency. Mara's scripted quest and the Night Watch challenger remain. The Workshop, Kitchen and lakeshore systems from 0.13 remain available.
 
-Race supplies six stat foundations, physiology and a racial Attribute. Class supplies targeted stat additions, an active technique, starting equipment slots and armor weight. Generation adds a name, unique instance ID and varied appearance. Collection decisions, equipment, training, other Attributes and Talents, companions, class choices, bonds and journals make characters increasingly personal.
+## Light and class development
 
-The six visible stats are Vitality, Armor, Strength, Mind, Agility and Endurance. All increase slightly on level-up using race/class growth tables, and level-up restores full health. Health and XP include numbers on cards; HP is near the top and XP at the bottom. The inspector has compact listings with hover help and persistent click explanations.
+A utility light is separate from the extensible equipment slots. Every starter and migrated adventurer receives a Hooded lantern. Hooded lanterns illuminate 190 battlefield units; Witchlight lanterns illuminate 275. Both can be bought, stored, swapped or unequipped. They do not currently use fuel.
 
-| Category | Current rule |
-| --- | --- |
-| Active abilities | Automatic unit actions; up to ten total; each has levels and rarity |
-| Attributes | Passive traits/conditions such as Vampire, Zombie, Werewolf and Angel; any race can have them |
-| Professions | Miner, Lumberjack and Hunter Attributes at I/II/III; tool professions add dedicated slots. Legacy gathering Talents remain functional |
-| Talents | Timed stat training and retained learned skills |
-| Equipment | One to three starting class slots, extensible to eight; compatibility also checks weapon family, class and Strength requirements |
-| Armor | Head, Chest, Legs and Boots separately from the equipment cap; class uses light, medium or heavy weight |
-| Companion | One equipped companion, with its own level, rarity, forms and optional gem sockets |
+Ordinary sight is 55 units. Dwarves, Gnomes, Kobolds, Myconids and Shades have 200–280 night sight; Vampire is 300, Werewolf 250, and learned Night vision 190. The strongest source applies. Trees, rocks, houses and ruins cast real geometric shadows. Detection, AI targeting, explored cells and the fog mask use the same visibility rules. Unlit ordinary adventurers search more slowly; hidden enemies cannot be rendered or selected. Terrain previously seen remains dimly visible. Warm carried/fire light and blue night vision communicate the difference. Fog memory survives battle checkpoint reload.
 
-Race and class affect height and width. Elves are thinner than Humans; Dwarves and Orcs are wider; Fae are tiny and Ents huge. Celestials have crowns and cannot equip helmets. Orcs, Kobolds and Nereids have sparse marks/single hairs instead of regular hairstyles. Shades use animated dark smoke and Sylphs pale smoke. Feather, insect and mechanical wings visually communicate flight. Full cosmetic guises may deliberately override physiological appearance while keeping its mechanics.
+Class points unlock at levels **10, 20, 40, 60 and 80**. The sequence is talent, subclass, talent, advanced subclass, talent. The first point learns Firekeeper discipline; it cannot select a subclass early. Each class has two or three primary callings and named Ascendant/Warden variations, generally six to nine distinct subclass identities. Choices follow parent links and remain permanent. Existing learned calling IDs are preserved by migration. Equipment transformations remain at 20/40/60 and use separate thresholds.
 
-## Rarity, class points and equipment forms
+The Codex folds subclass information into class pages and consolidates 216 modifiers into nine complete tables. It retains race foundations, acquisition rules, mechanics, services and lore, with fewer total entries and more detail per page.
 
-| Rarity | Ordinary levels | Character specialization |
-| --- | --- | --- |
-| Common | 1–19 | Original class |
-| Uncommon | 20–39 | First class point at 20 |
-| Rare | 40–59 | Next class point at 40 |
-| Legendary | 60–100 | Next class point at 60 |
-| Mythical | Authored special identities | No additional ordinary level milestone |
+## Roads, bosses and world difficulty
 
-Clicking the class in a profile or inspector opens its foundations, equipment families, armor weight, growth and centered calling tree. The Bonfire also offers exclusive callings. The first choice locks the other callings; subsequent nodes fork again and lock siblings. Characters retain identity, race and core class. There is no standard character transformation action. Levels 80 and 100 currently grant no further class points.
+Crossroads selects a destination and compares alternate road routes before staging three to six ready adventurers. Greenway begins open. Every region has three marked mini-bosses and a final boss, with regional terrain, resources and rewards. Direct roads and detours retain their route distinctions; detours increase danger and rewards.
 
-Weapons, armor and companions can transform at levels 20, 40 and 60, preserving identity and XP. Each form adds one missing modifier category: prefix, affix or enchantment. Prefixes usually change element or attack style; affixes modify stats; enchantments grant an activated behavior. There are separate pools for each domain, currently 24 of each category. Compatibility can restrict a modifier. Ordinary rarity rises automatically with level, but modifiers require the service action.
+Bonfire chooses the global tier: Adventurer initially, Veteran after one distinct regional boss, and Nightmare after three. Tier health/damage/reward modifiers combine with road danger. Challenges and NPC trials use that tier instead of a per-match picker. Active/staged expedition configurations are frozen so a later Camp change cannot modify an underway party. Shared player-offer snapshots retain their existing server battle contract.
 
-Transform costs are 4 gem value, then 10 gem value plus 5 Obsidian, then 16 gem value plus 5 Relic fragments. The Equipment Workshop transforms all three domains; the Blacksmith also handles weapons and the Bonfire also handles armor and companions. Common weapon bases have simple names and unique silhouettes; modifiers extend their names/art. Rare pets have one gem socket, Legendary two and special Mythicals three. Horses and Saddleback dinosaurs are mounts; other pets accompany the owner as smaller units.
+Completing a final boss journey grants **one Boss Sigil**, including repeat clears. The first boss also unlocks Eldrin the Portal Mage. Spend one Sigil at Camp to choose any unopened region; this removes automatic linear region unlocks. Farming the first boss is possible, but requires repeating its full itinerary.
 
-## Local maps and journeys
+The dedicated Quest tab and Camp Quest button open a journal with Main, Side, NPC, Guild and accepted patrol quests. It shows objective progress and rewards, search, active/completed filters, sorting, pins and detailed claim sheets. Accepted generated quests freeze their targets; completed rewards pay once. One ordered Main chain, the two starter Side quests and existing NPC/Board content remain.
 
-Only the forest is available initially. The region picker is absent until its final boss is defeated and Eldrin/portal appear by Camp's Crossroads. Subsequent bosses unlock successive maps; only unlocked region names appear in that picker. Camp remains the sole buildable home.
+## Expeditions and Arena
 
-The current order is Mosslight Wood → Hollow March → Emberpeak Mountains → Briarfall Country → Amberwild Jungle. The forest contains eighteen irregular nodes; other maps currently have twenty-four. Every map has three Rare mini-boss nodes and one Rare final boss. Map terrain remains visible; unrevealed nodes are darkened. Castle artwork sits beside the boss marker. Landmarks show rivers/lakes, ruins, mills, fields, volcanic terrain and prehistoric sites.
+Automatic combat handles movement, terrain, abilities, projectiles, mana/stamina, shields, summons, companions, charm and long-fight prevention. The visible battle is 1200×480. Victories/defeats and intermediate encounters have distinct feedback. Original characters and equipment remain owned after defeat; surviving earned ordinary loot is retained. Permanent charm and destination rewards require completion. A journey can return at most two recruits if capacity permits.
 
-Selecting a reachable destination produces up to three paths. Each lists combat/non-combat encounters, difficulty, reward multiplier and food per character. **The Direct road always has 1× enemy strength and 1× rewards**, including after the boss. Other routes increase both. Clearing that map's boss unlocks optional difficulty settings for detours. Strong roads are solid and lead to more open combat; wild roads are dotted and use more obstacles. The selected route is bright blue and other roads are black. Water-adjacent forest roads produce river/bridge battlefields.
+At observed 1×, AUTO can be off and interludes wait for Continue. Leaving battle, losing focus, reopening or selecting 2×/3× enables AUTO. Unobserved parties progress at 1×. An open-page Web Worker runs them; after browser suspension/closure, missing time reconstructs incrementally at 1×. There is no continuously running expedition server. Fed returning heroes recover in half the ordinary 30-second/defeat 90-second time.
 
-Locking the route opens the separate party screen. Parties contain three to six ready characters, with equipped primary slots and sufficient provisions. Short opening journeys need no food; longer paths reserve food per adventurer. Up to three supply kinds can be packed. The frozen itinerary then advances through encounters/stops; there are no mid-run directional decisions. More expedition slots unlock through progression, up to four, and each adventurer can serve only one party at a time.
+Arena has no main navigation tab. Enter through its Market district, choose a team and stake **10–1,000 gold**, optionally **0–100** wood, stone, ore, herbs, meat or hides. Rule offers vary between team deathmatch, four-team deathmatch, tigers and team deathmatch with explosive mines. Stakes are deducted before launch; defeat or recall loses them. Winning returns 2.2× gold/resources (four-team gold: 4×), scaled by world rewards, once. Arena does not award gems, equipment or cosmetics; combat XP remains. Mines damage either side.
 
-## Battle, rewards and recovery
+## Calendar, Shop and longer goals
 
-Units automatically form up at opposite ends of a long battlefield. Every encounter starts with a 3–2–1–Fight countdown. Basic movement, collision, crowding, knockback, props, fire, blood/scorch marks, projectiles and visible abilities provide feedback. Magic ground effects are Blessings or Curses; physical areas are Explosions. Jungle foliage impairs ground movement, reach and many projectiles. Mana refills per encounter and does not regenerate during the fight; healing is limited and prolonged combat has anti-stalemate behavior.
+Daily Battle exposes today's UTC trial, alongside a month calendar showing completed dates, missed past dates, the current day and future days. Milestones at five, ten, twenty and all dates retain once-only receipts. Weekly/monthly themed champions and regional rematches remain. Higher world-tier clears pay only the increase over a previously claimed tier.
 
-Observed 1× play has OFF/AUTO. With OFF, the player presses Continue between encounters. Leaving the battle/page, reopening it, or choosing 2×/3× enables AUTO. Unobserved parties use 1×. A Web Worker handles open-browser progression; elapsed time is reconstructed after suspension/closure. There is no always-running expedition server yet.
+The gem Shop contains a selectable section for each of twelve monthly themes, with three canonical cosmetics per theme (4/7/10 gems), plus existing cosmetics and authored Mythical heroes/weapons. Monthly ownership purchases cannot repeat. Atelier appearances preserve underlying mechanics.
 
-An encounter is lost when the party is defeated. Victory and Defeat have distinct result panels; intermediate wins also show a banner. When at least one adventurer survives, fallen party members return at 20% HP unless leveling has healed them. Earned gold/items/materials are banked during the journey and remain after defeat or recall. Original characters/equipment are preserved. Destination-only rewards and permanently charmed recruits require finishing the journey. Each run can collect at most two recruits; bosses and uncharmable enemies cannot be converted.
+The south expansion enables the Lantern Dock (400 gold, 50 wood, 25 stone, 10 ore), high-tier ship recruits and The Bell Beneath: 25 frozen floors with five guardians. Sailing reserves three food per adventurer. Floor 25 gives once-only authored Mythical boots and nine gems. Physical-phone performance and economy pacing still require player testing.
 
-Returning characters recover gradually to full HP and become ready when the timer finishes. Normal return is 30 seconds, defeat 90; one stocked food per character halves it. Finishing training/weapon work updates the character's usable state. Further economy/duration tuning is open.
+## Persistence and trust
 
-## Challenges, Arena, Market and Shop
+The schema remains 12, season `camp-fresh-2026-10-11`, key `camp-collector-v12`. Current-season saves and active checkpoints migrate without deleting progress; database migrations remain unchanged. Backups can be exported/imported with validation. Old seasons remain incompatible.
 
-Daily Battle is the Challenges default and offers **only today's UTC battle**. Monthly themes and bonuses for five, ten, twenty and all dates remain. Weekly/monthly champion battles follow the theme; each defeated map boss also unlocks a weekly champion rematch. NPC challenges, including Arena, allow difficulty selection immediately. For Daily and champion trials, a harder win pays only the increase over the highest already claimed tier; repeating the same or lower tier does not duplicate its prize. XP still accrues.
-
-Player challenges are consenting, server-resolved three-character teams with matched gold and optional equipment pledges. Only the pledge is at stake; the original party stays owned. Competitive currency ownership is still client-local, so this system is a prototype rather than a cheat-resistant ranked economy.
-
-Arena is a four-team battle royale with a small party; lions and chariots can enter as hazards. Winning awards gold and a cosmetic. Market vendors use gold and offer themed stock plus services for analysis, creation, combination, non-weapon crafting, companion forging and cosmetic application. Its full catalog is searchable/filterable by vendor, type, rarity and text. Ordinary stock remains mostly Common with selected higher-level offers; it refreshes every twelve hours.
-
-The separate gem Shop sells cosmetics and authored Mythical characters/signature weapons. Sol the Sunwarden, Vela the Skyrift and Cairn the Iron Comet are original themed identities with distinct guises and gear. Character guises replace the complete body appearance; weapon skins apply only to compatible families; pet guises replace companion appearance. The Market Atelier previews and applies owned cosmetics without changing mechanics. Gem Shop offers show their visual assets and the twelve-hour stock timer.
-
-Gems have Ruby, Sapphire and Emerald kinds and Chipped/Cut/Flawless/Royal values 1/3/9/27. Three identical smaller gems combine to one larger with equal total value. Socketed gems are excluded from spendable currency and can be removed intact. Alchemy can consume gems for materials. Recycling returns gold and limited gems depending on object level; gaining gems should feel meaningfully slower than ordinary gold income.
-
-## Market districts and neutral characters
-
-Four directional signs link the square to the Guildhall (north), Outfitter (west), Quest Board (east) and Camp (south). The Lantern Clinic is a named Market service. The Outfitter adds equipment slots at level 10 for 75 gold and 2 gem value, within the eight-slot cap.
-
-The Guildhall teaches Miner, Lumberjack and Hunter as Profession Attributes without replacing class. Lessons cost 35 / 75 / 150 gold; promotions also require 6 / 12 of the corresponding stone, wood or meat. The first tool lesson includes a Pickaxe/Axe. Professions progress through XP; lessons can promote directly to levels 21 and 41 (ranks II and III). Miners yield 3 stone and 1 ore per rank; Foresters yield 4 wood per rank; Hunters yield 3 meat per rank, with a chance of crafting hides. Miners can also find gems and Obsidian. Ordinary Market recruits occasionally arrive already trained.
-
-Every three hours, stable neutral arrivals appear. Blue inspection gradients distinguish neutral characters from friendly green and enemy red. Wanderers can be hired at their listed price within Camp capacity. Mara has a scripted lantern quest; a red exclamation point marks the Night Watch challenger. Accepted patrol contracts retain their objective across daily board refreshes and pay once. Up to eight unclaimed Side/NPC quests can be carried, in addition to one Main Quest.
-
-Attributes are absent from purchasable stock; old saved capsules are removed from vendor stock. Generic Attribute granting is disabled. Only the Market Lantern Clinic removes a non-racial, non-Profession Attribute, for 50 gold and 2 herbs. Owned legacy essences remain keepsakes.
-
-Equipment comparison sheets show a candidate against every compatible character's equipped piece and the resulting core/derived stats. Storage equipping uses the same restrictions as the model, including Strength, class and armor weight. A slot's dot indicates newly available compatible inventory instances; opening that slot acknowledges the items it contains. Four armor pieces have distinct icon and worn-art shapes, rarity outlines and modifier effects.
-
-## The south lakeshore and island
-
-The south extension opens a lake scene. The forest local map shows that same southern water and the violet-marked island, visible before the Dock is affordable. Building the Lantern Dock costs 400 gold, 50 wood, 25 stone and 10 ore after acquiring the south extension.
-
-Ships bring level-60 Legendary recruits (1,800 gold) and occasional authored Vela the Skyrift arrivals (4,000 gold, 12% of dock arrival cycles). Dock visitors rotate every three hours and each arrival can be hired once.
-
-The Bell Beneath is a frozen itinerary of 25 combat floors, starting near level 12 and increasing with depth. Every fifth floor is a guardian. Sailing requires three to six ready adventurers with primary gear and reserves 3 food per adventurer. Deepest floor is retained on recall/defeat. Floor 25 awards one authored Mythical Boots piece in the first party member's armor weight, plus 9 gems, once per Camp. It cannot be rolled in normal loot or crafted as basic armor. Original characters, recovery, catch-up and checkpoint rules continue to apply.
+Personal ownership is browser-local and tied to origin/profile. The hosted authenticated player-challenge API sanitizes teams and resolves matches with transaction/replay guards, but cannot prove client-owned gold or items were earned. Cross-device saves, conflict handling and a server-owned economy are future work.

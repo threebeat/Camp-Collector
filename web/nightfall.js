@@ -1,9 +1,11 @@
-// Camp Collector's night-world services. Commands own mutations; views only dispatch.
+import { fed } from "./evernight.js?v=14";
+// Evernight's night-world services. Commands own mutations; views only dispatch.
 import {
   ATTRIBUTES,
   TALENTS,
   ITEMS,
   CLASSES,
+  DIFFICULTIES,
   CORE_STATS,
   generateHero,
   makeItem,
@@ -19,9 +21,9 @@ import {
   gainFacetXp,
   makeGem,
   heroRarity,
-} from "./data.js?v=13";
-import { idle, campCapacity, payCost, addGems } from "./camp.js?v=13";
-import { seeded } from "./engine.js?v=13";
+} from "./data.js?v=14";
+import { idle, campCapacity, payCost, addGems } from "./camp.js?v=14";
+import { seeded } from "./engine.js?v=14";
 
 export const PROFESSION_NAMES = ["Miner", "Lumberjack", "Hunter"];
 export const professionRank = (a) =>
@@ -110,6 +112,11 @@ export function trainProfession(g, h, key) {
       h.items.push(makeItem(key === "Miner" ? "pickaxe" : "axe"));
   }
   g.serviceCounts.guildLessons++;
+  const guild = { Miner: "miners", Lumberjack: "foresters", Hunter: "hunters" }[
+    key
+  ];
+  g.guildStanding ||= {};
+  g.guildStanding[guild] = (g.guildStanding[guild] || 0) + 10;
   note(
     h,
     "Learned " +
@@ -255,8 +262,17 @@ export function refreshVisitors(g) {
       name: "The Night Watch",
     }),
   ];
-  if (epoch % 2 === 0)
+  if (random() < (g.roster.some((h) => fed(g, h)) ? 0.8 : 0.35))
     g.visitors.push(make(3, { npcType: "wanderer", place: "camp", price: 90 }));
+  for (let i = 5; i < 10; i++)
+    g.visitors.push(
+      make(i, {
+        npcType: "wanderer",
+        place: "tavern",
+        price: 45 + (i - 5) * 15,
+        level: 3 + (i - 5) * 2,
+      }),
+    );
   if (g.buildings.dock) {
     const mythical = random() < 0.12;
     const h = mythical ? makeMythicalHero("skyrift") : make(4, { level: 60 });
@@ -283,7 +299,7 @@ export function hireVisitor(g, id) {
     g.visitorReceipts.includes(id) ||
     !["camp", "market"].includes(g.screen) ||
     (g.screen === "market"
-      ? h.place !== "market"
+      ? !["market", "tavern"].includes(h.place)
       : !["camp", "dock"].includes(h.place)) ||
     g.roster.length >= campCapacity(g) ||
     g.gold < h.price
@@ -305,6 +321,15 @@ export function hireVisitor(g, id) {
 }
 export function compatibleSlots(h, item) {
   if (item.unidentified || item.sharpenJob) return [];
+  if (ITEMS[item.key]?.type === "light")
+    return [
+      {
+        s: { label: "Light", types: ["light"] },
+        index: 0,
+        armor: false,
+        light: true,
+      },
+    ];
   const armor = ITEMS[item.key]?.type === "armor";
   return (armor ? armorSlots(h) : equipmentSlots(h))
     .map((s, index) => ({ s, index, armor }))
@@ -321,7 +346,9 @@ export function equipmentNotice(g, h, index, armor = false) {
   return g.inventory.some(
     (i) =>
       !seen.includes(i.id) &&
-      compatibleSlots(h, i).some((v) => v.armor === armor && v.index === index),
+      compatibleSlots(h, i).some(
+        (v) => !v.light && v.armor === armor && v.index === index,
+      ),
   );
 }
 export function markEquipmentSeen(g, h, index, armor = false) {
@@ -330,7 +357,7 @@ export function markEquipmentSeen(g, h, index, armor = false) {
     g.inventory
       .filter((i) =>
         compatibleSlots(h, i).some(
-          (v) => v.armor === armor && v.index === index,
+          (v) => !v.light && v.armor === armor && v.index === index,
         ),
       )
       .map((i) => i.id);
@@ -339,7 +366,8 @@ export function markEquipmentSeen(g, h, index, armor = false) {
 export function comparison(h, item, index, armor = false) {
   const before = stats(h),
     copy = structuredClone(h);
-  copy[armor ? "armor" : "items"][index] = item;
+  if (ITEMS[item.key]?.type === "light") copy.light = item;
+  else copy[armor ? "armor" : "items"][index] = item;
   const after = stats(copy);
   return [...CORE_STATS, "hp", "attack", "speed", "range", "maxMana"].map(
     (key) => ({
@@ -358,8 +386,8 @@ export function islandInfo(g) {
     encounters: 25,
     otherEncounters: 0,
     level: 12,
-    reward: 1.4,
-    difficulty: "normal",
+    reward: 1.4 * DIFFICULTIES[g.worldDifficulty || "normal"].reward,
+    difficulty: g.worldDifficulty || "normal",
     route: "main",
     food: 3,
     unlocked: !!g.buildings.dock,

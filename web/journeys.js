@@ -1,4 +1,4 @@
-import { LOCATIONS, DIFFICULTIES, allGear } from "./data.js?v=13";
+import { LOCATIONS, DIFFICULTIES, allGear } from "./data.js?v=14";
 export const REGION_ORDER = [
   "greenway",
   "marsh",
@@ -452,7 +452,11 @@ export function bossDefeated(g, location) {
 export function difficultyAllowed(g, location, difficulty) {
   return (
     !!DIFFICULTIES[difficulty] &&
-    (difficulty === "normal" || bossDefeated(g, location))
+    (difficulty === (g.worldDifficulty || "normal") ||
+      difficulty === "normal" ||
+      (difficulty === "hard" && !!g.regionBossClears.greenway) ||
+      (difficulty === "nightmare" &&
+        Object.values(g.regionBossClears).filter(Boolean).length >= 3))
   );
 }
 export function explored(g, location) {
@@ -591,12 +595,7 @@ export function journeyInfo(g, choice) {
     n = region?.nodes.find((n) => n.id === target),
     routes = regionalRoutes(g, location, target),
     route = routes[choice.routeIndex || 0],
-    difficulty =
-      route?.index === 0
-        ? "normal"
-        : choice.difficulty === "story"
-          ? "normal"
-          : choice.difficulty || "normal",
+    difficulty = g.worldDifficulty || "normal",
     d = DIFFICULTIES[difficulty];
   if (!n || !d) return null;
   return {
@@ -658,10 +657,10 @@ export function revealJourney(g, r) {
   if (r.target === region.exit && r.destinationBoss !== false) {
     g.regionBossClears[r.location] = true;
     if (r.location === "greenway") g.portalUnlocked = true;
-    if (region.next && !g.regionUnlocks.includes(region.next)) {
-      g.regionUnlocks.push(region.next);
-      g.exploration[region.next] = ["camp"];
-    }
+    g.materials.bossSigils = (g.materials.bossSigils || 0) + 1;
+    r.earned ||= {};
+    r.earned.materials ||= {};
+    r.earned.materials.bossSigils = (r.earned.materials.bossSigils || 0) + 1;
   }
 }
 export const QUESTS = [
@@ -782,7 +781,7 @@ export const QUESTS = [
   {
     id: "awaken",
     name: "A familiar thing, changed",
-    text: "Transform a level-20 weapon at the Blacksmith, or a companion at the Bonfire.",
+    text: "Transform a level-20 weapon at the Blacksmith, or armor or a companion at the Equipment Workshop.",
     after: "bonfire",
     check: (g) =>
       [
@@ -807,6 +806,48 @@ export function questState(g, q) {
     unlocked,
     complete: q.contract ? g.lifetimeEncounters >= q.targetWins : q.check(g),
   };
+}
+export function questProgress(g, q) {
+  if (q.contract) {
+    const start = q.acceptedWins ?? q.targetWins - 4,
+      total = q.targetWins - start;
+    return {
+      done: Math.min(total, Math.max(0, g.lifetimeEncounters - start)),
+      total,
+      label: "encounters",
+    };
+  }
+  const totals = {
+    hire: [g.roster.length, 4, "adventurers"],
+    training: [
+      Number(!!g.buildings.training) +
+        Number(
+          g.roster.some((h) =>
+            h.talents.some((t) => t.key.startsWith("training:")),
+          ),
+        ),
+      2,
+      "steps",
+    ],
+    bonfire: [
+      Number(
+        g.roster.some((h) => h.classNodes.some((id) => id.endsWith(":0"))),
+      ),
+      1,
+      "subclass",
+    ],
+    mountain: [Math.max(0, g.regionUnlocks.length - 1), 1, "new region"],
+    dragon: [
+      Object.values(g.regionBossClears).filter(Boolean).length,
+      2,
+      "regional bosses",
+    ],
+    island: [g.islandFloor || 0, 1, "floors"],
+  };
+  const a = totals[q.id];
+  return a
+    ? { done: Math.min(a[0], a[1]), total: a[1], label: a[2] }
+    : { done: q.check(g) ? 1 : 0, total: 1, label: "objective" };
 }
 export function activeQuests(g) {
   return allQuests(g).filter((q) => {
@@ -917,6 +958,7 @@ export function generatedContracts(g) {
     name: ["Road watch", "Keep the roads open", "The long patrol"][i],
     text: "Win " + n + " more encounters after accepting this contract.",
     targetWins: g.lifetimeEncounters + n,
+    acceptedWins: g.lifetimeEncounters,
     reward: { gold: n * 12, meat: n },
     epoch,
   }));
@@ -930,3 +972,42 @@ export function questById(g, id) {
     generatedContracts(g).find((q) => q.id === id)
   );
 }
+
+// Main objectives support the player's chosen portal order.
+Object.assign(
+  QUESTS.find((q) => q.id === "mountain"),
+  {
+    name: "Another road through Evernight",
+    text: "Spend a Boss Sigil with Eldrin to open any new region.",
+    location: null,
+    target: null,
+    check: (g) => g.regionUnlocks.length >= 2,
+  },
+);
+Object.assign(
+  QUESTS.find((q) => q.id === "dragon"),
+  {
+    name: "Two fallen champions",
+    text: "Defeat final bosses in two different regions.",
+    location: null,
+    target: null,
+    check: (g) => Object.values(g.regionBossClears).filter(Boolean).length >= 2,
+  },
+);
+Object.assign(
+  QUESTS.find((q) => q.id === "jungle"),
+  {
+    text: "Spend a Boss Sigil to open Amberwild, whenever you choose.",
+    location: null,
+    target: null,
+    check: (g) => g.regionUnlocks.includes("jungle"),
+  },
+);
+Object.assign(
+  QUESTS.find((q) => q.id === "gather"),
+  {
+    text: "Learn the Miner or Lumberjack Profession and equip its dedicated tool.",
+  },
+);
+QUESTS.find((q) => q.id === "bonfire").check = (g) =>
+  g.roster.some((h) => h.classNodes.some((id) => id.endsWith(":0")));

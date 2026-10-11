@@ -2,7 +2,7 @@
 
 ## Local workflow
 
-Clone `https://github.com/threebeat/Camp-Collector.git`, use Node.js 24+, and run `npm ci`. Development dependencies are pinned: native canvas for art/test rendering, esbuild for the Worker, Playwright for browser checks and Prettier for readable source.
+Clone `https://github.com/threebeat/Evernight.git`, use Node.js 24+, and run `npm ci`. Development dependencies are pinned: native canvas for art/test rendering, esbuild for the Worker, Playwright for browser checks and Prettier for readable source.
 
 `npm run dev` builds and serves at `http://127.0.0.1:4173`. The local adapter applies SQL migrations once to `.local/camp.sqlite` and supplies the development board identity `local-developer`. It is not production authentication. Set `CAMP_DEV_PORT` to change the port; rebuild and restart after editing. Stop with Ctrl+C.
 
@@ -22,9 +22,9 @@ The `Game checks` workflow runs on main pushes, pull requests and manual dispatc
 
 | Check | Evidence |
 | --- | --- |
-| 142 Node tests | Combat, service costs/restrictions, worker transport, save/checkpoint migration, UI command flows and challenge transactions |
+| 157 Node tests | Combat, service costs/restrictions, worker transport, save/checkpoint migration, UI command flows and challenge transactions |
 | Build + validation | The actual bundled ESM Worker serves embedded assets, routes and the expected auth/storage contract |
-| Playwright | Desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit emulation; live Worker transport, naming, memory/reload, class/race sheets, districts, professions, quests, comparisons, clinic, storage, upgrades, crafting, lakeshore and reduced motion |
+| Playwright | Desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit emulation; live Worker transport, seven flows per project: opening/naming, tutorial/settings, light equipment, class/world-tier/portal persistence, guild/Tavern/Quest/Arena flows, calendar/monthly collections and retained profiles/services; horizontal fit and reduced motion |
 | Screenshots/report | Every browser project saves scene snapshots; failures retain screenshots, DOM context and traces in `browser-report` |
 | Native art sheets | SVG validity and consistent shared equipment/race/map artwork; these do not prove browser layout |
 
@@ -32,11 +32,11 @@ Real physical-device testing, hosted multi-account behavior and long-term retent
 
 ## Implementation boundaries
 
-Dispatch changes through `web/simulation.js`; do not mutate view snapshots. Night-world services and sheets live in `nightfall.js` / `nightfall-ui.js`. Canonical definitions still live in the existing content modules. Compatibility must agree across storage choices, equipping, crafting, loot, art, saved records and `worker/api.js` challenge sanitization.
+Dispatch changes through `web/simulation.js`; do not mutate view snapshots. Night-world services and sheets live in `nightfall.js` / `nightfall-ui.js`; Evernight progression and screens live in `evernight.js` / `evernight-ui.js`, with shared visibility in `lighting.js`. Canonical definitions still live in the existing content modules. Compatibility must agree across storage choices, equipping, crafting, loot, art, saved records and `worker/api.js` challenge sanitization.
 
-`scripts/build.mjs` uses esbuild to resolve the Worker module graph and embeds native browser modules/CSS into the asset map. `dist/` is generated and ignored. The `camp-collector-worker` CI artifact contains the built Worker, manifest and append-only database migration files. CI does not itself change the production Site.
+`scripts/build.mjs` uses esbuild to resolve the Worker module graph and embeds native browser modules/CSS into the asset map. `dist/` is generated and ignored. The `evernight-worker` CI artifact contains the built Worker, manifest and append-only database migration files. CI does not itself change the production Site.
 
-Asset queries use `?v=13`; save version/key remain 12. Changing asset cache URLs never authorizes deleting progress. The current version-12 season is `camp-fresh-2026-10-11` and the key is `camp-collector-v12`. Version 0.13 adds backward-compatible fields and an empty Boots slot. Existing paid Outfitter construction becomes the Equipment Workshop.
+Asset queries use `?v=14`; save version/key remain 12. Changing asset cache URLs never authorizes deleting progress. The current version-12 season is `camp-fresh-2026-10-11` and the key is `camp-collector-v12`. Version 0.14 adds Camp XP, meals, lights, guild standing, wagers, settings and expanded class branches; 0.13 added an empty Boots slot. Existing paid Outfitter construction becomes the Equipment Workshop.
 
 ## Production deployment
 
@@ -52,6 +52,6 @@ Deploying elsewhere requires an equivalent trusted identity boundary, D1-compati
 
 `archives/v12-source-history.bundle` preserves the original history. See [SOURCE_TRANSFER.md](SOURCE_TRANSFER.md) for ordinary Git recovery. GitHub contains the current complete source; dependencies, runtime state, production credentials and real player saves are excluded.
 
-The old v12 reset was explicitly authorized at that time. `drizzle/0001_fresh_camps.sql` is already applied to the existing Site and must not be edited/reused as a new wipe. All SQL migrations are append-only. Version 0.13 introduces no database migration and no reset. Code rollback does not undo a destructive database migration.
+The old v12 reset was explicitly authorized at that time. `drizzle/0001_fresh_camps.sql` is already applied to the existing Site and must not be edited/reused as a new wipe. All SQL migrations are append-only. Versions 0.13 and 0.14 introduce no database migration and no reset. Code rollback does not undo a destructive database migration.
 
 Preserve IDs, names, favorites, journals, bonds, belongings, claims and active-party checkpoints. Use focused tests for genuine behavior changes. Record observed browser results separately from assumed physical-device behavior. Before release, update current-game rules, release notes, generated reference and the next-agent handoff.
