@@ -1,4 +1,4 @@
-import { dialogue } from "./data.js?v=14";
+import { dialogue } from "./data.js?v=15";
 
 // One small comment at a time, with independently sampled gaps and speakers.
 export class CampChatter {

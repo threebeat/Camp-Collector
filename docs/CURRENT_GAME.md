@@ -1,6 +1,14 @@
 # Current game behavior
 
-This describes Evernight 0.14.0. Historical release notes explain earlier behavior; the owner's current direction takes precedence.
+This describes Evernight 0.1.0, the first pixel release following the prior 0.14 implementation. Historical release notes explain earlier behavior; the owner's current direction takes precedence.
+
+## Pixel world and phone battles
+
+Characters use original 32×34 pixel grids; equipment, companions, props and buildings use matching authored grids. Art is shared across cards, profiles, stores, maps and combat, including armor weights, race anatomy, mounts, guises and Mythicals. No external sprite packs are bundled. Pixelated darkness uses overlapping light bands, ordered dithering and shared terrain shadows. Forest torches, bridge lamps, village windows, volcanic seams and jungle mushrooms join carried lamps, fires and colored spells; natural fixtures participate in actual target detection. Night vision keeps its blue tint and existing racial/Attribute advantages.
+
+On phones, the battlefield has a 300px viewing window and a closer camera that follows the company. Drag sideways to pan; Follow company resumes tracking. The expanded view preserves sprite proportions. Names begin hidden on phones and can be toggled. The company is a compact strip with live HP, and the battle journal collapses during an active expedition.
+
+Inspection is explicit player intent. Launching, watching, loading or advancing an encounter does not select a character. A deliberate tap opens a small inline HP card; Details opens a profile dialog. Closing inspection stays closed through snapshots. Dead, missing and newly hidden selections clear. A pan, vertical scroll or canceled touch cannot open a character. The mobile inspector occupies ordinary layout space and never becomes the old floating profile overlay.
 
 ## Opening and Camp
 
@@ -8,7 +16,7 @@ A new player clicks through three required pages explaining the world of permane
 
 Desktop navigation is at the top; phone navigation is at the bottom. The optional guide attaches to it on non-expedition management screens. Skip hides it, and the currency-adjacent gear opens settings to restore the guide, choose reduced motion or manage backups. Gold and gems are the global counts; food belongs in Camp.
 
-Camp shows its map and overview. Build sits directly below the editable name. The clickable Camp XP card opens its explanation, followed by four metrics: adventurers/capacity, ready/deployed adventurers, stocked food/next-period demand, and world difficulty. The map's top strip contains basic resources; the overview's resource list also exposes hides, Obsidian, Relic fragments, fossils and Boss Sigils. There is no aggregate resource count or repeated expansion copy.
+Camp shows its map and overview. Build sits directly below the editable name. The clickable Camp XP card opens its explanation, followed by four metrics: adventurers/capacity, ready/deployed adventurers, stocked food/next-period demand, and world difficulty. Phone Camp puts the overview before a 430px portrait map, with compact status cards and a next-meal estimate. Supplies expand from the Camp resources row; ready harvests, recovering adventurers and active companies appear as small actionable activity entries. The map's top strip contains basic resources; the overview's resource list also exposes hides, Obsidian, Relic fragments, fossils and Boss Sigils. There is no aggregate resource count or repeated expansion copy.
 
 The initial capacity is **40**, plus **20 per cabin**. Purchases, creation, charm and journey rewards respect it. A full Camp misses character rewards; there is no waiting-arrivals service. Migration admits legacy queued adventurers into available new capacity once, then clears the old queue.
 

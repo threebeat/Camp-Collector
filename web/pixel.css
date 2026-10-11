@@ -1,0 +1,960 @@
+/* Evernight 0.1: pixel art in the world, ordinary readable text in the interface. */
+:root {
+  --paper: #0a0c1a;
+  --panel: #171e30;
+  --ink: #eee7d8;
+  --muted: #acb6cc;
+  --line: #353d57;
+  --gold: #f4c76a;
+  --green: #a4d0a0;
+  --dark: #090b16;
+  --shadow: 0 3px 0 #050711;
+}
+body,
+.app {
+  background: var(--paper);
+}
+h1,
+h2,
+h3,
+.brand strong,
+.camp-level-card b {
+  font-family: ui-monospace, "Cascadia Code", "Courier New", monospace;
+  letter-spacing: -0.04em;
+}
+.site-header {
+  background: #101525;
+  border-bottom: 2px solid #353454;
+}
+.brand-mark {
+  color: #f4c76a;
+  background: #171e3b;
+  border: 2px solid #596481;
+  border-radius: 3px;
+}
+.brand strong {
+  color: #f4c76a;
+}
+.brand small {
+  letter-spacing: 0.16em;
+  font-size: 9px;
+}
+.primary-button {
+  background: #f4c76a;
+  color: #171525;
+  border: 2px solid #b78046;
+  box-shadow: 0 3px 0 #684532;
+  border-radius: 4px;
+}
+.primary-button:hover {
+  background: #f7df9b;
+}
+.secondary-button,
+.icon-button,
+select,
+input,
+textarea {
+  border-radius: 4px;
+  border-color: #596481;
+  background: #20283d;
+}
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+select:focus-visible {
+  outline: 3px solid #f4c76a;
+  outline-offset: 3px;
+}
+.icon-button {
+  min-width: 44px;
+  min-height: 44px;
+}
+.modal,
+.camp-detail,
+.hero-card,
+.quest-card,
+.battle-panel,
+.service-panel,
+.codex-page,
+.codex-index,
+.report-panel,
+.market-offer,
+.expedition-card {
+  border-radius: 5px;
+  border-color: #353d57;
+  box-shadow: var(--shadow);
+}
+.modal-header,
+.modal-body,
+.modal-footer {
+  border-radius: 0;
+}
+.modal-header h2 {
+  color: #f7df9b;
+}
+.hero-card-main,
+.market-offer,
+.monthly-emblem,
+.card-portrait,
+.detail-portrait {
+  background-image: none;
+}
+.card-portrait {
+  background: #1b2636;
+  border-bottom: 2px solid #353d57;
+}
+svg[data-pixel-art],
+.pixel-ground svg,
+.map-castle svg,
+canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.card-portrait svg,
+.detail-portrait svg,
+.camp-resident > svg,
+.resident-pet svg,
+.camp-building svg,
+.vendor-map svg,
+.profile-portrait svg,
+.offer-art svg,
+.monthly-emblem svg {
+  filter: none !important;
+}
+.hero-card:hover .card-portrait svg {
+  transform: none;
+}
+.camp-resident,
+.camp-resident svg {
+  filter: none;
+}
+.camp-resident svg,
+.card-portrait > svg {
+  animation: pixel-idle 4s steps(1, end) infinite;
+}
+@keyframes pixel-idle {
+  0%,
+  49%,
+  100% {
+    translate: 0 0;
+  }
+  50%,
+  99% {
+    translate: 0 -2px;
+  }
+}
+.local-map,
+.district-map {
+  border: 2px solid #353454;
+  border-radius: 5px;
+  box-shadow: none;
+  background: #171e3b;
+}
+.camp-map:before,
+.camp-map:after,
+.market-map:after,
+.expanded-camp:after {
+  display: none;
+}
+.pixel-ground {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.pixel-ground > svg {
+  width: 100%;
+  height: 100%;
+  filter: none;
+}
+.scene-lightfield {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 8;
+}
+.camp-building,
+.vendor-map,
+.district-booth {
+  filter: none;
+}
+.camp-building strong,
+.vendor-map strong,
+.camp-map-label,
+.market-map-sign {
+  background: #0a0c1ade;
+  color: #f7df9b;
+  border-radius: 3px;
+}
+.camp-building strong {
+  padding: 3px 6px;
+}
+.camp-building > svg {
+  width: 80px;
+  height: 80px;
+}
+.camp-building.built:hover {
+  filter: none;
+}
+.camp-market-sign,
+.camp-expansion-arrow,
+.market-direction,
+.tavern-entrance {
+  background: #1d2538;
+  color: #f7df9b;
+  border: 2px solid #8c704b;
+  border-radius: 4px;
+  z-index: 12;
+}
+.camp-building strong,
+.resident-name,
+.market-map-sign {
+  position: relative;
+  z-index: 10;
+}
+.camp-resident .resident-name {
+  background: #101525e0;
+  color: #eee7d8;
+  font-size: 11px;
+  padding: 2px 5px;
+  border-radius: 2px;
+}
+.camp-resident .resident-pet {
+  filter: none;
+}
+.camp-map.local-map {
+  height: 470px;
+}
+.camp-workspace {
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 16px;
+  align-items: start;
+}
+.camp-workspace > .inspector {
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+.evernight-camp-card {
+  padding: 16px;
+}
+.camp-name-row h2 {
+  color: #f7df9b;
+  font-size: 23px;
+  margin: 0;
+}
+.camp-build {
+  width: 100%;
+  min-height: 44px;
+  margin: 10px 0 !important;
+}
+.camp-level-card {
+  border-radius: 4px;
+  background: #242339;
+  border: 1px solid #71618d;
+  padding: 11px;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.camp-level-card b {
+  color: #d4b4eb;
+  font-size: 21px;
+}
+.camp-metrics {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+.camp-metrics > * {
+  background: #1f293c;
+  border: 1px solid #353d57;
+  border-radius: 4px;
+  padding: 10px;
+  min-height: 64px;
+}
+.camp-metrics b {
+  color: #f7df9b;
+  font-size: 18px;
+}
+.camp-metrics span {
+  font-size: 11px;
+  color: #acb6cc;
+  line-height: 1.45;
+}
+.camp-supplies {
+  margin-top: 12px;
+  border-top: 1px solid #353d57;
+}
+.camp-supplies summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  cursor: pointer;
+  color: #f7df9b;
+  font-weight: 650;
+  font-size: 14px;
+}
+.camp-supplies summary span {
+  color: #acb6cc;
+  font-size: 11px;
+}
+.camp-supplies[open] summary span {
+  font-size: 0;
+}
+.camp-supplies[open] summary span:after {
+  content: "Hide";
+  font-size: 11px;
+}
+.camp-resource-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 14px;
+  margin-top: 0;
+}
+.camp-resource-list > div {
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+}
+.camp-resource-list dt {
+  gap: 4px;
+}
+.camp-resource-list dd {
+  color: #f4c76a;
+}
+.camp-meal-time {
+  font-size: 11px;
+  color: #acb6cc;
+  margin: 4px 0 0;
+}
+.camp-resource-strip {
+  border: 2px solid #353454;
+  border-bottom: 0;
+  background: #171e30;
+  padding: 9px 12px;
+  border-radius: 5px 5px 0 0;
+  gap: 10px;
+  justify-content: space-between;
+}
+.camp-resource-strip + .camp-map {
+  border-radius: 0 0 5px 5px;
+}
+.camp-activity {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 0 0;
+}
+.camp-activity-action,
+.camp-resting {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 10px;
+  background: #171e30;
+  border: 1px solid #353d57;
+  border-radius: 4px;
+  color: #eee7d8;
+  font-size: 12px;
+}
+.camp-activity-action small {
+  display: block;
+  font-size: 10px;
+  margin-top: 2px;
+}
+.quest-summary {
+  background: #171e30;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 12px;
+}
+.quest-summary h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.quest-summary p {
+  margin: 5px 0 0;
+  font-size: 12px;
+}
+.pixel-expansion-art {
+  position: absolute;
+  inset: 20% 20% 25%;
+  opacity: 0.5;
+}
+.pixel-expansion-art > svg {
+  width: 100%;
+  height: 100%;
+}
+.expansion-service > svg {
+  width: 88px;
+  height: 88px;
+}
+.district-booth > span > svg,
+.district-booth > svg {
+  width: 64px;
+  height: 64px;
+}
+.arena-gate-art > svg {
+  width: 130px;
+  height: 130px;
+}
+.map-castle {
+  display: block;
+  width: 80px;
+  height: 80px;
+}
+.map-castle svg {
+  width: 100%;
+  height: 100%;
+}
+.region-map > svg {
+  shape-rendering: crispEdges;
+}
+.battle-panel {
+  background: #171e30;
+}
+.battle-toolbar {
+  color: #acb6cc;
+  gap: 8px;
+  padding: 6px 10px;
+}
+.battle-toolbar strong {
+  color: #eee7d8;
+}
+.battle-toolbar .icon-button {
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+}
+.canvas-wrap {
+  background: #0a0c1a;
+}
+.canvas-wrap > canvas {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0;
+  touch-action: pan-y;
+}
+.canvas-wrap.expanded {
+  inset: 8px;
+  width: calc(100vw - 16px);
+  height: calc(100dvh - 16px);
+  z-index: 100;
+  border: 2px solid #71618d;
+  background: #0a0c1a;
+}
+.canvas-wrap.expanded canvas {
+  aspect-ratio: auto;
+}
+.board-hint {
+  background: #0a0c1acc;
+  color: #acb6cc;
+  border-radius: 2px;
+  font-size: 10px;
+}
+.battle-controls {
+  padding: 10px;
+  flex-wrap: wrap;
+}
+.battle-actions {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.battle-controls .secondary-button,
+.speed-control button,
+.auto-toggle {
+  min-height: 44px;
+}
+.speed-control button {
+  min-width: 44px;
+}
+.battle-legend {
+  gap: 10px;
+  padding: 8px 10px;
+  font-size: 10px;
+  color: #acb6cc;
+}
+.legend-swatch.firelight {
+  background: #f4c76a;
+}
+.legend-swatch.nightsight {
+  background: #739ed2;
+}
+.battle-company {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.battle-company-member {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  min-width: 0;
+  min-height: 66px;
+  border: 1px solid #353d57;
+  border-radius: 4px;
+  background: #171e30;
+  text-align: left;
+}
+.battle-company-member > span {
+  width: 44px;
+  height: 46px;
+  flex-shrink: 0;
+}
+.battle-company-member svg {
+  width: 100%;
+  height: 100%;
+}
+.battle-company-member > div {
+  min-width: 0;
+  flex: 1;
+}
+.battle-company-member strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+}
+.battle-company-member small {
+  display: block;
+  font-size: 10px;
+  margin: 3px 0;
+}
+.expedition-workspace {
+  display: flex;
+  flex-direction: column;
+}
+.expedition-workspace .main-column {
+  width: 100%;
+}
+.expedition-workspace .inspector {
+  width: 100%;
+  position: static !important;
+  inset: auto !important;
+  max-height: none !important;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  order: -1;
+}
+.expedition-workspace .inspector:has(#hero-detail:empty) {
+  display: none !important;
+}
+body[data-screen="expedition"] .inspector #hero-detail {
+  padding: 0;
+  background: none;
+}
+.battle-inspection {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  background: #242339;
+  border: 1px solid #71618d;
+  border-radius: 4px;
+}
+.battle-inspection-face {
+  width: 48px;
+  height: 50px;
+  flex-shrink: 0;
+}
+.battle-inspection-face svg {
+  width: 100%;
+  height: 100%;
+}
+.battle-inspection-body {
+  flex: 1;
+  min-width: 0;
+}
+.battle-inspection-body strong,
+.battle-inspection-body small,
+.battle-inspection-body > span {
+  display: block;
+}
+.battle-inspection-body strong {
+  font-size: 13px;
+}
+.battle-inspection-body small,
+.battle-inspection-body > span {
+  font-size: 11px;
+  margin: 3px 0;
+}
+.battle-inspection .text-button {
+  padding: 4px;
+  font-size: 12px;
+  min-height: 44px;
+}
+.battle-journal {
+  padding: 12px;
+  background: #171e30;
+  border: 1px solid #353d57;
+  border-radius: 4px;
+  margin-top: 12px;
+}
+.battle-journal summary {
+  min-height: 30px;
+  cursor: pointer;
+  color: #acb6cc;
+}
+.enemy-profile-art {
+  width: 120px;
+  height: 128px;
+  margin: auto;
+}
+.enemy-profile-art svg {
+  width: 100%;
+  height: 100%;
+}
+.health-track,
+.xp-track,
+.mana-track,
+.mini-xp {
+  border-radius: 0;
+}
+.health-track i,
+.xp-track i,
+.mana-track i {
+  border-radius: 0;
+}
+@media (min-width: 851px) {
+  .camp-supplies {
+    margin-top: 16px;
+  }
+  .battle-company {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+@media (max-width: 850px) {
+  .camp-workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .camp-workspace > .main-column {
+    display: contents;
+  }
+  .camp-workspace > .inspector {
+    order: 0;
+    width: 100%;
+    margin: 0;
+  }
+  .camp-workspace > .main-column > .camp-resource-strip {
+    order: 1;
+  }
+  .camp-workspace > .main-column > .camp-map {
+    order: 2;
+  }
+  .camp-workspace .camp-activity {
+    order: 3;
+  }
+  .camp-workspace .quest-summary {
+    order: 4;
+    margin-top: 0;
+  }
+  .evernight-camp-card {
+    padding: 12px;
+  }
+  .camp-metrics > * {
+    min-height: 56px;
+    padding: 8px 10px;
+  }
+  .camp-map.local-map {
+    height: 460px;
+    width: 100%;
+  }
+  .camp-building > svg {
+    width: 64px;
+    height: 64px;
+  }
+  .camp-building strong {
+    font-size: 10px;
+    max-width: 94px;
+  }
+  .camp-market-sign {
+    min-height: 44px;
+  }
+  .camp-name-row h2 {
+    font-size: 21px;
+  }
+  .market-workspace > .main-column {
+    min-width: 0;
+  }
+  .district-map {
+    min-height: 480px;
+  }
+  .district-booth > span > svg,
+  .district-booth > svg {
+    width: 54px;
+    height: 54px;
+  }
+  .expedition-workspace {
+    gap: 10px;
+  }
+  .expedition-workspace .inspector {
+    display: block;
+  }
+  body[data-screen="expedition"] .page-heading {
+    margin-bottom: 10px;
+    align-items: center;
+  }
+  body[data-screen="expedition"] .page-heading h1 {
+    font-size: 20px;
+  }
+  body[data-screen="expedition"] .page-heading > div > p {
+    display: none;
+  }
+  body[data-screen="expedition"] .page-heading .eyebrow {
+    font-size: 9px;
+  }
+  body[data-screen="expedition"] .heading-actions {
+    gap: 4px;
+  }
+  body[data-screen="expedition"] .heading-actions .secondary-button {
+    font-size: 11px;
+    padding: 8px;
+  }
+  body[data-screen="expedition"] .heading-actions .text-button {
+    font-size: 10px;
+    padding: 8px;
+  }
+  body[data-screen="expedition"] .run-status {
+    margin-bottom: 10px;
+    padding: 9px;
+    gap: 10px;
+    font-size: 11px;
+  }
+  .battle-toolbar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    padding: 4px 8px;
+    gap: 4px;
+  }
+  .battle-toolbar > span {
+    max-width: none;
+    font-size: 0;
+    white-space: normal;
+    gap: 4px;
+  }
+  .battle-toolbar > span:last-child {
+    justify-content: flex-end;
+  }
+  .battle-toolbar > span strong {
+    font-size: 13px;
+  }
+  .battle-toolbar > div {
+    gap: 3px;
+  }
+  #battle-time {
+    font-size: 11px;
+    min-width: 29px;
+  }
+  .canvas-wrap {
+    height: 300px;
+    min-height: 0;
+    aspect-ratio: auto;
+    overflow: hidden;
+  }
+  .battle-controls > span {
+    display: none;
+  }
+  .battle-actions {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 5px;
+  }
+  .battle-actions .secondary-button {
+    padding: 8px;
+    font-size: 11px;
+  }
+  .battle-legend {
+    flex-wrap: wrap;
+    gap: 6px 12px;
+  }
+  .battle-legend > span:nth-child(n + 3) {
+    display: none;
+  }
+  .battle-company {
+    gap: 5px;
+  }
+  .battle-company-member {
+    gap: 4px;
+    padding: 5px;
+  }
+  .battle-company-member > span {
+    width: 36px;
+    height: 38px;
+  }
+  .battle-company-member strong {
+    font-size: 11px;
+  }
+}
+@media (max-width: 600px) {
+  .app {
+    padding: 12px 10px calc(85px + env(safe-area-inset-bottom));
+  }
+  .site-header:has(.tutorial-bar:not([hidden])) ~ .app {
+    padding-bottom: calc(145px + env(safe-area-inset-bottom));
+  }
+  .site-header {
+    min-height: 58px;
+    padding: 8px 12px;
+  }
+  .brand strong {
+    font-size: 18px;
+  }
+  .brand small {
+    font-size: 7px;
+  }
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+  }
+  .resources {
+    gap: 8px;
+  }
+  #settings-btn {
+    width: 44px;
+  }
+  .tutorial-bar {
+    min-height: 54px;
+    padding: 5px 8px;
+    gap: 4px;
+    background: #211f36;
+  }
+  .tutorial-bar span {
+    flex: 1;
+    max-width: none;
+    font-size: 10px;
+  }
+  .tutorial-bar .text-button {
+    min-height: 44px;
+    padding: 4px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .camp-resource-strip {
+    gap: 7px;
+    padding: 8px;
+    font-size: 10px;
+  }
+  .camp-resource-strip svg {
+    width: 14px;
+    height: 14px;
+  }
+  .camp-map.local-map {
+    height: 430px;
+  }
+  .camp-supplies {
+    margin-top: 7px;
+  }
+  .camp-meal-time {
+    margin-top: 0;
+  }
+  .camp-build {
+    margin: 7px 0 !important;
+  }
+  .camp-level-card {
+    padding: 9px 11px;
+    font-size: 12px;
+  }
+  .camp-level-card .xp-track {
+    height: 6px;
+  }
+  .camp-metrics b {
+    font-size: 17px;
+  }
+  .camp-metrics span {
+    font-size: 10px;
+  }
+  .camp-resource-list {
+    gap: 0 10px;
+  }
+  .camp-resource-list > div {
+    font-size: 10px;
+  }
+  .camp-resource-list svg {
+    width: 14px;
+    height: 14px;
+  }
+  .camp-activity-action {
+    flex: 1;
+  }
+  .quest-summary {
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  .quest-summary > div {
+    min-width: 0;
+  }
+  .quest-summary p {
+    font-size: 11px;
+  }
+  .quest-summary .secondary-button {
+    font-size: 11px;
+    padding: 8px;
+    white-space: nowrap;
+  }
+  .battle-inspection {
+    gap: 6px;
+    padding: 8px;
+  }
+  .battle-inspection-face {
+    width: 38px;
+    height: 40px;
+  }
+  .canvas-wrap.expanded {
+    height: calc(100dvh - 16px);
+  }
+  .modal {
+    width: calc(100% - 16px);
+    max-width: calc(100% - 16px);
+    border: 2px solid #596481;
+  }
+  .modal-body {
+    padding: 14px;
+  }
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+@media (max-width: 360px) {
+  .brand small {
+    display: none;
+  }
+  .camp-resource-strip {
+    gap: 4px;
+    font-size: 9px;
+  }
+  .camp-resource-strip svg {
+    width: 12px;
+  }
+  .battle-company-member > span {
+    width: 26px;
+    height: 30px;
+  }
+  .canvas-wrap {
+    height: 280px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .camp-resident svg,
+  .card-portrait > svg {
+    animation: none;
+  }
+}
+.body-reduced-motion .camp-resident svg,
+.body-reduced-motion .card-portrait > svg {
+  animation: none;
+}

@@ -1,5 +1,6 @@
-import * as E from "./evernight.js?v=14";
-import { vision } from "./lighting.js?v=14";
+import { pixelTerrainSvg, pixelBuildingSvg } from "./pixel-art.js?v=15";
+import * as E from "./evernight.js?v=15";
+import { vision } from "./lighting.js?v=15";
 import {
   CLASSES,
   ITEMS,
@@ -10,12 +11,12 @@ import {
   classNodeState,
   classPoints,
   itemInfo,
-} from "./data.js?v=14";
+} from "./data.js?v=15";
 import {
   activeExpeditions,
   available,
   expeditionSlots,
-} from "./progression.js?v=14";
+} from "./progression.js?v=15";
 import {
   allQuests,
   questState,
@@ -23,9 +24,9 @@ import {
   activeQuests,
   REGION_ORDER,
   REGIONS,
-} from "./journeys.js?v=14";
-import { MATERIALS, calendarMonth, MONTH_THEMES } from "./world.js?v=14";
-import { portraitSvg, itemSvg, icon } from "./art.js?v=14";
+} from "./journeys.js?v=15";
+import { MATERIALS, calendarMonth, MONTH_THEMES } from "./world.js?v=15";
+import { portraitSvg, itemSvg, icon } from "./art.js?v=15";
 export function createEvernightUi(c) {
   const {
       getGame,
@@ -52,7 +53,7 @@ export function createEvernightUi(c) {
       deployed = s.roster.filter((h) =>
         activeExpeditions(s).some((r) => r.party.includes(h.id)),
       ).length;
-    return `<section class="camp-detail evernight-camp-card"><div class="camp-name-row"><h2>${esc(s.campName || "Your Camp")}</h2>${button(icon("gear", 16), 'data-rename-camp aria-label="Rename Camp"', "icon-button")}</div>${button("Build at Camp", "data-build-sites", "secondary-button camp-build")}<button class="camp-level-card" data-camp-progress><span>Camp level <b>${p.level}</b></span><span>${p.xp} / ${p.needed} XP</span><div class="xp-track"><i style="width:${(p.xp / p.needed) * 100}%"></i></div></button><div class="camp-metrics"><div><b>${s.roster.length} / ${c.capacity(s)}</b><span>Adventurers</span></div><div><b>${ready} / ${deployed}</b><span>Ready / on expedition</span></div><button data-service="pantry"><b>${s.food}</b><span>Food · −${food.demand} / 12h</span></button><button data-service="bonfire"><b>${DIFFICULTIES[s.worldDifficulty].name}</b><span>World difficulty</span></button></div><h3>Camp resources</h3><dl class="camp-resource-list">${Object.entries(
+    return `<section class="camp-detail evernight-camp-card"><div class="camp-name-row"><h2>${esc(s.campName || "Your Camp")}</h2>${button(icon("gear", 16), 'data-rename-camp aria-label="Rename Camp"', "icon-button")}</div>${button("Build at Camp", "data-build-sites", "secondary-button camp-build")}<button class="camp-level-card" data-camp-progress><span>Camp level <b>${p.level}</b></span><span>${p.xp} / ${p.needed} XP</span><div class="xp-track"><i style="width:${(p.xp / p.needed) * 100}%"></i></div></button><div class="camp-metrics"><div><b>${s.roster.length} / ${c.capacity(s)}</b><span>Adventurers</span></div><div><b>${ready} / ${deployed}</b><span>Ready / on expedition</span></div><button data-service="pantry"><b>${s.food}</b><span>Food · −${food.demand} / 12h</span></button><button data-service="bonfire"><b>${DIFFICULTIES[s.worldDifficulty].name}</b><span>World difficulty</span></button></div><details class="camp-supplies" id="camp-supplies"><summary>Camp resources<span>View stock</span></summary><dl class="camp-resource-list">${Object.entries(
       MATERIALS,
     )
       .map(
@@ -61,7 +62,7 @@ export function createEvernightUi(c) {
       )
       .join(
         "",
-      )}<div><dt>${icon("paw", 16)} Dinosaur eggs</dt><dd>${s.eggs || 0}</dd></div></dl></section>`;
+      )}<div><dt>${icon("paw", 16)} Dinosaur eggs</dt><dd>${s.eggs || 0}</dd></div></dl></details><p class="camp-meal-time">Next meal in ${Math.max(0, Math.ceil((food.next - s.lastClock) / 3600000))}h · ${food.supplied} supplied</p></section>`;
   }
   function progress() {
     const p = E.campProgress(g());
@@ -268,11 +269,11 @@ export function createEvernightUi(c) {
       name = names[key] || "Market square";
     let content = "";
     if (key === "guildhall")
-      content = `<div class="guild-booth-grid">${E.GUILDS.map((d) => button(`<span>${icon(d.profession === "Miner" ? "stone" : d.profession === "Hunter" ? "paw" : "flag", 28)}</span><strong>${d.name}</strong><small>${E.standing(g(), d.id)} standing</small>`, `data-guild-booth="${d.id}" style="--booth-color:${d.color}"`, "district-booth")).join("")}</div>`;
+      content = `<div class="guild-booth-grid">${E.GUILDS.map((d) => button(`<span>${pixelBuildingSvg("guild-" + d.id)}</span><strong>${d.name}</strong><small>${E.standing(g(), d.id)} standing</small>`, `data-guild-booth="${d.id}" style="--booth-color:${d.color}"`, "district-booth")).join("")}</div>`;
     if (key === "commons")
-      content = `<div class="court-services">${button(icon("army", 40) + "<strong>The Outfitter</strong><small>Add equipment slots</small>", 'data-district-open="outfitter"', "district-booth")}${button(icon("book", 40) + "<strong>Quest Board</strong><small>Stories and daily contracts</small>", 'data-district-open="board"', "district-booth")}</div>`;
+      content = `<div class="court-services">${button(pixelBuildingSvg("outfitter") + "<strong>The Outfitter</strong><small>Add equipment slots</small>", 'data-district-open="outfitter"', "district-booth")}${button(pixelBuildingSvg("questboard") + "<strong>Quest Board</strong><small>Stories and daily contracts</small>", 'data-district-open="board"', "district-booth")}</div>`;
     if (key === "arena")
-      content = `<div class="arena-gate-art">${icon("sword", 90)}<h2>The Wagering Pit</h2><p>${E.arenaRule(g()).name} · ${E.arenaRule(g()).text}</p>${button("Enter the Arena", "data-enter-arena")}</div>`;
+      content = `<div class="arena-gate-art">${pixelBuildingSvg("arena")}<h2>The Wagering Pit</h2><p>${E.arenaRule(g()).name} · ${E.arenaRule(g()).text}</p>${button("Enter the Arena", "data-enter-arena")}</div>`;
     if (key === "tavern")
       content = `<div class="tavern-services">${button("Browse adventurers", 'data-vendor-map="guild"', "secondary-button")}<div class="tavern-recruits">${g()
         .visitors.filter((h) => h.place === "tavern")
@@ -290,7 +291,7 @@ export function createEvernightUi(c) {
         'data-district-open="clinic"',
         "district-booth",
       );
-    return `<section class="district-map-shell"><div class="section-heading"><h2>${name}</h2>${button("← Market square", 'data-market-district="square"', "secondary-button")}</div><div class="district-map ${key}-district" data-district-map="${key}"><svg class="district-terrain" viewBox="0 0 900 540" preserveAspectRatio="none" aria-hidden="true"><rect width="900" height="540" fill="#151e30"/><path d="M0 270h900M450 0v540" stroke="#344151" stroke-width="60"/><path d="M0 270h900M450 0v540" stroke="#56606b" stroke-width="2" stroke-dasharray="5 12"/><g fill="#ba8d57">${[75, 225, 675, 825].map((x) => `<circle cx="${x}" cy="70" r="7"/><circle cx="${x}" cy="470" r="7"/>`).join("")}</g><rect x="18" y="18" width="864" height="504" rx="20" fill="none" stroke="#647082" stroke-width="2"/></svg>${content}</div></section>`;
+    return `<section class="district-map-shell"><div class="section-heading"><h2>${name}</h2>${button("← Market square", 'data-market-district="square"', "secondary-button")}</div><div class="district-map ${key}-district" data-district-map="${key}"><div class="district-terrain pixel-ground">${pixelTerrainSvg(key === "tavern" ? "tavern" : "market", 900, 540, 37)}</div>${content}</div></section>`;
   }
   function marketArrows() {
     return `<nav class="market-directions" aria-label="Market districts">${button("↑ Guildhall", 'data-market-district="guildhall"', "market-direction north")}${button("← Outfitter & Quests", 'data-market-district="commons"', "market-direction west")}${button("Arena →", 'data-market-district="arena"', "market-direction east")}${button("↓ Camp", 'data-nav="camp"', "market-direction south")}</nav>`;

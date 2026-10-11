@@ -1,9 +1,9 @@
-import * as Ever from "./evernight.js?v=14";
-import { createEvernightUi } from "./evernight-ui.js?v=14";
-import { vision, revealed } from "./lighting.js?v=14";
-import * as Night from "./nightfall.js?v=14";
-import { createNightfallUi } from "./nightfall-ui.js?v=14";
-import { regionLandmarks } from "./landmarks.js?v=14";
+import * as Ever from "./evernight.js?v=15";
+import { createEvernightUi } from "./evernight-ui.js?v=15";
+import { vision, revealed } from "./lighting.js?v=15";
+import * as Night from "./nightfall.js?v=15";
+import { createNightfallUi } from "./nightfall-ui.js?v=15";
+import { regionLandmarks } from "./landmarks.js?v=15";
 import {
   GAME_SEASON,
   MYTHICAL_HEROES,
@@ -71,10 +71,10 @@ import {
   objectModifiers,
   modifierPool,
   petInfo,
-} from "./data.js?v=14";
-import { Battle, distance } from "./engine.js?v=14";
-import { Renderer } from "./renderer.js?v=14";
-import { icon, portraitSvg, petSvg, itemSvg, cosmeticSvg } from "./art.js?v=14";
+} from "./data.js?v=15";
+import { Battle, distance } from "./engine.js?v=15";
+import { Renderer } from "./renderer.js?v=15";
+import { icon, portraitSvg, petSvg, itemSvg, cosmeticSvg } from "./art.js?v=15";
 import {
   activeExpeditions,
   expeditionSlots,
@@ -88,8 +88,8 @@ import {
   stockResetAt,
   trialInfo,
   trialClaimKey,
-} from "./progression.js?v=14";
-import * as Camp from "./camp.js?v=14";
+} from "./progression.js?v=15";
+import * as Camp from "./camp.js?v=15";
 import {
   BUILDINGS,
   BRANCHES,
@@ -100,8 +100,8 @@ import {
   CALENDAR_BONUSES,
   COOKING,
   BREWS,
-} from "./world.js?v=14";
-import { CODEX } from "./codex.js?v=14";
+} from "./world.js?v=15";
+import { CODEX } from "./codex.js?v=15";
 import {
   REGIONS,
   REGION_ORDER,
@@ -115,11 +115,24 @@ import {
   questState,
   activeQuests,
   bossDefeated,
-} from "./journeys.js?v=14";
-import { attachResidentDragging } from "./map-interaction.js?v=14";
-import { createClient } from "./client.js?v=14";
-import { CampChatter } from "./chatter.js?v=14";
-import { exportCamp, readCampBackup } from "./saves.js?v=14";
+} from "./journeys.js?v=15";
+import { attachResidentDragging } from "./map-interaction.js?v=15";
+import { createClient } from "./client.js?v=15";
+import { CampChatter } from "./chatter.js?v=15";
+import { exportCamp, readCampBackup } from "./saves.js?v=15";
+import {
+  BattleSelection,
+  attachBattleGestures,
+} from "./battle-interaction.js?v=15";
+import {
+  pixelBuildingSvg,
+  pixelTerrainSvg,
+  pixelPropSvg,
+} from "./pixel-art.js?v=15";
+import { pixelMarkup } from "./pixel-markup.js?v=15";
+import { SceneLighting } from "./scene-lighting.js?v=15";
+let sceneLights = [];
+const battleSelection = new BattleSelection();
 const campChatter = new CampChatter();
 const $ = (id) => document.getElementById(id),
   esc = (s) =>
@@ -165,7 +178,10 @@ let signature = "",
   marketPage = 0,
   codexSearch = "",
   codexCategory = "All",
-  names = true,
+  names =
+    typeof window.matchMedia === "function"
+      ? !window.matchMedia("(max-width: 850px)").matches
+      : true,
   expanded = false,
   toastTimer = null,
   modalRefresh = null,
@@ -209,10 +225,8 @@ const heroById = (id) => game.roster.find((h) => h.id === id),
   currentExpedition = () =>
     game.expeditions.find((r) => r.id === game.selectedExpedition);
 function selectedHero() {
-  if (game.screen === "expedition" && selectedUid !== null && battle) {
-    const u = battle.units.find((u) => u.uid === selectedUid);
-    if (u) return u.hero;
-  }
+  if (game.screen === "expedition")
+    return battleSelection.resolve(battle)?.hero || null;
   return (
     heroById(selected) ||
     game.visitors?.find((h) => h.id === selected) ||
@@ -264,8 +278,9 @@ function closeModal() {
 }
 function openModal(name, subtitle, body, footer = "", refresh = null) {
   modalRefresh = refresh;
-  $("modal-content").innerHTML =
-    `<div class="modal-header"><div><span class="eyebrow">${esc(game.campName || "Your Camp")} · ${title(game.screen)}</span><h2>${name}</h2><p>${subtitle}</p></div><button class="icon-button" data-close aria-label="Close dialog">${icon("close")}</button></div><div class="modal-body">${body}</div>${footer ? `<div class="modal-footer">${footer}</div>` : ""}`;
+  $("modal-content").innerHTML = pixelMarkup(
+    `<div class="modal-header"><div><span class="eyebrow">${esc(game.campName || "Your Camp")} · ${title(game.screen)}</span><h2>${name}</h2><p>${subtitle}</p></div><button class="icon-button" data-close aria-label="Close dialog">${icon("close")}</button></div><div class="modal-body">${body}</div>${footer ? `<div class="modal-footer">${footer}</div>` : ""}`,
+  );
   bindActions($("modal-content"));
   if (!$("modal").open) $("modal").showModal();
 }
@@ -381,9 +396,30 @@ function expeditionCard(r) {
       "",
     )}</div><div class="expedition-metrics"><span><strong>${r.history.filter((h) => h.survived).length} / ${r.encounters}</strong> encounters</span><span><strong>${r.earned.gold}</strong> gold</span><span><strong>${time(r.elapsedSeconds)}</strong> elapsed</span></div><p class="expedition-phase">${active ? (r.phase === "interlude" ? r.stop.name : "The company is " + (r.phase === "battle" ? "fighting" : "preparing") + ".") : r.completion || "Everyone is back at Camp."}</p><div class="card-actions">${button(active ? "Watch company" : "View report", `data-watch="${r.id}"`, "secondary-button")}${active ? button("Recall", `data-recall="${r.id}"`, "text-button") : ""}</div></article>`;
 }
+function sceneTerrain(
+  kind,
+  width = 900,
+  height = 470,
+  css = "landscape-terrain",
+) {
+  return pixelMarkup(
+    `<div class="${css} pixel-ground" aria-hidden="true"><svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" shape-rendering="crispEdges">${pixelTerrainSvg(kind, width, height, 197)}${Array.from(
+      { length: kind === "camp" ? 14 : 8 },
+      (_, i) => {
+        const x = i % 2 ? width - 78 : -12,
+          y =
+            25 +
+            (Math.floor(i / 2) * (height - 70)) / (kind === "camp" ? 7 : 4);
+        return `<svg x="${x}" y="${y}" width="88" height="100">${pixelPropSvg("tree", i % 3)}</svg>`;
+      },
+    ).join(
+      "",
+    )}${kind === "market" ? `<svg x="${width * 0.45}" y="${height * 0.39}" width="${width * 0.1}" height="${height * 0.2}">${pixelPropSvg("fountain")}</svg>` : ""}</svg></div>`,
+  );
+}
 function campScene() {
   if (game.campZone && game.campZone !== "center") return expansionScene();
-  return `<div class="camp-map local-map" data-local-map="camp" data-camp-ground><svg class="landscape-terrain" viewBox="0 0 900 390" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="camp-ground" x2="0" y2="1"><stop stop-color="#bac39e"/><stop offset="1" stop-color="#81956b"/></linearGradient></defs><path d="M0 0h900v390H0Z" fill="url(#camp-ground)"/><path d="M-30 307Q150 210 350 268T610 190T920 250" fill="none" stroke="#d1c39b" stroke-width="38"/><path d="M420 0q-10 140 74 225t-4 190" fill="none" stroke="#d1c39b" stroke-width="25"/>${[28, 100, 210, 305, 560, 645, 755, 846].map((x, i) => `<g transform="translate(${x},${i % 2 ? 32 : 340})"><ellipse cy="12" rx="26" ry="9" fill="#425a40" opacity=".2"/><path d="M0 0v20" stroke="#7c7053" stroke-width="8"/><circle cy="-9" r="25" fill="#627f51"/><circle cx="-10" cy="-18" r="16" fill="#8da771"/><circle cx="9" cy="-23" r="13" fill="#a2b584"/></g>`).join("")}<ellipse cx="414" cy="212" rx="47" ry="23" fill="#9e9b72"/><path d="m386 216 49-17m-42-5 39 26" stroke="#886146" stroke-width="8"/><path class="camp-fire" d="M400 205q-15-24 3-44 0 19 15 18 9 18-6 29Z" fill="#e4ae63"/><path d="M404 202q-6-14 5-23 2 10 10 10-1 16-10 15Z" fill="#f3d895"/><g opacity=".4" fill="#778a66"><ellipse cx="169" cy="223" rx="24" ry="7"/><ellipse cx="600" cy="282" rx="23" ry="7"/></g></svg>${portraitTerrain("camp")}${Object.entries(
+  return `<div class="camp-map local-map" data-local-map="camp" data-camp-ground>${sceneTerrain("camp")}${portraitTerrain("camp")}${Object.entries(
     BUILDINGS,
   )
     .filter(
@@ -392,13 +428,50 @@ function campScene() {
         game.buildings[key] &&
         !(key === "pantry" && game.buildings.kitchen),
     )
-    .map(([key, b]) => {
-      const built = game.buildings[key];
-      return `<button class="camp-building camp-${key} ${built ? "built" : "unbuilt"} ${key === "tent" ? "camp-tent" : ""}" style="--plot-x:${b.x}%;--plot-y:${b.y}%;--phone-x:${CAMP_PORTRAIT[key][0]}%;--phone-y:${CAMP_PORTRAIT[key][1]}%" data-building="${key}" data-drop-target="building:${key}" aria-label="${built ? "Open" : "Build"} ${b.name}"><svg viewBox="0 0 100 88" aria-hidden="true">${built ? (key === "crossroads" ? '<path d="M49 76V10" stroke="#7b6b4c" stroke-width="7"/><path d="M15 19h65l11 9-11 9H15Z" fill="#ceb780" stroke="#86744e" stroke-width="2"/><path d="M78 45H19l-9 8 9 8h59Z" fill="#b59c6a" stroke="#86744e" stroke-width="2"/>' : key === "bonfire" ? '<ellipse cx="50" cy="69" rx="35" ry="13" fill="#a09871"/><path d="m25 72 46-12m-41-6 40 21" stroke="#896446" stroke-width="8"/><path class="camp-fire" d="M38 66Q17 41 42 16q-1 24 18 19 18 19-7 34Z" fill="#e9ae63"/><path d="M44 65q-10-19 7-32 0 13 10 15 5 17-11 19Z" fill="#f4d990"/>' : key === "tent" ? '<path d="M7 69 49 11l44 58Z" fill="#c0a77a" stroke="#75674e" stroke-width="3"/><path d="m49 11 9 58H34Z" fill="#67574a"/><path d="M3 74h94" stroke="#9b8966" stroke-width="4"/>' : key === "training" ? '<path d="M10 71h80" stroke="#897958" stroke-width="8"/><path d="M18 59V15m64 44V15" stroke="#947249" stroke-width="5"/><path d="M18 28h64" stroke="#ba9c69" stroke-width="5"/><circle cx="50" cy="44" r="17" fill="#d4c49a" stroke="#9e8460" stroke-width="3"/><circle cx="50" cy="44" r="10" fill="#b08367"/><circle cx="50" cy="44" r="3" fill="#e7d3a3"/>' : '<path d="M18 35h65v38H18Z" fill="#cfbc92" stroke="#86775a" stroke-width="2"/><path d="M8 37 50 10l44 27Z" fill="' + ({ alchemist: "#9384a3", kitchen: "#a97b62", outfitter: "#809896", workbench: "#a59670", pantry: "#929169" }[key] || "#86936c") + '" stroke="#746a55" stroke-width="3"/><path d="M43 73V48h17v25" fill="#706c54"/><rect x="23" y="46" width="12" height="11" fill="#e8d6a7"/>' + (key === "alchemist" ? '<path class="rarity-sparks" d="m65 10 3-10 3 10" stroke="#e5d39f" stroke-width="3"/>' : "")) : '<path d="M15 71h70M22 67V43h56v24M24 44l25-19 29 19" fill="none" stroke="#77856a" stroke-width="2" stroke-dasharray="4 4"/><path d="M44 53h13m-6-6v13" stroke="#fff3d0" stroke-width="3"/>'}</svg><strong>${b.name}</strong></button>`;
-    })
+    .map(
+      ([key, b]) =>
+        `<button class="camp-building camp-${key} built ${key === "tent" ? "camp-tent" : ""}" style="--plot-x:${b.x}%;--plot-y:${b.y}%;--phone-x:${CAMP_PORTRAIT[key]?.[0] || b.x}%;--phone-y:${CAMP_PORTRAIT[key]?.[1] || b.y}%" data-building="${key}" data-drop-target="building:${key}" aria-label="Open ${b.name}">${pixelBuildingSvg(key, game.buildings[key])}<strong>${b.name}</strong></button>`,
+    )
     .join(
       "",
-    )}<div class="camp-map-label"><strong>${esc(game.campName || "Your Camp")}</strong><span>${Object.values(game.buildings).filter(Boolean).length} buildings · ${game.roster.length} adventurers</span></div>${campWalkers()}${game.portalUnlocked ? portalScene() : ""}<button class="camp-market-sign" data-market-visit aria-label="Choose adventurers and walk to the Market"><span aria-hidden="true">↑</span><strong>Market</strong></button>${expansionArrows()}</div>`;
+    )}${campWalkers()}${game.portalUnlocked ? portalScene() : ""}<button class="camp-market-sign" data-market-visit aria-label="Choose adventurers and walk to the Market"><span aria-hidden="true">↑</span><strong>Market</strong></button>${expansionArrows()}</div>`;
+}
+function campActivity() {
+  const actions = [];
+  for (const key of ["farm", "garden"]) {
+    const cycles = Math.min(
+      12,
+      Math.floor(
+        (game.lastClock - (game[key + "HarvestAt"] ?? game.lastClock)) / 300000,
+      ),
+    );
+    if (game.buildings[key] && cycles > 0)
+      actions.push(
+        button(
+          `${icon("leaf", 18)}<span>${key === "farm" ? cycles * 2 + " food" : cycles + " herbs"} ready</span>`,
+          `data-harvest="${key}"`,
+          "camp-activity-action",
+        ),
+      );
+  }
+  const resting = game.roster.filter(
+    (h) => h.recoveryUntil > game.lastClock,
+  ).length;
+  if (resting)
+    actions.push(
+      `<span class="camp-resting">${icon("heart", 18)}${resting} recovering${game.food >= game.roster.length ? " · food supplied" : ""}</span>`,
+    );
+  for (const expedition of activeExpeditions(game).slice(0, 2))
+    actions.push(
+      button(
+        `${icon("flag", 18)}<span>${esc(expedition.name)}<small>Encounter ${expedition.stage + 1} / ${expedition.encounters}</small></span>`,
+        `data-watch="${expedition.id}"`,
+        "camp-activity-action",
+      ),
+    );
+  return actions.length
+    ? `<section class="camp-activity" aria-label="Camp activity">${actions.join("")}</section>`
+    : "";
 }
 function campView() {
   return campV7View();
@@ -486,18 +559,33 @@ function countdownLabel(seconds) {
 }
 function battleView(r) {
   const enc = encounterFor(r);
-  return `<section class="battle-panel"><div class="battle-toolbar"><span><i class="team-dot ally"></i>Your company <strong id="ally-count">—</strong></span><div><span id="battle-time">0:00</span><button class="icon-button" id="names-btn" aria-label="Toggle character names">${icon("info", 17)}</button><button class="icon-button" id="expand-btn" aria-label="Expand battlefield">${icon("expand", 17)}</button></div><span><strong id="enemy-count">—</strong>${r.mode === "arena" ? "Three rival banners" : enc.boss ? "Rare champion" : "Opposing company"}<i class="team-dot enemy"></i></span></div><div class="canvas-wrap ${expanded ? "expanded" : ""}" id="canvas-wrap"><button class="close-field icon-button" id="collapse-field" aria-label="Collapse battlefield">${icon("close")}</button><div id="fight-countdown" class="fight-countdown" role="status" aria-live="polite" ${r.phase !== "prepare" ? "hidden" : ""}>${r.phase === "prepare" ? countdownLabel(r.phaseSeconds) : ""}</div><canvas id="battlefield" role="img" aria-label="Live automatic battle. Click a character to inspect it."></canvas><div class="board-hint">${r.phase === "prepare" ? "Formation ready" : "Click a character or enemy. The selected character has white brackets and a banner."}</div></div><div class="battle-controls"><span>${icon(LOCATIONS[r.location].icon, 17)}${LOCATIONS[r.location].name}</span><div class="battle-actions">${autoControl(r)}<div class="speed-control">${[1, 2, 3].map((s) => `<button data-speed="${s}" class="${observation.speed === s ? "active" : ""}" aria-pressed="${observation.speed === s}">${s}×</button>`).join("")}</div>${button(icon(observation.paused ? "play" : "pause", 15) + (observation.paused ? "Resume" : "Pause"), 'id="pause-btn"', "secondary-button")}</div></div><div class="battle-legend"><span><i class="legend-swatch blessing"></i>Blessing</span><span><i class="legend-swatch curse"></i>Curse / Gravity</span><span><i class="legend-swatch explosion"></i>Physical Explosion</span><span><i class="selection-key"></i>Selected character</span></div></section>`;
+  return `<section class="battle-panel"><div class="battle-toolbar"><span><i class="team-dot ally"></i>Your company <strong id="ally-count">—</strong></span><div><span id="battle-time">0:00</span><button class="icon-button" id="names-btn" aria-label="Toggle character names">${icon("info", 17)}</button><button class="icon-button" id="follow-btn" aria-label="Follow company">${icon("army", 17)}</button><button class="icon-button" id="expand-btn" aria-label="Expand battlefield">${icon("expand", 17)}</button></div><span><strong id="enemy-count">—</strong>${r.mode === "arena" ? "Three rival banners" : enc.boss ? "Rare champion" : "Opposing company"}<i class="team-dot enemy"></i></span></div><div class="canvas-wrap ${expanded ? "expanded" : ""}" id="canvas-wrap"><button class="close-field icon-button" id="collapse-field" aria-label="Collapse battlefield">${icon("close")}</button><div id="fight-countdown" class="fight-countdown" role="status" aria-live="polite" ${r.phase !== "prepare" ? "hidden" : ""}>${r.phase === "prepare" ? countdownLabel(r.phaseSeconds) : ""}</div><canvas id="battlefield" role="img" aria-label="Live automatic battle. Tap a character to inspect; drag sideways to explore the battlefield."></canvas><div class="board-hint">${r.phase === "prepare" ? "Formation ready" : "Tap to inspect · Drag to look around"}</div></div><div class="battle-controls"><span>${icon(LOCATIONS[r.location].icon, 17)}${LOCATIONS[r.location].name}</span><div class="battle-actions">${autoControl(r)}<div class="speed-control">${[1, 2, 3].map((s) => `<button data-speed="${s}" class="${observation.speed === s ? "active" : ""}" aria-pressed="${observation.speed === s}">${s}×</button>`).join("")}</div>${button(icon(observation.paused ? "play" : "pause", 15) + (observation.paused ? "Resume" : "Pause"), 'id="pause-btn"', "secondary-button")}</div></div><div class="battle-legend"><span><i class="legend-swatch firelight"></i>Firelight</span><span><i class="legend-swatch nightsight"></i>Night vision</span><span><i class="legend-swatch blessing"></i>Blessing</span><span><i class="legend-swatch curse"></i>Curse / Gravity</span><span><i class="legend-swatch explosion"></i>Physical Explosion</span><span><i class="selection-key"></i>Selected character</span></div></section>`;
 }
 function interludeView(r) {
   const s = r.stop,
     a = r.lastAward;
   return `<section class="interlude-panel"><div class="wave-clear">${icon("check", 26)}<div><span class="eyebrow victory-label">VICTORY</span><h2>You won encounter ${r.stage + 1}</h2><p>+${a.gold} gold · +${a.xp} party XP · ${a.revived} characters revived</p></div></div><div class="quick-stop"><div class="stop-mark">${icon(s.type === "fountain" ? "heart" : s.type === "chest" ? "book" : "camp", 44)}</div><div><span class="eyebrow">A MOMENT ON THE ROAD</span><h2>${s.name}</h2><p>${s.done ? s.message : r.auto ? "The company is taking a short stop." : "Continue to collect this stop and set off."}</p>${!s.done ? button("Take a moment now", 'data-stop="' + r.id + '"', "secondary-button") : ""}${s.loot ? `<div class="loot-found">${rarityTag(itemRarity(s.loot))}${ITEMS[s.loot.key].name}</div>` : ""}<span class="status-badge ${r.auto ? "running" : "waiting"}">${r.auto ? "AUTO · Continuing shortly" : "Waiting for Continue"}</span>${button("Continue", 'data-continue="' + r.id + '" ' + (catchingUp ? "disabled" : ""))}</div></div><div class="battle-controls"><span>Resting before the next encounter</span><div class="battle-actions">${autoControl(r)}<div class="speed-control">${[1, 2, 3].map((v) => `<button data-speed="${v}" class="${observation.speed === v ? "active" : ""}" aria-pressed="${observation.speed === v}">${v}×</button>`).join("")}</div>${button(icon(observation.paused ? "play" : "pause", 15) + (observation.paused ? "Resume" : "Pause"), 'id="pause-btn"', "secondary-button")}</div></div></section>`;
 }
+function battleCompany(r) {
+  return `<div class="battle-company" aria-label="Expedition company">${party(
+    game,
+    r,
+  )
+    .map((h) => {
+      const unit = battle?.units.find(
+          (u) => u.hero.id === h.id && !u.pet && !u.structure && !u.summon,
+        ),
+        max = unit?.maxHp || stats(h).hp,
+        hp = unit?.hp ?? h.currentHp;
+      return `<button data-hero="${h.id}" class="battle-company-member" aria-label="Inspect ${esc(h.name)}"><span>${portraitSvg(h, true)}</span><div><strong>${esc(h.name.split(" ")[0])}</strong><small data-battle-hp="${h.id}">${Math.ceil(hp)} / ${max}</small><div class="health-track"><i data-battle-hp-fill="${h.id}" style="width:${Math.max(0, (hp / max) * 100)}%"></i></div></div></button>`;
+    })
+    .join("")}</div>`;
+}
 function expeditionView() {
   const r = currentExpedition();
   if (!r) return expeditionsView();
   const active = r.status === "active";
-  return `<div class="page-heading"><div><span class="eyebrow">${LOCATIONS[r.location].name} · ${active ? "EXPEDITION IN PROGRESS" : "EXPEDITION REPORT"}</span><h1>${esc(r.name)} <span class="heading-pill">${active ? "Encounter " + (r.stage + 1) + " / " + r.encounters : "Returned"}</span></h1><p>${active ? "Leave this view whenever you like. The company will keep going at 1×." : r.reason === "defeat" ? "A tough encounter brought the company home. Your permanent characters, items, and earned rewards are safe. Recruits only join after a completed expedition." : r.completion || "The company is back at Camp, ready for its next chapter."}</p></div><div class="heading-actions">${button("The Camp", 'data-nav="camp"', "secondary-button")}${active ? button("Recall company", 'data-recall="' + r.id + '" ' + (catchingUp ? "disabled" : ""), "text-button") : button("Plan another at Camp", 'data-nav="camp"')}</div></div><div class="run-status"><span>${icon("flag", 17)}<strong>${r.history.filter((h) => h.survived).length}</strong> cleared</span><div class="earned-loot" id="earned-loot">${lootMetrics(r)}</div><span id="exp-time">${time(r.elapsedSeconds)} elapsed</span></div><div class="workspace"><div class="main-column">${active ? (r.phase === "interlude" ? interludeView(r) : battleView(r)) : `<section class="report-panel ${r.reason === "defeat" ? "defeat-report" : "victory-report"}"><span class="result-emblem">${icon(r.reason === "defeat" ? "skull" : "check", 52)}</span><span class="eyebrow">${r.reason === "recall" ? "COMPANY RECALLED" : r.reason === "defeat" ? "DEFEAT" : "VICTORY"}</span><h2>${r.reason === "defeat" ? "You lost encounter " + (r.stage + 1) : r.reason === "recall" ? "Company recalled" : "Expedition won"}</h2><p>${r.reason === "defeat" ? "The company recovers in 90 seconds. Stocked food halves recovery time." : "Equipment and characters kept their levels. Bonds strengthened with every cleared encounter."}</p><div class="report-numbers"><span><strong>${r.earned.gold}</strong> Gold earned</span><span><strong>${r.earned.items}</strong> Items collected</span><span><strong>${time(r.elapsedSeconds)}</strong> Time together</span></div>${button("Meet them at Camp", 'data-nav="camp"')}</section>`}${collection(party(game, r), "The company")}<section class="battle-journal"><div class="section-heading"><h2>${active ? "Battle activity" : "Encounter history"}</h2></div><div id="battle-log">${
+  return `<div class="page-heading"><div><span class="eyebrow">${LOCATIONS[r.location].name} · ${active ? "EXPEDITION IN PROGRESS" : "EXPEDITION REPORT"}</span><h1>${esc(r.name)} <span class="heading-pill">${active ? "Encounter " + (r.stage + 1) + " / " + r.encounters : "Returned"}</span></h1><p>${active ? "Leave this view whenever you like. The company will keep going at 1×." : r.reason === "defeat" ? "A tough encounter brought the company home. Your permanent characters, items, and earned rewards are safe. Recruits only join after a completed expedition." : r.completion || "The company is back at Camp, ready for its next chapter."}</p></div><div class="heading-actions">${button("The Camp", 'data-nav="camp"', "secondary-button")}${active ? button("Recall company", 'data-recall="' + r.id + '" ' + (catchingUp ? "disabled" : ""), "text-button") : button("Plan another at Camp", 'data-nav="camp"')}</div></div><div class="run-status"><span>${icon("flag", 17)}<strong>${r.history.filter((h) => h.survived).length}</strong> cleared</span><div class="earned-loot" id="earned-loot">${lootMetrics(r)}</div><span id="exp-time">${time(r.elapsedSeconds)} elapsed</span></div><div class="workspace expedition-workspace"><div class="main-column">${active ? (r.phase === "interlude" ? interludeView(r) : battleView(r)) : `<section class="report-panel ${r.reason === "defeat" ? "defeat-report" : "victory-report"}"><span class="result-emblem">${icon(r.reason === "defeat" ? "skull" : "check", 52)}</span><span class="eyebrow">${r.reason === "recall" ? "COMPANY RECALLED" : r.reason === "defeat" ? "DEFEAT" : "VICTORY"}</span><h2>${r.reason === "defeat" ? "You lost encounter " + (r.stage + 1) : r.reason === "recall" ? "Company recalled" : "Expedition won"}</h2><p>${r.reason === "defeat" ? "The company recovers in 90 seconds. Stocked food halves recovery time." : "Equipment and characters kept their levels. Bonds strengthened with every cleared encounter."}</p><div class="report-numbers"><span><strong>${r.earned.gold}</strong> Gold earned</span><span><strong>${r.earned.items}</strong> Items collected</span><span><strong>${time(r.elapsedSeconds)}</strong> Time together</span></div>${button("Meet them at Camp", 'data-nav="camp"')}</section>`}${battleCompany(r)}<details class="battle-journal" id="expedition-journal" ${active ? "" : "open"}><summary>${active ? "Battle activity" : "Encounter history"}</summary><div id="battle-log">${
     !active
       ? r.history
           .slice(-15)
@@ -509,7 +597,7 @@ function expeditionView() {
           .join("") ||
         '<p class="empty-note">Recalled before the first encounter ended.</p>'
       : ""
-  }</div></section></div><aside class="inspector"><div id="hero-detail"></div></aside></div>`;
+  }</div></details></div><aside class="inspector"><div id="hero-detail"></div></aside></div>`;
 }
 function offerInfo(o) {
   if (o.kind === "hero")
@@ -1334,6 +1422,7 @@ async function navigate(screen) {
     mapZoom = 1;
     mapViews.clear();
   }
+  battleSelection.clear();
   selectedUid = null;
   expanded = false;
   if ($("modal").open) closeModal();
@@ -1348,12 +1437,18 @@ async function navigate(screen) {
 }
 function chooseHero(id) {
   if (["camp", "market"].includes(game.screen) && $("modal").open) closeModal();
-  selected = game.screen === "camp" && selected === id ? null : id;
-  selectedUid = null;
-  if (game.screen === "expedition" && battle)
-    selectedUid =
-      battle.units.find((u) => u.hero.id === id && !u.structure && !u.summon)
-        ?.uid ?? null;
+  if (game.screen === "expedition") {
+    const unit = battleSelection.select(
+      battle,
+      battle?.units.find((u) => u.hero.id === id && !u.structure && !u.summon)
+        ?.uid,
+    );
+    selected = unit?.hero.id ?? null;
+    selectedUid = unit?.uid ?? null;
+  } else {
+    selected = game.screen === "camp" && selected === id ? null : id;
+    selectedUid = null;
+  }
   document
     .querySelectorAll("[data-hero]")
     .forEach((b) =>
@@ -1435,9 +1530,11 @@ function bindActions(root = document) {
   bind("[data-storage]", showStorage);
   bind("[data-item]", (b) => showItem(b.dataset.item));
   bind("[data-watch]", async (b) => {
+    battleSelection.clear();
+    selected = null;
     selectedUid = null;
     if (await act("watch", { id: b.dataset.watch })) {
-      chooseHero(currentExpedition().party[0]);
+      renderDetail();
       await syncObservation();
     }
   });
@@ -1753,6 +1850,9 @@ function bindActions(root = document) {
     apply("unsocket", { id: b.dataset.for, index: Number(b.dataset.unsocket) }),
   );
   bind("[data-deselect]", () => {
+    battleSelection.clear();
+    selectedUid = null;
+    if (renderer) renderer.selected = null;
     selected = null;
     renderDetail();
   });
@@ -1925,7 +2025,9 @@ function bind() {
   $("restock-btn")?.addEventListener("click", () => act("restock", { vendor }));
   $("launch-btn")?.addEventListener("click", async () => {
     if (await act("launch", {}, "Your company takes to the road.")) {
-      selected = currentExpedition().party[0];
+      battleSelection.clear();
+      selected = null;
+      selectedUid = null;
       await syncObservation();
       render(true);
     }
@@ -1944,30 +2046,36 @@ function bind() {
   };
   $("expand-btn")?.addEventListener("click", expand);
   $("collapse-field")?.addEventListener("click", expand);
-  $("battlefield")?.addEventListener("click", (e) => {
-    if (!battle) return;
-    const rect = $("battlefield").getBoundingClientRect(),
-      point = {
-        x: ((e.clientX - rect.left) / rect.width) * W,
-        y: ((e.clientY - rect.top) / rect.height) * H,
+  $("follow-btn")?.addEventListener("click", () => renderer?.followCompany());
+  const field = $("battlefield");
+  if (field)
+    attachBattleGestures(
+      field,
+      () => renderer,
+      (point) => {
+        if (!battle || !point) return;
+        const hit = battle.units
+          .filter(
+            (u) =>
+              !u.dead &&
+              !u.structure &&
+              !u.summon &&
+              (u.team === 0 || revealed(battle, u)),
+          )
+          .map((u) => ({
+            u,
+            d: distance({ x: u.x, y: u.y - 22 - (u.flying ? 12 : 0) }, point),
+          }))
+          .sort((a, b) => a.d - b.d)[0];
+        const unit =
+          hit?.d < 38 ? battleSelection.select(battle, hit.u.uid) : null;
+        if (!unit) battleSelection.clear();
+        selectedUid = unit?.uid ?? null;
+        selected = unit?.hero.id ?? null;
+        if (renderer) renderer.selected = selectedUid;
+        renderDetail();
       },
-      units = battle.units
-        .filter(
-          (u) =>
-            !u.structure && !u.summon && (u.team === 0 || revealed(battle, u)),
-        )
-        .map((u) => ({
-          u,
-          d: distance({ x: u.x, y: u.y - 19 - (u.flying ? 12 : 0) }, point),
-        }))
-        .sort((a, b) => a.d - b.d);
-    if (units[0]?.d < 38) {
-      selectedUid = units[0].u.uid;
-      selected = units[0].u.hero.id;
-      renderer.selected = selectedUid;
-      renderDetail();
-    }
-  });
+    );
 }
 function render(force = false) {
   if (!game) return;
@@ -1993,20 +2101,22 @@ function render(force = false) {
     .join("");
   const inspectorScroll = document.querySelector(".inspector")?.scrollTop || 0;
   rememberDetails();
-  $("app-content").innerHTML = {
-    camp: campView,
-    crossroads: crossroadsView,
-    party: partyView,
-    calendar: challengesView,
-    challenges: challengesView,
-    shop: gemShopView,
-    arena: arenaView,
-    quests: everUi.questsView,
-    codex: codexView,
-    expeditions: expeditionsView,
-    expedition: expeditionView,
-    market: marketView,
-  }[game.screen]();
+  $("app-content").innerHTML = pixelMarkup(
+    {
+      camp: campView,
+      crossroads: crossroadsView,
+      party: partyView,
+      calendar: challengesView,
+      challenges: challengesView,
+      shop: gemShopView,
+      arena: arenaView,
+      quests: everUi.questsView,
+      codex: codexView,
+      expeditions: expeditionsView,
+      expedition: expeditionView,
+      market: marketView,
+    }[game.screen](),
+  );
   document.body?.setAttribute("data-screen", game.screen);
   renderDetail();
   if (document.querySelector(".inspector"))
@@ -2021,6 +2131,9 @@ function render(force = false) {
     renderer.showNames = names;
     renderer.draw(battle, now / 1000);
   }
+  sceneLights = [...document.querySelectorAll(".local-map, .district-map")].map(
+    (element) => new SceneLighting(element),
+  );
   updateHud();
   everUi.tutorial();
   document.body.classList.toggle(
@@ -2031,6 +2144,26 @@ function render(force = false) {
 }
 function updateHud() {
   if (!game) return;
+  document.querySelectorAll("[data-battle-hp]").forEach((el) => {
+    const unit = battle?.units.find(
+      (u) =>
+        u.hero.id === el.dataset.battleHp &&
+        !u.pet &&
+        !u.summon &&
+        !u.structure,
+    );
+    if (unit) el.textContent = `${Math.ceil(unit.hp)} / ${unit.maxHp}`;
+  });
+  document.querySelectorAll("[data-battle-hp-fill]").forEach((el) => {
+    const unit = battle?.units.find(
+      (u) =>
+        u.hero.id === el.dataset.battleHpFill &&
+        !u.pet &&
+        !u.summon &&
+        !u.structure,
+    );
+    if (unit) el.style.width = Math.max(0, (unit.hp / unit.maxHp) * 100) + "%";
+  });
   document
     .querySelectorAll("[data-stock-timer]")
     .forEach(
@@ -2192,22 +2325,25 @@ function onUpdate(data) {
     );
     for (const u of battle.units) u.fromPosition = positions.get(u.uid);
   }
-  if (battle) {
-    let unit = battle.units.find(
-      (u) => u.hero.id === selected && !u.structure && !u.summon,
-    );
-    if (!unit) {
-      selected = r.party[0];
-      unit = battle.units.find(
-        (u) => u.hero.id === selected && !u.structure && !u.summon,
-      );
-    }
+  const beforeSelectedUid = selectedUid;
+  battleSelection.enter(
+    game.screen === "expedition" && battle ? `${r.id}:${r.stage}` : null,
+  );
+  if (game.screen === "expedition") {
+    const unit = battleSelection.resolve(battle);
+    selected = unit?.hero.id ?? null;
     selectedUid = unit?.uid ?? null;
   } else {
     selectedUid = null;
-    if (selected && !heroById(selected))
-      selected = r?.party[0] || game.roster[0]?.id || null;
+    if (
+      selected &&
+      !heroById(selected) &&
+      !game.visitors?.some((h) => h.id === selected)
+    )
+      selected = null;
   }
+  if (game.screen === "expedition" && beforeSelectedUid !== selectedUid)
+    renderDetail();
   const next = [
     game.screen,
     game.selectedExpedition,
@@ -2530,16 +2666,16 @@ function marketTabs() {
   return `<div class="market-view-tabs">${button("The market square", 'data-market-mode="vendors"', marketMode === "vendors" ? "secondary-button selected" : "text-button")}${button("Full catalog", 'data-market-mode="catalog"', marketMode === "catalog" ? "secondary-button selected" : "text-button")}</div>`;
 }
 function vendorArt(v) {
-  const colors = {
-      guild: "#8b9f87",
-      forge: "#b48168",
-      arcane: "#a08cb4",
-      night: "#8b9c92",
-      menagerie: "#bd9f76",
-      atelier: "#ad8e9e",
-    },
-    color = colors[v.id];
-  return `<svg viewBox="0 0 290 120" aria-hidden="true"><path d="M0 114q75-24 148 0t142-4v10H0Z" fill="#83977b" opacity=".25"/><path d="M57 43h180v70H57Z" fill="#d1bd96" stroke="#938268" stroke-width="2"/><path d="m47 46 25-26h151l26 26Z" fill="${color}"/><path d="M49 47h196v18H49Z" fill="${color}"/><path d="M70 47h20v18H70m27-18h20v18H97m27-18h20v18h-20m27-18h20v18h-20m27-18h20v18h-20m27-18h20v18h-20" fill="#e6d5ad" opacity=".8"/><path d="M119 69h51v44h-51Z" fill="#83725c"/><path d="M73 75h29v23H73m82 14h52V77h-28" fill="#8a9686"/><path d="M37 114V56m220 58V56" stroke="#8d7758" stroke-width="5"/>${v.id === "forge" ? '<path d="m215 103 10-30" stroke="#707a74" stroke-width="6"/><path d="m225 68 9-7 6 10-13 8Z" fill="#b2b6aa"/>' : v.id === "arcane" ? '<circle class="character-aura" cx="199" cy="79" r="13" fill="#c5b1de"/><path d="m198 63 3 11 7 4-9 4-3 10-2-10-8-5 9-4Z" fill="#eee2b5"/>' : v.id === "menagerie" ? '<path d="M198 97q18-28 27 0Z" fill="#bf9062"/><path d="m202 83 2-12 7 9m5 0 8-10 1 14" fill="#bf9062"/>' : ""}<path d="M54 111h181" stroke="#9d8a66" stroke-width="5"/></svg>`;
+  return pixelBuildingSvg(
+    {
+      forge: "blacksmith",
+      arcane: "alchemist",
+      night: "lanternwright",
+      menagerie: "menagerie",
+      atelier: "atelier",
+      guild: "tavern",
+    }[v.id] || v.id,
+  );
 }
 function vendorBanner(id) {
   const v = VENDORS.find((v) => v.id === id);
@@ -2999,12 +3135,14 @@ function frame(now) {
       u.y = y;
     }
   }
+  if (!document.hidden && focused && !closing)
+    for (const light of sceneLights) light.draw(now / 1000);
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 function campV7View() {
   return workspace(
-    `${everUi.resourceStrip()}${campScene()}${everUi.questSummary()}`,
+    `${everUi.resourceStrip()}${campScene()}${campActivity()}${everUi.questSummary()}`,
   );
 }
 function campWalkers() {
@@ -3044,7 +3182,19 @@ function roadPath(region, e) {
     mx = (a.x + b.x) * 4.5,
     my = (a.y + b.y) * 6.5,
     offset = (e.combat % 2 ? 1 : -1) * 34;
-  return `M${a.x * 9} ${a.y * 13} Q${mx + offset} ${my - offset} ${b.x * 9} ${b.y * 13}`;
+  const points = Array.from({ length: 21 }, (_, i) => {
+    const t = i / 20,
+      q = 1 - t;
+    return [
+      Math.round(
+        (q * q * a.x * 9 + 2 * q * t * (mx + offset) + t * t * b.x * 9) / 6,
+      ) * 6,
+      Math.round(
+        (q * q * a.y * 13 + 2 * q * t * (my - offset) + t * t * b.y * 13) / 6,
+      ) * 6,
+    ];
+  });
+  return points.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join(" ");
 }
 function regionMap() {
   const loc = game.destination.location || game.location,
@@ -3056,20 +3206,7 @@ function regionMap() {
     tracked = QUESTS.find(
       (q) => q.id === game.trackedQuest && q.location === loc,
     );
-  return `<section class="route-map-shell"><div class="map-toolbar"><span>${LOCATIONS[loc].name} · ${seen.size} / ${region.nodes.length} discovered</span><div>${button("−", 'data-map-zoom="-1" aria-label="Zoom out"', "icon-button")}${button("+", 'data-map-zoom="1" aria-label="Zoom in"', "icon-button")}${button("Fit map", "data-map-fit", "secondary-button")}</div></div><div class="region-map-viewport" id="region-map-viewport"><div class="region-map" style="--map-scale:${mapZoom};--map-tint:${LOCATIONS[loc].color}" aria-label="${LOCATIONS[loc].name} local roads"><svg viewBox="0 0 900 1300" preserveAspectRatio="none" aria-hidden="true"><defs><pattern id="contours" width="160" height="180" patternUnits="userSpaceOnUse"><path d="M-40 30q140-80 210 30M-40 55q140-80 210 30" fill="none" stroke="#72835d" stroke-width="2" opacity=".15"/></pattern></defs><rect width="900" height="1300" fill="#17283a"/><rect width="900" height="1300" fill="${LOCATIONS[loc].color}" opacity=".17"/><rect width="900" height="1300" fill="url(#contours)"/>${Array.from(
-    { length: 64 },
-    (_, i) => {
-      const x = (i * 173 + 43) % 880,
-        y = (i * 179 + 17) % 1270;
-      return loc === "volcano"
-        ? `<path d="m${x} ${y} 24-42 25 42Z" fill="#876652" opacity=".24"/>`
-        : loc === "marsh"
-          ? `<path d="M${x} ${y}q70-40 130 0" stroke="#7d9d9a" stroke-width="18" opacity=".2" fill="none"/>`
-          : `<g fill="#657e4b" opacity=".22"><circle cx="${x}" cy="${y}" r="17"/><circle cx="${x + 13}" cy="${y - 7}" r="12"/></g>`;
-    },
-  ).join(
-    "",
-  )}${regionLandmarks(loc)}${region.roads.map((e) => `<path d="${roadPath(region, e)}" fill="none" stroke="#000000" stroke-width="7" stroke-linecap="round" stroke-dasharray="${e.style === "wild" ? "3 17" : "none"}"/>`).join("")}${routes
+  return `<section class="route-map-shell"><div class="map-toolbar"><span>${LOCATIONS[loc].name} · ${seen.size} / ${region.nodes.length} discovered</span><div>${button("−", 'data-map-zoom="-1" aria-label="Zoom out"', "icon-button")}${button("+", 'data-map-zoom="1" aria-label="Zoom in"', "icon-button")}${button("Fit map", "data-map-fit", "secondary-button")}</div></div><div class="region-map-viewport" id="region-map-viewport"><div class="region-map" style="--map-scale:${mapZoom};--map-tint:${LOCATIONS[loc].color}" aria-label="${LOCATIONS[loc].name} local roads"><svg viewBox="0 0 900 1300" preserveAspectRatio="none" aria-hidden="true">${pixelTerrainSvg(loc === "greenway" ? "forest" : loc === "cinder" ? "village" : loc, 900, 1300, 541)}${regionLandmarks(loc)}${region.roads.map((e) => `<path d="${roadPath(region, e)}" fill="none" stroke="#000000" stroke-width="7" stroke-linecap="round" stroke-dasharray="${e.style === "wild" ? "3 17" : "none"}"/>`).join("")}${routes
     .filter((r) => r.index === (d?.routeIndex ?? 0))
     .map(
       (r) =>
@@ -3154,8 +3291,38 @@ function v7Detail() {
   const el = $("hero-detail");
   if (!el) return;
   const h = selectedHero();
+  if (game.screen === "expedition") {
+    const unit = battleSelection.resolve(battle);
+    el.setAttribute(
+      "data-allegiance",
+      unit ? (unit.team === 0 ? "friendly" : "enemy") : "none",
+    );
+    el.innerHTML = pixelMarkup(
+      unit
+        ? `<section class="battle-inspection"><div class="battle-inspection-face">${portraitSvg(h, true)}</div><div class="battle-inspection-body"><strong>${esc(h.name)}</strong><small>${esc(className(h))} · Lv ${h.level}</small><span id="detail-hp">${Math.ceil(unit.hp)} / ${unit.maxHp} HP</span><div class="health-track"><i id="detail-hp-fill" style="width:${Math.max(0, (unit.hp / unit.maxHp) * 100)}%"></i></div></div>${button("Details", "data-battle-profile", "text-button")}${button(icon("close", 18), 'data-deselect aria-label="Close battle inspection"', "icon-button")}</section>`
+        : "",
+    );
+    detailFingerprint = unit ? detailKey(h, unit) : "";
+    bindActions(el);
+    el.querySelector("[data-battle-profile]")?.addEventListener("click", () => {
+      if (heroById(h.id)) nightUi.showProfile(h);
+      else
+        openModal(
+          h.name,
+          `${h.race} · ${className(h)} · Level ${h.level}`,
+          `<div class="enemy-profile-art">${portraitSvg(h)}</div><p>${Math.ceil(unit.hp)} / ${unit.maxHp} HP · ${Math.floor(unit.mana)} / ${unit.maxMana} mana</p><div class="stat-six">${CORE_STATS.map((key) => `<div><strong>${Number(unit[key].toFixed(1))}</strong><small>${title(key)}</small></div>`).join("")}</div><p>${abilities(
+            h,
+          )
+            .map((a) => esc(a.name || a.key))
+            .join(" · ")}</p>`,
+        );
+    });
+    return;
+  }
   if (!h) {
-    el.innerHTML = game.screen === "market" ? marketBar() : campBar();
+    el.innerHTML = pixelMarkup(
+      game.screen === "market" ? marketBar() : campBar(),
+    );
     el.setAttribute("data-allegiance", "none");
     bindActions(el);
     return;
@@ -3172,55 +3339,57 @@ function v7Detail() {
     "data-allegiance",
     owned ? "friendly" : neutral ? "neutral" : "enemy",
   );
-  el.innerHTML = `${button(game.screen === "camp" ? "← Camp overview" : "Close character details", "data-deselect", "text-button")}<div class="hero-detail-header"><div class="detail-portrait" style="--detail-height:${Math.min(132, 82 * characterSize(h)[0])}px;--detail-width:${Math.min(138, 78 * characterSize(h)[1])}px">${portraitSvg(h)}</div><div class="hero-detail-name"><h2>${esc(h.name)}</h2><div class="hero-tags">${button(h.race, 'data-explain="race" data-index="0"', "text-button")}${button(className(h), 'data-explain="class" data-index="0"', "text-button")}${rarityTag(heroRarity(h))}</div>${owned ? `<div class="name-actions">${button(icon("heart", 13) + (h.favorite ? "Favorited" : "Favorite"), `data-favorite="${h.id}"`, "text-button")}${button("Rename", `data-rename="${h.id}"`, "text-button")}</div>` : ""}</div></div><div class="hero-detail-body"><div class="detail-xp" id="character-xp"><div><strong>Level ${h.level}</strong><span id="detail-xp-numbers">${h.xp} / ${xpNeeded(h.level)} XP</span></div><div class="xp-track"><i id="detail-xp-fill" style="width:${Math.min(100, (h.xp / xpNeeded(h.level)) * 100)}%"></i></div><small>${classPoints(h)} class points</small></div><div class="stat-six">${CORE_STATS.map((k) => `<div><strong id="stat-${k}">${Number(s[k].toFixed(1))}</strong><small>${title(k)} ${info(k)}</small></div>`).join("")}</div><div class="health-detail"><strong id="detail-hp">${Math.ceil(hp)} / ${max} HP</strong><div class="health-track"><i id="detail-hp-fill" style="width:${(hp / max) * 100}%"></i></div></div><div class="mana-detail"><span id="detail-mana">${Math.floor(u?.mana ?? s.maxMana)} / ${s.maxMana} mana</span>${info("mana")}<div class="mana-track"><i id="detail-mana-fill" style="width:${((u?.mana ?? s.maxMana) / s.maxMana) * 100}%"></i></div></div><div class="detail-section"><div class="detail-section-label">Active abilities</div><div class="detail-chip-list">${abilities(
-    h,
-  )
-    .map((a, i) =>
-      button(
-        esc(a.name),
-        `data-explain="ability" data-index="${i}" title="${esc(a.text)}"`,
-        "detail-chip",
-      ),
+  el.innerHTML = pixelMarkup(
+    `${button(game.screen === "camp" ? "← Camp overview" : "Close character details", "data-deselect", "text-button")}<div class="hero-detail-header"><div class="detail-portrait" style="--detail-height:${Math.min(132, 82 * characterSize(h)[0])}px;--detail-width:${Math.min(138, 78 * characterSize(h)[1])}px">${portraitSvg(h)}</div><div class="hero-detail-name"><h2>${esc(h.name)}</h2><div class="hero-tags">${button(h.race, 'data-explain="race" data-index="0"', "text-button")}${button(className(h), 'data-explain="class" data-index="0"', "text-button")}${rarityTag(heroRarity(h))}</div>${owned ? `<div class="name-actions">${button(icon("heart", 13) + (h.favorite ? "Favorited" : "Favorite"), `data-favorite="${h.id}"`, "text-button")}${button("Rename", `data-rename="${h.id}"`, "text-button")}</div>` : ""}</div></div><div class="hero-detail-body"><div class="detail-xp" id="character-xp"><div><strong>Level ${h.level}</strong><span id="detail-xp-numbers">${h.xp} / ${xpNeeded(h.level)} XP</span></div><div class="xp-track"><i id="detail-xp-fill" style="width:${Math.min(100, (h.xp / xpNeeded(h.level)) * 100)}%"></i></div><small>${classPoints(h)} class points</small></div><div class="stat-six">${CORE_STATS.map((k) => `<div><strong id="stat-${k}">${Number(s[k].toFixed(1))}</strong><small>${title(k)} ${info(k)}</small></div>`).join("")}</div><div class="health-detail"><strong id="detail-hp">${Math.ceil(hp)} / ${max} HP</strong><div class="health-track"><i id="detail-hp-fill" style="width:${(hp / max) * 100}%"></i></div></div><div class="mana-detail"><span id="detail-mana">${Math.floor(u?.mana ?? s.maxMana)} / ${s.maxMana} mana</span>${info("mana")}<div class="mana-track"><i id="detail-mana-fill" style="width:${((u?.mana ?? s.maxMana) / s.maxMana) * 100}%"></i></div></div><div class="detail-section"><div class="detail-section-label">Active abilities</div><div class="detail-chip-list">${abilities(
+      h,
     )
-    .join(
-      "",
-    )}</div></div><div class="detail-section"><div class="detail-section-label">Armor · ${CLASSES[h.classId].armorWeight}</div><div class="armor-row">${armorSlots(
-    h,
-  )
-    .map((slot, i) =>
-      button(
-        `<span>${slot.label}<small>${h.armor[i] ? esc(itemInfo(h.armor[i]).name) : slot.allowed ? "Empty" : "Crown"}</small></span>${owned && Night.equipmentNotice(game, h, i, true) ? '<i class="new-gear-dot" aria-label="New compatible armor"></i>' : ""}`,
-        `data-armor-slot="${i}" ${slot.allowed ? "" : "disabled"}`,
-        "equipment-slot",
-      ),
+      .map((a, i) =>
+        button(
+          esc(a.name),
+          `data-explain="ability" data-index="${i}" title="${esc(a.text)}"`,
+          "detail-chip",
+        ),
+      )
+      .join(
+        "",
+      )}</div></div><div class="detail-section"><div class="detail-section-label">Armor · ${CLASSES[h.classId].armorWeight}</div><div class="armor-row">${armorSlots(
+      h,
     )
-    .join(
-      "",
-    )}</div></div><div class="detail-section"><div class="detail-section-label">Equipment · ${equipmentSlots(h).length} / 8</div><div class="equipment-row">${equipmentSlots(
-    h,
-  )
-    .map((slot, i) =>
-      button(
-        `<span>${h.items[i] ? esc(itemInfo(h.items[i]).name) : slot.label}</span>${owned && Night.equipmentNotice(game, h, i) ? '<i class="new-gear-dot" aria-label="New compatible equipment"></i>' : ""}`,
-        `data-slot="${i}"`,
-        "equipment-slot",
-      ),
+      .map((slot, i) =>
+        button(
+          `<span>${slot.label}<small>${h.armor[i] ? esc(itemInfo(h.armor[i]).name) : slot.allowed ? "Empty" : "Crown"}</small></span>${owned && Night.equipmentNotice(game, h, i, true) ? '<i class="new-gear-dot" aria-label="New compatible armor"></i>' : ""}`,
+          `data-armor-slot="${i}" ${slot.allowed ? "" : "disabled"}`,
+          "equipment-slot",
+        ),
+      )
+      .join(
+        "",
+      )}</div></div><div class="detail-section"><div class="detail-section-label">Equipment · ${equipmentSlots(h).length} / 8</div><div class="equipment-row">${equipmentSlots(
+      h,
     )
-    .join(
-      "",
-    )}</div></div><div class="detail-section"><div class="detail-section-label">Light & sight</div>${button((h.light ? itemInfo(h.light).name : "No light") + " · " + vision(h).label + " (" + vision(h).sight + ")", `data-light-profile="${h.id}"`, "equipment-slot")}</div><div class="detail-section"><div class="detail-section-label">Attributes & professions</div><div class="detail-chip-list">${characterAttributes(
-    h,
-  )
-    .map((a, i) =>
-      button(
-        esc(a.name),
-        `data-explain="attribute" data-index="${i}" title="${esc(a.text)}"`,
-        "detail-chip",
-      ),
+      .map((slot, i) =>
+        button(
+          `<span>${h.items[i] ? esc(itemInfo(h.items[i]).name) : slot.label}</span>${owned && Night.equipmentNotice(game, h, i) ? '<i class="new-gear-dot" aria-label="New compatible equipment"></i>' : ""}`,
+          `data-slot="${i}"`,
+          "equipment-slot",
+        ),
+      )
+      .join(
+        "",
+      )}</div></div><div class="detail-section"><div class="detail-section-label">Light & sight</div>${button((h.light ? itemInfo(h.light).name : "No light") + " · " + vision(h).label + " (" + vision(h).sight + ")", `data-light-profile="${h.id}"`, "equipment-slot")}</div><div class="detail-section"><div class="detail-section-label">Attributes & professions</div><div class="detail-chip-list">${characterAttributes(
+      h,
     )
-    .join(
-      "",
-    )}</div></div><div class="detail-section"><div class="detail-section-label">Talents</div><div class="detail-chip-list">${(h.talents || []).map((t, i) => button(esc(talentInfo(t).name), `data-explain="talent" data-index="${i}"`, "detail-chip")).join("") || '<span class="small">No training yet.</span>'}</div></div><div class="detail-section"><div class="detail-section-label">Companion</div>${h.companion ? button(`${petSvg(h.companion)}<strong>${esc(evolutionName(h.companion, "pet"))}</strong>`, 'data-explain="pet" data-index="0"', "pet-detail detail-chip") : '<p class="small">No companion. Meet friends in the Character tent.</p>'}</div></div>`;
+      .map((a, i) =>
+        button(
+          esc(a.name),
+          `data-explain="attribute" data-index="${i}" title="${esc(a.text)}"`,
+          "detail-chip",
+        ),
+      )
+      .join(
+        "",
+      )}</div></div><div class="detail-section"><div class="detail-section-label">Talents</div><div class="detail-chip-list">${(h.talents || []).map((t, i) => button(esc(talentInfo(t).name), `data-explain="talent" data-index="${i}"`, "detail-chip")).join("") || '<span class="small">No training yet.</span>'}</div></div><div class="detail-section"><div class="detail-section-label">Companion</div>${h.companion ? button(`${petSvg(h.companion)}<strong>${esc(evolutionName(h.companion, "pet"))}</strong>`, 'data-explain="pet" data-index="0"', "pet-detail detail-chip") : '<p class="small">No companion. Meet friends in the Character tent.</p>'}</div></div>`,
+  );
   detailFingerprint = detailKey(h, u);
   bindActions(el);
 }
@@ -3545,17 +3714,9 @@ function routeDifficulty(route, loc) {
   return d.name + " · " + (route.danger * d.health).toFixed(2) + "× enemy HP";
 }
 function portraitTerrain(kind) {
-  return `<svg class="portrait-terrain" viewBox="0 0 600 900" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="portrait-ground-${kind}" x2="0" y2="1"><stop stop-color="${kind === "camp" ? "#bbca9a" : "#c7c39e"}"/><stop offset="1" stop-color="${kind === "camp" ? "#8fa477" : "#a6ac88"}"/></linearGradient></defs><rect width="600" height="900" fill="url(#portrait-ground-${kind})"/><path d="M290-30Q330 150 250 260T300 520T295 940" fill="none" stroke="#d6c8a0" stroke-width="42"/><path d="M-20 380Q100 320 260 425T620 450M-20 710Q140 600 300 720T620 760" fill="none" stroke="#d6c8a0" stroke-width="27"/>${Array.from(
-    { length: 18 },
-    (_, i) => {
-      const x = i % 2 ? 570 : 25,
-        y = 40 + i * 49;
-      return `<g transform="translate(${x},${y})"><ellipse cy="26" rx="33" ry="12" fill="#526a4926"/><path d="M0 5v27" stroke="#8e7953" stroke-width="8"/><circle r="29" fill="#718d5c"/><circle cx="-8" cy="-13" r="19" fill="#96ad76"/></g>`;
-    },
-  ).join(
-    "",
-  )}<g opacity=".35" fill="#688350">${Array.from({ length: 18 }, (_, i) => `<path d="m${((i * 137) % 550) + 20} ${((i * 71) % 790) + 60} 4-10 4 10 6-13 3 13Z"/>`).join("")}</g>${kind === "market" ? '<circle cx="300" cy="400" r="34" fill="#9fa596" stroke="#e3d3b1" stroke-width="9"/><ellipse cx="300" cy="392" rx="23" ry="13" fill="#94b1b3"/><path d="M300 375v-25" stroke="#e4d4b3" stroke-width="9"/>' : ""}</svg>`;
+  return sceneTerrain(kind, 600, 900, "portrait-terrain");
 }
+
 function residentsView(place, heroes) {
   return `<div class="camp-residents">${heroes
     .map((h, i) => {
@@ -3569,7 +3730,7 @@ function residentsView(place, heroes) {
     .join("")}</div>`;
 }
 function portalScene() {
-  return `<button class="camp-portal" data-portal data-drop-target="portal" aria-label="Eldrin the portalkeeper · Travel to unlocked regions"><svg viewBox="0 0 120 130" aria-hidden="true"><ellipse cx="48" cy="64" rx="31" ry="43" fill="#a5b7c1" fill-opacity=".45" stroke="#667d87" stroke-width="8"/><ellipse class="portal-shimmer" cx="48" cy="64" rx="23" ry="34" fill="#96a8c6" stroke="#e7d5aa" stroke-width="3"/><path d="M30 60q18-30 34 0t-34 11" stroke="#eadfbd" stroke-width="2" fill="none"/><ellipse cx="48" cy="113" rx="43" ry="9" fill="#5f745238"/><path d="m74 115 10-43h18l15 43Z" fill="#67788d" stroke="#4a5c70" stroke-width="2"/><circle cx="93" cy="66" r="12" fill="#d4bb93"/><path d="m75 57 17-32 20 32Z" fill="#5d718a"/><path d="M80 58h28" stroke="#d5bd86" stroke-width="3"/><path d="m83 68 10 24 12-24" fill="#e5dec8"/><path d="m108 117 2-50" stroke="#917f55" stroke-width="4"/><circle class="portal-shimmer" cx="111" cy="61" r="6" fill="#e3c784"/></svg><strong>Portalkeeper</strong><small>${game.regionUnlocks.length - 1} regions beyond the forest</small></button>`;
+  return `<button class="camp-portal" data-portal data-drop-target="portal" aria-label="Eldrin the portalkeeper · Travel to unlocked regions">${pixelPropSvg("portal")}<strong>Portalkeeper</strong><small>${game.regionUnlocks.length - 1} regions beyond the forest</small></button>`;
 }
 function showPortal() {
   everUi.portal();
@@ -3638,7 +3799,7 @@ function marketMapView() {
       button("← Camp", 'data-nav="camp"', "secondary-button"),
     ) +
     workspace(
-      `${marketTabs()}${stockTimer()}<div class="market-map local-map" data-local-map="market"><svg class="landscape-terrain" viewBox="0 0 900 540" preserveAspectRatio="none" aria-hidden="true"><rect width="900" height="540" fill="#c1c6a2"/><path d="M-10 272Q240 185 450 272T915 290M440-30Q500 170 450 290T450 600" stroke="#dbcca7" stroke-width="54" fill="none"/><circle cx="450" cy="270" r="40" fill="#9faa9c" stroke="#dfd2b2" stroke-width="12"/><ellipse cx="450" cy="263" rx="29" ry="18" fill="#a1bec0"/>${[20, 120, 770, 880].map((x, i) => `<g fill="#6f8a5b"><circle cx="${x}" cy="${i % 2 ? 492 : 28}" r="35"/><circle cx="${x + 10}" cy="${i % 2 ? 480 : 15}" r="24" fill="#91a36e"/></g>`).join("")}</svg>${portraitTerrain("market")}${VENDORS.filter(
+      `${marketTabs()}${stockTimer()}<div class="market-map local-map" data-local-map="market">${sceneTerrain("market", 900, 540)}${portraitTerrain("market")}${VENDORS.filter(
         (v) => v.id !== "guild",
       )
         .map((v) => {
@@ -3859,7 +4020,7 @@ function stockTimer() {
   return `<div class="stock-timer">${icon("gear", 17)}<span>New stock in <strong data-stock-timer>${time((stockResetAt(game) - game.lastClock) / 1000)}</strong></span><small>Resets every 12 hours · UTC</small></div>`;
 }
 function castleArt() {
-  return `<svg class="map-castle" viewBox="0 0 120 105" aria-hidden="true"><ellipse cx="60" cy="95" rx="53" ry="9" fill="#6e78524a"/><path d="M19 32h24v59H19Zm61 0h23v59H80ZM43 48h37v43H43Z" fill="#b7b6a1" stroke="#68775e" stroke-width="3"/><path d="M16 32 30 7l15 25M77 32 91 7l15 25" fill="#a25f55" stroke="#81453c" stroke-width="2"/><path d="M44 46V35h9v7h15v-7h10v11" fill="#b7b6a1" stroke="#68775e" stroke-width="3"/><path d="M53 92V73q8-14 16 0v19" fill="#58614c"/><path d="M26 48h9v13h-9m61-13h9v13h-9" fill="#5e6a50"/><path d="M61 35V7l21 6-21 8" fill="#b5544c" stroke="#824238" stroke-width="2"/></svg>`;
+  return `<span class="map-castle">${pixelBuildingSvg("castle")}</span>`;
 }
 function expansionArrows() {
   return Object.entries(Camp.CAMP_EXPANSIONS)
@@ -3900,7 +4061,7 @@ function expansionScene() {
     key = { east: "farm", west: "cabins", south: "garden" }[zone],
     b = BUILDINGS[key],
     built = game.buildings[key];
-  return `<div class="camp-map local-map expanded-camp" data-local-map="camp" data-camp-ground>${portraitTerrain("camp")}<svg class="expansion-land" viewBox="0 0 600 900" aria-hidden="true"><path d="M100 630Q300 540 500 630" stroke="#d0c09a" stroke-width="35" fill="none"/>${built ? (zone === "east" ? Array.from({ length: 4 }, (_, i) => `<g transform="translate(${95 + (i % 2) * 215} ${280 + Math.floor(i / 2) * 130})"><path d="m0 20 140-15 30 90-140 15Z" fill="${built ? "#9e7854" : "#b7ba8c"}" stroke="#7f7856" stroke-width="4"/>${built ? Array.from({ length: 12 }, (_, n) => `<path d="m${20 + (n % 4) * 31} ${24 + Math.floor(n / 4) * 25} 3-13 5 13 5-11 2 11" fill="#88a368"/>`).join("") : ""}</g>`).join("") : zone === "west" ? Array.from({ length: 3 }, (_, i) => `<g transform="translate(${70 + i * 165} ${360 + (i % 2) * 75})"><path d="M10 60h115v100H10Z" fill="${built ? "#b89b72" : "#b8bb94"}" stroke="#796e52" stroke-width="4"/><path d="m0 64 66-65 68 65Z" fill="${built ? "#8a7b60" : "#a3ad81"}"/><path d="M49 160V96h37v64" fill="#66634c"/><path d="M17 90h23v27H17" fill="#e7cea1"/></g>`).join("") : `<ellipse cx="300" cy="420" rx="175" ry="100" fill="${built ? "#9aaa77" : "#b2bc93"}" stroke="#ad9f74" stroke-width="10"/>${Array.from({ length: 14 }, (_, i) => `<path d="m${180 + (i % 5) * 55} ${365 + Math.floor(i / 5) * 44}q-25-25 0-18 20-35 7 3 24-19 4 5" fill="#648f59"/>`).join("")}`) : ""}</svg><div class="camp-map-label"><strong>${d.name}</strong><span>Owned Camp expansion · ${b.name}</span></div>${button('<span aria-hidden="true">↑</span>', 'data-camp-zone="center" aria-label="Return to central Camp"', "camp-market-sign")}${built ? button(`${icon(b.icon, 30)}<strong>${b.name}</strong>`, `data-building="${key}" data-drop-target="building:${key}"`, "expansion-service") : ""}${game.buildings.archaeology && game.archaeologyZone === zone ? button(icon("bone", 30) + "<strong>Archaeology Camp</strong>", 'data-building="archaeology" data-drop-target="building:archaeology"', "archaeology-service") : ""}${residentsView("camp", game.roster.filter((h) => available(game, h)).slice(0, 5))}</div>`;
+  return `<div class="camp-map local-map expanded-camp" data-local-map="camp" data-camp-ground>${portraitTerrain("camp")}<div class="pixel-expansion-art">${built ? pixelBuildingSvg(key, built) : pixelPropSvg("bush")}</div><div class="camp-map-label"><strong>${d.name}</strong></div>${button('<span aria-hidden="true">↑</span>', 'data-camp-zone="center" aria-label="Return to central Camp"', "camp-market-sign")}${built ? button(`${pixelBuildingSvg(key, built)}<strong>${b.name}</strong>`, `data-building="${key}" data-drop-target="building:${key}"`, "expansion-service") : ""}${game.buildings.archaeology && game.archaeologyZone === zone ? button(pixelBuildingSvg("archaeology") + "<strong>Archaeology Camp</strong>", 'data-building="archaeology" data-drop-target="building:archaeology"', "archaeology-service") : ""}${residentsView("camp", game.roster.filter((h) => available(game, h)).slice(0, 5))}</div>`;
 }
 function showCampPlot(key, h = null) {
   const b = BUILDINGS[key];
@@ -4048,7 +4209,9 @@ function showTrialParty() {
   $("confirm-trial-launch").onclick = async () => {
     if (await act("launch", {}, "The challenge begins.")) {
       closeModal();
-      selected = currentExpedition().party[0];
+      battleSelection.clear();
+      selected = null;
+      selectedUid = null;
       await syncObservation();
       render(true);
     }
@@ -4080,5 +4243,5 @@ function confirmRelease(id) {
 }
 
 function lakeshoreScene() {
-  return `<div class="camp-map local-map lakeshore-map"><svg viewBox="0 0 900 540" class="lake-terrain" preserveAspectRatio="none" aria-hidden="true"><rect width="900" height="540" fill="#132f42"/><path d="M0 0h900v198Q660 287 400 194T0 278Z" fill="#354936"/><path d="M0 228Q250 164 423 216T900 225" stroke="#779696" stroke-width="9" fill="none"/><ellipse cx="665" cy="416" rx="107" ry="45" fill="#384d43"/><path d="M625 422v-66h70v66m-82-66 47-38 47 38" fill="#44495f" stroke="#9290b8" stroke-width="4"/><path d="M650 365h20v27h-20Z" fill="#b18bde"/><path d="m674 425 35 14m-100 12 45 8M104 409h95m96-43h71" stroke="#618d97" stroke-width="3"/>${game.buildings.dock ? '<path d="M329 210v120h84V205m-84 24h84m-84 25h84m-84 25h84m-84 25h84" fill="#877252" stroke="#cab58a" stroke-width="7"/>' : ""}</svg><div class="camp-map-label"><strong>South lakeshore</strong><span>The Bell Beneath · an island in the local lake</span></div>${button("↑ Central Camp", 'data-camp-zone="center"', "market-direction north")}${game.buildings.dock ? button(icon("flag", 30) + "<strong>Lantern Dock</strong>", 'data-building="dock"', "dock-service") : button("Build Lantern Dock", 'data-building="dock"', "dock-service")}${button("◈ The Bell Beneath<small>25 floors · " + (game.buildings.dock ? "Sail from the dock" : "Build the dock to reach it") + "</small>", "data-island-preview", "island-sign")}${game.buildings.garden ? button("Herb garden", 'data-building="garden"', "shore-garden") : ""}${game.buildings.archaeology && game.archaeologyZone === "south" ? button("Archaeology Camp", 'data-building="archaeology"', "shore-archaeology") : ""}${nightUi.visitorScene("dock")}</div>`;
+  return `<div class="camp-map local-map lakeshore-map"><div class="lake-terrain pixel-ground">${pixelTerrainSvg("river", 900, 540, 791)}<svg viewBox="0 0 900 540" shape-rendering="crispEdges" aria-hidden="true"><rect y="220" width="900" height="320" fill="#263f50"/>${Array.from({ length: 24 }, (_, i) => `<rect x="${i * 40}" y="${200 + (i % 3) * 12}" width="40" height="24" fill="#416479"/>`).join("")}${Array.from({ length: 30 }, (_, i) => `<rect x="${(i * 113) % 880}" y="${250 + ((i * 79) % 280)}" width="32" height="4" fill="#596d88"/>`).join("")}<rect x="574" y="394" width="184" height="52" fill="#354d4b"/><rect x="598" y="378" width="136" height="20" fill="#354d4b"/><svg x="618" y="320" width="92" height="102">${pixelPropSvg("ruin")}</svg>${game.buildings.dock ? `<svg x="322" y="182" width="98" height="156">${pixelBuildingSvg("dock")}</svg>` : ""}</svg></div><div class="camp-map-label"><strong>South lakeshore</strong><span>The Bell Beneath · an island in the local lake</span></div>${button("↑ Central Camp", 'data-camp-zone="center"', "market-direction north")}${game.buildings.dock ? button(icon("flag", 30) + "<strong>Lantern Dock</strong>", 'data-building="dock"', "dock-service") : button("Build Lantern Dock", 'data-building="dock"', "dock-service")}${button("◈ The Bell Beneath<small>25 floors · " + (game.buildings.dock ? "Sail from the dock" : "Build the dock to reach it") + "</small>", "data-island-preview", "island-sign")}${game.buildings.garden ? button("Herb garden", 'data-building="garden"', "shore-garden") : ""}${game.buildings.archaeology && game.archaeologyZone === "south" ? button("Archaeology Camp", 'data-building="archaeology"', "shore-archaeology") : ""}${nightUi.visitorScene("dock")}</div>`;
 }

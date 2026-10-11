@@ -1,4 +1,4 @@
-import { ITEMS, hasAttribute } from "./data.js?v=14";
+import { ITEMS, hasAttribute } from "./data.js?v=15";
 export const NIGHT_SIGHT = {
   Dwarf: 220,
   Gnome: 200,
@@ -24,6 +24,7 @@ export function vision(h) {
 }
 export function lightSources(b) {
   return [
+    ...environmentLights(b.map),
     ...b.units
       .filter(
         (u) =>
@@ -48,18 +49,67 @@ export function lightSources(b) {
       kind: "fire",
     })),
     ...(b.zones || [])
-      .filter((z) => z.type === "blessing")
+      .filter(
+        (z) =>
+          z.type === "blessing" ||
+          ["ember", "frost", "gravity"].includes(z.element),
+      )
       .map((z) => ({
         x: z.x,
         y: z.y,
         r: Math.max(65, z.r),
-        color: "#acbfff",
+        color:
+          z.type === "blessing"
+            ? "#f7df9b"
+            : z.element === "ember"
+              ? "#d98c43"
+              : z.element === "frost"
+                ? "#92c9d0"
+                : "#ad83d5",
         kind: "magic",
       })),
     ...(b.projectiles || [])
       .filter((p) => ["fire", "bolt"].includes(p.type))
-      .map((p) => ({ x: p.x, y: p.y, r: 45, color: "#acbfff", kind: "magic" })),
+      .map((p) => ({
+        x: p.x,
+        y: p.y,
+        r: 45,
+        color: p.type === "fire" ? "#f4c76a" : "#92c9d0",
+        kind: "magic",
+      })),
   ];
+}
+const environmentCache = new WeakMap();
+export function environmentLights(map) {
+  if (!map) return [];
+  if (environmentCache.has(map)) return environmentCache.get(map);
+  const lights = [];
+  const add = (x, y, r, color, kind) => lights.push({ x, y, r, color, kind });
+  if (map.biome === "village") {
+    for (const o of map.objects || [])
+      if (o.type === "house")
+        add(o.x + o.w / 2, o.y + o.h + 4, 105, "#f4c76a", "window");
+  } else if (map.biome === "volcano") {
+    for (let i = 0; i < 5; i++)
+      add(230 + i * 190, 76 + (i % 3) * 130, 88, "#ef9052", "lava");
+  } else if (map.biome === "jungle") {
+    for (let i = 0; i < 5; i++)
+      add(
+        230 + i * 195,
+        i % 2 ? 422 : 68,
+        65,
+        i % 2 ? "#ad83d5" : "#92c9d0",
+        "mushroom",
+      );
+  } else if (map.biome === "river") {
+    for (const bridge of map.bridges || [])
+      add(bridge.x + bridge.w / 2, bridge.y - 15, 105, "#f4c76a", "torch");
+  } else if (map.biome === "forest") {
+    add(340, 70, 115, "#f4c76a", "torch");
+    add(850, 414, 115, "#d98c43", "torch");
+  }
+  environmentCache.set(map, lights);
+  return lights;
 }
 // Use the same geometric shadows for detection, remembered terrain and the fog mask.
 function rayLimit(b, a, dx, dy, max) {

@@ -3,32 +3,38 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#212b2a" />
+    <meta name="theme-color" content="#0a0c1a" />
     <meta
       name="description"
       content="A collector and automatic battler in a world of permanent night. Build lasting companies, explore a world, develop their equipment and abilities, and send them on real-time expeditions."
     />
     <title>Evernight · A Fire in the Night</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=14" />
-    <link rel="stylesheet" href="./nightfall.css?v=14" />
-    <link rel="stylesheet" href="./evernight.css?v=14" />
+    <link rel="stylesheet" href="./styles.css?v=15" />
+    <link rel="stylesheet" href="./nightfall.css?v=15" />
+    <link rel="stylesheet" href="./evernight.css?v=15" />
+    <link rel="stylesheet" href="./pixel.css?v=15" />
   </head>
   <body>
     <header class="site-header">
       <a class="brand" id="brand-home" href="./" aria-label="Your Camp home"
         ><span class="brand-mark"
-          ><svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          ><svg
+            viewBox="0 0 20 20"
+            shape-rendering="crispEdges"
+            aria-hidden="true"
+          >
             <path
-              d="m20 4 13 7v15L20 36 7 26V11Z"
-              stroke="currentColor"
-              stroke-width="2"
+              d="M7 2h7v2h-4v2H8v6h2v2h4v2H7v-2H5v-2H3V6h2V4h2Z"
+              fill="currentColor"
             />
-            <path d="m13 23 7-13 7 13-7 6-7-6Z" fill="currentColor" />
-            <path
-              d="M20 14v11m-4-5 4 5 4-5"
-              stroke="#212b2a"
-              stroke-width="2"
+            <rect x="14" y="5" width="2" height="2" fill="#92c9d0" />
+            <rect
+              x="16"
+              y="10"
+              width="2"
+              height="2"
+              fill="#f7df9b"
             /></svg></span
         ><span
           ><strong id="brand-name">Evernight</strong
@@ -55,12 +61,12 @@
         </div>
       </div>
       <footer class="app-footer">
-        <span>Evernight · 0.14</span
+        <span>Evernight · 0.1</span
         ><span id="save-status">Saved on this device · background 1×</span>
       </footer>
     </main>
     <dialog id="modal" class="modal"><div id="modal-content"></div></dialog>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
-    <script type="module" src="./app.js?v=14"></script>
+    <script type="module" src="./app.js?v=15"></script>
   </body>
 </html>

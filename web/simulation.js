@@ -1,7 +1,7 @@
-import * as Ever from "./evernight.js?v=14";
-import { questById } from "./journeys.js?v=14";
-import * as Night from "./nightfall.js?v=14";
-import { Battle } from "./engine.js?v=14";
+import * as Ever from "./evernight.js?v=15";
+import { questById } from "./journeys.js?v=15";
+import * as Night from "./nightfall.js?v=15";
+import { Battle } from "./engine.js?v=15";
 import {
   LOCATIONS,
   initialGame,
@@ -10,9 +10,9 @@ import {
   VENDORS,
   ITEMS,
   uid,
-} from "./data.js?v=14";
-import * as Camp from "./camp.js?v=14";
-import * as P from "./progression.js?v=14";
+} from "./data.js?v=15";
+import * as Camp from "./camp.js?v=15";
+import * as P from "./progression.js?v=15";
 
 // The clock lives outside the view. Every party gets the same fixed simulation steps.
 export const STEP = 1 / 30;

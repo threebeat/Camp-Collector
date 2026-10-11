@@ -1,22 +1,73 @@
-// Decorative geography is drawn below roads. Road metadata in journeys.js drives combat.
-const ruin = (x, y) =>
-  `<g transform="translate(${x} ${y})"><ellipse cx="0" cy="26" rx="61" ry="17" fill="#788565" opacity=".2"/><path d="M-48 22v-44h18v44m15 0v-31h16v31m17 0v-46h18v46M-55-23h35m29-6h47" fill="#b5b7a0" stroke="#7a8470" stroke-width="4"/><path d="M-12 24q14-35 29-2" fill="none" stroke="#7c966c" stroke-width="7"/></g>`;
-const tower = (x, y) =>
-  `<g transform="translate(${x} ${y})"><path d="M-26 24v-81h51v81Z" fill="#a3ab93" stroke="#778370" stroke-width="4"/><path d="M-33-53 0-83l33 30Z" fill="#7a8d75"/><path d="M-7-40h14v22H-7Z" fill="#53685f"/><path d="M-31 25h64" stroke="#6f8266" stroke-width="5"/></g>`;
-const mill = (x, y) =>
-  `<g transform="translate(${x} ${y})"><path d="M-32 26v-56h65v56Z" fill="#b6a27e" stroke="#84775b" stroke-width="4"/><path d="m-42-25 42-38 44 38Z" fill="#8c8064"/><circle cx="42" cy="7" r="30" fill="none" stroke="#826f4f" stroke-width="7"/><path d="M12 7h60M42-23v60m-21-9 42-42m-42 0 42 42" stroke="#826f4f" stroke-width="4"/></g>`;
-const bones = (x, y) =>
-  `<g transform="translate(${x} ${y})" fill="none" stroke="#c6bd98" stroke-linecap="round"><path d="M-70 11q70-47 145 7" stroke-width="13"/>${Array.from({ length: 6 }, (_, i) => `<path d="M${-48 + i * 21} -1q-12 23 3 51" stroke-width="8"/>`).join("")}<path d="m70 8 24-13 21 21-28 20-11-18" stroke-width="10"/></g>`;
+import { pixelPropSvg, pixelBuildingSvg } from "./pixel-art.js?v=15";
+const stamp = (key, x, y, w = 100, h = w, building = false) =>
+  `<svg x="${x - w / 2}" y="${y - h}" width="${w}" height="${h}">${building ? pixelBuildingSvg(key) : pixelPropSvg(key)}</svg>`;
+function water(points, width = 34, color = "#416479") {
+  let art = "";
+  for (let i = 0; i < points.length - 1; i++) {
+    const [x, y] = points[i],
+      [nx, ny] = points[i + 1],
+      steps = Math.ceil(Math.hypot(nx - x, ny - y) / 12);
+    for (let j = 0; j < steps; j++)
+      art += `<rect x="${Math.round((x + ((nx - x) * j) / steps) / 8) * 8}" y="${Math.round((y + ((ny - y) * j) / steps) / 8) * 8}" width="${width}" height="${width}" fill="${color}"/>`;
+  }
+  return art;
+}
 export function regionLandmarks(location) {
-  const water = (path, width) =>
-    `<path d="${path}" fill="none" stroke="#7dabb3" stroke-width="${width + 14}" opacity=".3"/><path d="${path}" fill="none" stroke="#a6ced0" stroke-width="${width}"/><path d="${path}" fill="none" stroke="#d2e9df" stroke-width="2" opacity=".7"/>`;
   if (location === "greenway")
-    return `<g data-map-landmarks="forest"><g data-lakeshore-island="true" transform="translate(0 -74)"><path d="M60 1260Q180 1174 290 1280T490 1304V1380H60Z" fill="#295268" stroke="#7595a2" stroke-width="5"/><ellipse cx="191" cy="1317" rx="45" ry="22" fill="#44604c"/><path d="M174 1317v-32h34v32m-42-32 25-19 25 19" fill="#6c6988" stroke="#b998da" stroke-width="3"/><text x="278" y="1318" fill="#e4dcf1" font-size="19">The Bell Beneath · 25 floors</text><text x="85" y="1250" fill="#45615e" font-size="17">Camp’s south lakeshore</text></g><path d="M694 922Q754 851 833 921 916 1004 826 1051 734 1092 694 1015Z" fill="#b2d1c7" stroke="#88ada9" stroke-width="7"/>${water("M833 360Q763 401 792 489T689 636Q622 699 708 758T777 928Q823 1095 622 1230", 35)}${mill(457, 813)}${ruin(218, 516)}${tower(226, 220)}<g transform="translate(682 1082)" stroke="#927d57" stroke-width="7"><path d="m-53 4 90-16m-94 6 90-16"/><path d="m-46-15 5 26m19-28 4 22m19-25 5 22m18-25 5 22"/></g><g transform="translate(687 634)"><ellipse rx="59" ry="19" fill="#879564" opacity=".3"/><path d="M-38 5v42m49-49v37" stroke="#baa88e" stroke-width="13"/><path d="M-70 10q31-72 66 0Zm46-17q35-68 76 0Z" fill="#b78891" stroke="#836975" stroke-width="3"/></g></g>`;
+    return `<g data-map-landmarks="forest"><g data-lakeshore-island="true" transform="translate(0 -74)"><rect x="60" y="1260" width="430" height="120" fill="#263f50"/><rect x="76" y="1244" width="110" height="16" fill="#416479"/><rect x="156" y="1300" width="78" height="32" fill="#354d4b"/>${stamp("ruin", 191, 1317, 52, 60)}<text x="278" y="1318" fill="#f7df9b" font-size="19">The Bell Beneath · 25 floors</text><text x="85" y="1236" fill="#92c9d0" font-size="17">Camp’s south lakeshore</text></g>${water(
+      [
+        [833, 360],
+        [763, 440],
+        [792, 530],
+        [689, 636],
+        [622, 699],
+        [708, 758],
+        [777, 928],
+        [823, 1095],
+        [622, 1230],
+      ],
+    )}${stamp("mill", 457, 850, 110, 130, true)}${stamp("ruin", 218, 540, 130, 100)}${stamp("tower", 226, 245, 96, 130, true)}${stamp("bridge", 682, 1100, 120, 70)}${stamp("mushroom", 687, 656, 100, 100)}</g>`;
   if (location === "marsh")
-    return `<g data-map-landmarks="marsh">${water("M665 20Q551 241 680 402T580 713Q754 969 548 1300", 75)}${water("M0 917Q280 859 604 745", 28)}${ruin(235, 745)}${tower(626, 266)}<g transform="translate(327 419)" fill="#a6b5a7" stroke="#6f8983" stroke-width="4"><path d="M-50 30v-65l50-30 53 30v65Z"/><path d="M-66-33 0-79l66 46Z"/><path d="M-15 30v-30q15-28 30 0v30" fill="#597c74"/></g><path d="M654 911h123l-26 29h-70Z" fill="#928d71"/><path d="M709 838v75m0-75 47 35-47 2" stroke="#968d71" stroke-width="6"/></g>`;
+    return `<g data-map-landmarks="marsh">${water(
+      [
+        [665, 20],
+        [551, 241],
+        [680, 402],
+        [580, 713],
+        [754, 969],
+        [548, 1300],
+      ],
+      75,
+    )}${water(
+      [
+        [0, 917],
+        [280, 859],
+        [604, 745],
+      ],
+      28,
+    )}${stamp("ruin", 235, 780, 130, 100)}${stamp("tower", 626, 290, 96, 130, true)}${stamp("house", 327, 450, 140, 130)}${stamp("boat", 709, 940, 110, 80)}</g>`;
   if (location === "volcano")
-    return `<g data-map-landmarks="volcano"><path d="M594 204 694 24 818 210Z" fill="#92776b" stroke="#795f57" stroke-width="6"/><path d="m662 81 29-58 43 62-31-15-12 23Z" fill="#d3b295"/><path d="M696 102Q613 300 720 464T653 871" fill="none" stroke="#e69760" stroke-width="25"/><path d="M696 102Q613 300 720 464T653 871" fill="none" stroke="#f0c182" stroke-width="8"/>${tower(243, 720)}${ruin(269, 391)}<g fill="#71686e" stroke="#aaa098" stroke-width="3"><path d="m736 759 27-58 40 12 24 57Z"/><path d="m130 1051 36-48 50 24-11 38Z"/></g><ellipse cx="316" cy="1004" rx="77" ry="43" fill="#c6c3a0"/><ellipse cx="316" cy="1004" rx="60" ry="28" fill="#acccbc"/></g>`;
+    return `<g data-map-landmarks="volcano">${stamp("mountain", 700, 220, 230, 210)}${water(
+      [
+        [696, 102],
+        [613, 300],
+        [720, 464],
+        [653, 871],
+      ],
+      25,
+      "#d98c43",
+    )}${stamp("tower", 243, 755, 96, 130, true)}${stamp("ruin", 269, 425, 130, 100)}${stamp("rock", 776, 780)}${stamp("rock", 165, 1070)}${stamp("fountain", 316, 1040, 150, 90)}</g>`;
   if (location === "cinder")
-    return `<g data-map-landmarks="country"><g fill="#c3b37c" stroke="#a09a6a" stroke-width="4"><path d="m79 918 192-40 78 127-205 24Z"/><path d="m507 636 246-59 61 134-243 42Z"/></g><g stroke="#e0cd90" stroke-width="6"><path d="m99 940 199-36m-185 61 199-35m234-256 240-56m-230 81 239-57"/></g>${mill(253, 914)}${tower(720, 298)}${ruin(184, 559)}<g transform="translate(422 488)"><path d="M-66 39v-84h132v84Z" fill="#b3a990" stroke="#8c8169" stroke-width="4"/><path d="m-78-41 78-48 78 48Z" fill="#927879"/><path d="M-19 39V-10h38v49" fill="#756e65"/></g><g stroke="#aaae98" stroke-width="9"><path d="M638 983v36m-12-22h24m18-35v39m-12-24h24m17-2v39m-12-24h24"/></g></g>`;
-  return `<g data-map-landmarks="jungle">${water("M846 122Q635 247 713 430T659 834Q779 1029 750 1277", 38)}${ruin(270, 684)}${ruin(639, 359)}${bones(276, 997)}<g transform="translate(654 949)"><ellipse rx="63" ry="32" fill="#9a936b"/><g fill="#dcc79a" stroke="#a49570" stroke-width="3"><ellipse cx="-24" cy="-7" rx="17" ry="23"/><ellipse cx="14" cy="-13" rx="18" ry="24"/><ellipse cx="39" cy="5" rx="15" ry="21"/></g></g><g fill="#4f7957" opacity=".72">${Array.from({ length: 13 }, (_, i) => `<path d="m${50 + ((i * 137) % 790)} ${155 + ((i * 127) % 1090)}q-48-78-18-102 21 55 28 95 55-65 78-54-29 46-76 66Z"/>`).join("")}</g></g>`;
+    return `<g data-map-landmarks="country">${stamp("farm", 185, 1020, 210, 140, true)}${stamp("farm", 650, 750, 240, 170, true)}${stamp("mill", 253, 945, 110, 130, true)}${stamp("tower", 720, 320, 96, 130, true)}${stamp("ruin", 184, 590, 130, 100)}${stamp("house", 422, 520, 150, 130)}${stamp("grave", 676, 1019, 100, 70)}</g>`;
+  return `<g data-map-landmarks="jungle">${water(
+    [
+      [846, 122],
+      [635, 247],
+      [713, 430],
+      [659, 834],
+      [779, 1029],
+      [750, 1277],
+    ],
+    38,
+  )}${stamp("ruin", 270, 720, 130, 100)}${stamp("ruin", 639, 390, 130, 100)}${stamp("bones", 276, 1030, 180, 95)}${stamp("eggs", 654, 980, 120, 90)}${Array.from({ length: 10 }, (_, i) => stamp("tree", 50 + ((i * 137) % 790), 155 + ((i * 127) % 1090), 70, 90)).join("")}</g>`;
 }

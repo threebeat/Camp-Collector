@@ -1,5 +1,12 @@
 # Verification record
 
+## Evernight 0.1 pixel release
+
+The local suite passes **164 Node tests**, followed by build and bundled Worker validation. Seven new regressions cover intentional selection across snapshots/encounters, hidden-enemy rejection, tap versus pan/scroll/cancel, deterministic colored environment lights, overlapping pixel light bands with terrain shadows/blue vision, canonical sprite coverage and phone camera coordinate conversion. Native art checks rasterized 307 original sprite variants, and native combat captures were inspected. Dense sprites are compacted at HTML boundaries; the full DOM service regression completes in approximately twelve seconds locally.
+
+The browser suite contains **24 scenarios**: eight flows on desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit. The new regression checks pixel buildings, expandable Camp stock, initially empty inspection, explicit inline selection, persistent close across updates, pan without selection, Follow, reload and horizontal fit. Remote browser verification is pending for this source; do not treat earlier release runs as proof for this version.
+
+
 ## Evernight 0.14
 
 The local suite passes **157 Node tests**, followed by build and bundled Worker validation. Fifteen new tests cover bounded twelve-hour meals, deployed meal XP, Camp XP ledgers, light equipment/AI/terrain shadows/fog checkpoints, world tiers and frozen parties, boss farming and chosen portals, guild standing/member receipts, Arena rules/mines/stakes, monthly cosmetics, migration and Codex consolidation. Existing combat, challenge transactions, save/worker transport, native rendering and full DOM service tests remain covered.

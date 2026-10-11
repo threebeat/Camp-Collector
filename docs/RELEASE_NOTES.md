@@ -1,5 +1,15 @@
 # Release notes
 
+## 0.1.0 — First pixel release
+
+- Replaced all character, equipment, companion, cosmetic, building, map and prop art with an original shared pixel sprite system, including race physiology, worn armor, mounts and Mythicals.
+- Rebuilt the combat renderer with a low-resolution world and stepped/dithered overlapping lights. Natural fixtures, lamps, fires and colored spell effects share terrain shadow geometry and actual visibility.
+- Reworked phone Camp into compact progression/status cards, expandable supplies, a shorter portrait map and actionable harvesting/recovery/company activity.
+- Added a closer following phone camera, sideways pan, Follow company, compact live party HP and a collapsed battle journal.
+- Fixed automatic character profiles: no launch/watch/snapshot fallback selects the first adventurer. Selection clears across encounters, death and lost visibility; pointer drags/cancellation never inspect. Explicit inspection is a small inline card with a deliberate Details action.
+- Kept save schema/key/season, current characters, active checkpoints, economy and the existing Site binding. Package/public version 0.1.0 follows legacy 0.14 at the owner's direction; browser cache generation is 15.
+
+
 ## 0.14.0 — Evernight
 
 The owner renamed the game/repository and made permanent night the core world mechanic. Existing current-season saves, the private Site and append-only database history are preserved.

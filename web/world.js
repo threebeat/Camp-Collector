@@ -1,4 +1,4 @@
-import { LOCATIONS, periodKey } from "./data.js?v=14";
+import { LOCATIONS, periodKey } from "./data.js?v=15";
 export const MATERIALS = {
   wood: {
     name: "Wood",

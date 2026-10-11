@@ -97,3 +97,7 @@ Racial/Attribute/Talent sight and light radii belong in the canonical definition
 Eight guild definitions live in `evernight.js`; exclusive `guild-*` items are canonical `ITEMS` entries marked `guildOnly`. Lessons/quests produce standing and member receipts control purchases. Ordinary loot, shops and recipes exclude guild-only and authored-only equipment. Monthly cosmetics are canonical `monthly-*` definitions with `monthlyTheme`; the dedicated Shop collection owns their acquisition and receipt rules. Do not accidentally offer these through generic rotating stock.
 
 The Codex groups all subclass detail into class entries and modifier definitions into nine domain/category tables. Add useful costs, effects, restrictions and acquisition details to those pages instead of recreating hundreds of thin entries. Camp XP, twelve-hour food and global difficulty explanations must match the model.
+
+## Pixel sprite coverage
+
+Read [PIXEL_ART.md](PIXEL_ART.md). All canonical bases have original authored pixel artwork. `art.js` forwards to `pixel-art.js` for every visual surface; adding content requires a corresponding grid silhouette/layer and a native rendering check. Preserve race anatomy, visible equipment, modifiers, mounts and authored Mythicals. Asset cache URLs are v15. Free asset packs were considered during exploration; this release bundles original sprites and has no external art attribution dependency.

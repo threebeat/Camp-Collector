@@ -42,6 +42,7 @@ class Element {
         ]),
     );
     this.classList = {
+      contains: (v) => (this.attrs.class || "").split(" ").includes(v),
       add: (...v) =>
         (this.attrs.class = [
           ...new Set([...(this.attrs.class || "").split(" "), ...v]),
@@ -60,6 +61,9 @@ class Element {
     };
     if (tag === "canvas") this.canvas = native.createCanvas(1000, 400);
   }
+  get className() { return this.attrs.class || ""; }
+  set className(value) { this.attrs.class = value; }
+  appendChild(child) { child.parent = this; this.children.push(child); return child; }
   get open() {
     return "open" in this.attrs;
   }

@@ -27,7 +27,15 @@ npm run test:e2e
 
 GitHub Actions runs model/artifact checks and desktop Chromium, Android Chromium and iPhone WebKit emulation on main pushes and pull requests. It retains the built Worker, browser reports and scene screenshots. See [DEVELOPMENT.md](docs/DEVELOPMENT.md) for publishing and [QA.md](docs/QA.md) for observed results and limits.
 
-## Version 0.14
+## Evernight 0.1
+
+- Original retro pixel sprites cover every race, class, equipment base, companion, cosmetic, building and world prop. Indigo nights, warm lanterns and readable text share one palette.
+- Light pools overlap with stepped, dithered edges and real terrain shadows. Carried lamps, windows, torches, lava, mushrooms, fires and colored magic light the same environment used by combat detection.
+- Phone Camp places its name, Build, level and four metrics first; supplies expand on demand. Harvest and recovering-company activity stay accessible beside the map.
+- Phone battles follow the company at a closer scale, support horizontal panning, and use a compact party strip. Character inspection opens only after a deliberate tap and stays closed after updates, reloads and encounter changes.
+
+This is the first pixel release, numbered **0.1.0** at the owner's direction after the previous 0.14 implementation. Save version 12 and all existing gameplay systems continue:
+
 
 - Dark screens, carried lights, real terrain shadows and remembered fog of war. Underground races, Vampire/Werewolf Attributes and learned Night vision have meaningful sight advantages.
 - A required three-page opening and an optional navigation guide with Skip and settings. Camp stays clean, with Build below its name.

@@ -1,3 +1,5 @@
+import { pixelMarkup } from "../web/pixel-markup.js";
+import { pixelTerrainSvg, pixelBuildingSvg, pixelPropSvg } from "../web/pixel-art.js";
 import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import {runInNewContext} from 'node:vm';
 import * as D from '../web/data.js';import * as P from '../web/progression.js';import * as Camp from '../web/camp.js';import {ExpeditionSimulation} from '../web/simulation.js';import {Battle,seeded} from '../web/engine.js';import {CampChatter} from '../web/chatter.js';import {exportCamp,readCampBackup} from '../web/saves.js';import {BUILDINGS} from '../web/world.js';import {portraitSvg,petSvg,icon} from '../web/art.js';
 const NOW=Date.UTC(2026,9,11,12);
@@ -31,8 +33,8 @@ test('Camp chatter has irregular long gaps, short comments, one speaker, and avo
  assert.ok(events.length>=4&&events.length<=12);assert.ok(events.every(e=>e.text.length<30));const gaps=events.slice(1).map((e,i)=>e.at-events[i].at);assert.ok(gaps.every(g=>g>=60000));assert.ok(new Set(gaps).size>2);assert.ok(events.slice(1).every((e,i)=>e.id!==events[i].id));
 });
 test('Camp map contains only constructed services and arrows explain costs in a separate dialog',()=>{
- const source=readFileSync(new URL('../web/app.js',import.meta.url),'utf8'),fn=name=>{const a=source.indexOf('function '+name+'('),b=source.indexOf('\nfunction ',a+10);return source.slice(a,b);},game=D.initialGame(seeded(9),NOW),context={...D,game,Camp,BUILDINGS,icon,portraitSvg,petSvg,esc:s=>s,button:(s,a='',c='')=>`<button class="${c}" ${a}>${s}</button>`,campWalkers:()=>'',portalScene:()=>'',CAMP_PORTRAIT:{crossroads:[17,23],tent:[22,44],storage:[17,70],pantry:[48,82],bonfire:[51,56]}};
- const html=runInNewContext(fn('portraitTerrain')+'\n'+fn('expansionArrows')+'\n'+fn('campScene')+';campScene();',context);for(const key of ['training','workbench','outfitter','kitchen','alchemist'])assert.ok(!html.includes('data-building="'+key+'"'));assert.ok(html.includes('data-building="tent"'));assert.ok(!html.includes('Open service'));assert.ok(!html.includes('150 gold'));assert.ok(html.includes('<span aria-hidden="true">→</span>'));assert.ok(html.includes('<strong>Market</strong>'));
+ const source=readFileSync(new URL('../web/app.js',import.meta.url),'utf8'),fn=name=>{const a=source.indexOf('function '+name+'('),b=source.indexOf('\nfunction ',a+10);return source.slice(a,b);},game=D.initialGame(seeded(9),NOW),context={pixelMarkup,pixelTerrainSvg,pixelBuildingSvg,pixelPropSvg,...D,game,Camp,BUILDINGS,icon,portraitSvg,petSvg,esc:s=>s,button:(s,a='',c='')=>`<button class="${c}" ${a}>${s}</button>`,campWalkers:()=>'',portalScene:()=>'',CAMP_PORTRAIT:{crossroads:[17,23],tent:[22,44],storage:[17,70],pantry:[48,82],bonfire:[51,56]}};
+ const html=runInNewContext(fn('sceneTerrain')+'\n'+fn('portraitTerrain')+'\n'+fn('expansionArrows')+'\n'+fn('campScene')+';campScene();',context);for(const key of ['training','workbench','outfitter','kitchen','alchemist'])assert.ok(!html.includes('data-building="'+key+'"'));assert.ok(html.includes('data-building="tent"'));assert.ok(!html.includes('Open service'));assert.ok(!html.includes('150 gold'));assert.ok(html.includes('<span aria-hidden="true">→</span>'));assert.ok(html.includes('<strong>Market</strong>'));
 });
 
 

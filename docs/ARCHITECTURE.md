@@ -1,6 +1,6 @@
 # Architecture
 
-This describes the implementation at version 0.14.0. It is a map of the present code, not a commitment to keep its boundaries or technology forever.
+This describes the implementation at version 0.1.0. It is a map of the present code, not a commitment to keep its boundaries or technology forever.
 
 ## Runtime boundaries
 
@@ -63,7 +63,7 @@ These guards make the board functional, but do not prove the caller actually ear
 
 ## Build and deployment
 
-`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=14` cache URLs. Generated output is excluded from source control.
+`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=15` cache URLs. Generated output is excluded from source control.
 
 The hosting manifest binds the existing Sites project with `d1: 'DB'` and no R2 bucket. Sites applies committed `drizzle/` migrations before uploading the Worker. The original source origin and owner-private audience must be preserved when publishing unless the owner directs otherwise. A separate GitHub remote can coexist; it is not a replacement deployment ID.
 
@@ -87,6 +87,14 @@ UI sheets dispatch through the existing simulation boundary. Model restrictions 
 
 `consumeMeals()` settles missed periods in O(roster) time; it cannot loop over months of elapsed time. Active characters defer food XP until their checkpoint returns. World difficulty and Arena rule/stake data freeze into each expedition, and stake settlement has an idempotent receipt flag. Boss Sigils are boss-completion rewards and portal spend is guarded against repeat unlocks. Guild and monthly stock use canonical definitions and owned purchase receipts.
 
-Detection and fog sampling use shared `lighting.js` geometry. Moving lights, fire and magic illuminate regions; racial/Attribute/Talent sight can reveal darkness. Trees/rocks use circle ray intersections and buildings use rectangular intersections. The renderer clips light gradients to shadow polygons on a reusable fog canvas; the engine snapshots explored cell memory. Enemy targeting and selection use actual visibility. This is 2D real-time lighting, with no light-fuel simulation.
+Detection and fog sampling use shared `lighting.js` geometry. Moving lights, fire and magic illuminate regions; racial/Attribute/Talent sight can reveal darkness. Trees/rocks use circle ray intersections and buildings use rectangular intersections. The renderer clips low-resolution light bands to shadow polygons on reusable mask/tint canvases; the engine snapshots explored cell memory. Enemy targeting and selection use actual visibility. This is 2D real-time lighting, with no light-fuel simulation.
 
 The challenge sanitizer accepts canonical light equipment and new class nodes; it reconstructs bounded derived stats instead of trusting client values. The existing authenticated challenge protocol remains separate from local Arena wagers and still cannot prove local ownership.
+
+## Pixel rendering and intentional inspection
+
+`pixel-art.js` owns pure, grid-authored SVG sprite construction. `art.js` is the compatibility facade. Rectangles are merged without changing pixel geometry. `pixel-markup.js` keeps the SVG layout envelope but puts dense sprite geometry into cacheable SVG images; small currentColor icons remain inline. `pixel.css` is the final palette/mobile layer, following the existing style sheets.
+
+`renderer.js` draws the battlefield onto a 600×240 raster world, then scales/crops it without smoothing. Its camera follows the live company or accepts explicit pan input; `worldPoint()` reverses the viewport transform for hit testing. World UI text uses display resolution. `pixel-lighting.js` shades at a four-unit grid with clipped light bands, seven alpha steps and Bayer dithering; masks refresh at most ten times per second. `scene-lighting.js` applies the same bands to management maps, including resident lamps and warm or arcane building windows. It is decorative there; expedition visibility remains owned by `lighting.js` and the engine.
+
+`battle-interaction.js` separates explicit selection from simulation snapshots. Encounter identity changes clear it, and reconciliation rejects dead, missing or hidden units. Pointer travel/cancellation separates taps from panning and page scrolling. `app.js` does not fall back to the first adventurer in expeditions. No new save fields or database migrations are required.

@@ -1,6 +1,6 @@
-import * as Ever from "./evernight.js?v=14";
-import { questById } from "./journeys.js?v=14";
-import * as Night from "./nightfall.js?v=14";
+import * as Ever from "./evernight.js?v=15";
+import { questById } from "./journeys.js?v=15";
+import * as Night from "./nightfall.js?v=15";
 import {
   GAME_SEASON,
   MYTHICAL_HEROES,
@@ -63,14 +63,14 @@ import {
   modifierFits,
   validModifiers,
   petInfo,
-} from "./data.js?v=14";
-import * as Camp from "./camp.js?v=14";
+} from "./data.js?v=15";
+import * as Camp from "./camp.js?v=15";
 import {
   BRANCHES,
   calendarDay,
   calendarMonth,
   CALENDAR_BONUSES,
-} from "./world.js?v=14";
+} from "./world.js?v=15";
 import {
   journeyInfo,
   journeyRequirements,
@@ -82,8 +82,8 @@ import {
   trackQuest,
   difficultyAllowed,
   REGION_CHAMPIONS,
-} from "./journeys.js?v=14";
-import { seeded } from "./engine.js?v=14";
+} from "./journeys.js?v=15";
+import { seeded } from "./engine.js?v=15";
 export const SLOT_MILESTONES = [0, 12, 35, 75];
 export const activeExpeditions = (g) =>
   g.expeditions.filter((r) => r.status === "active");

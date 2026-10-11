@@ -19,8 +19,8 @@ import {
   WEAPON_MODIFIERS,
   ARMOR_MODIFIERS,
   PET_MODIFIERS,
-} from "./data.js?v=14";
-import { CONTEXT, BUILDINGS, MATERIALS } from "./world.js?v=14";
+} from "./data.js?v=15";
+import { CONTEXT, BUILDINGS, MATERIALS } from "./world.js?v=15";
 const mechanics = [
   [
     "Living Camp and Market",

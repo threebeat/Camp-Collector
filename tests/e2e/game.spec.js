@@ -458,3 +458,59 @@ test("lantern equipment, alternating class points, global difficulty and chosen 
   await snapshot(page, "class-codex");
   expect(errors).toEqual([]);
 });
+
+// Regression: inspection must never be inferred from the first party member.
+test("pixel Camp and mobile battlefield keep profiles closed until an intentional tap", async ({
+  page,
+}) => {
+  const { errors } = await start(page, true);
+  await page.locator("[data-tutorial-skip]").click();
+  await expect(
+    page.locator('.camp-building [data-pixel-art="building"]').first(),
+  ).toBeVisible();
+  const stock = page.locator("#camp-supplies");
+  await expect(stock).not.toHaveAttribute("open");
+  await stock.locator("summary").click();
+  await expect(stock).toHaveAttribute("open");
+  await expect(stock.locator(".camp-resource-list")).toBeVisible();
+  await page.locator('[data-building="crossroads"]').click();
+  await page.locator('[data-destination="clearing"]').click();
+  await page.locator("[data-lock-route]").click();
+  await page.locator("#launch-btn").click();
+  await expect(page.locator("#battlefield")).toBeVisible();
+  await expect(page.locator("#hero-detail")).toBeEmpty();
+  await expect(
+    page.locator(".expedition-workspace .inspector"),
+  ).not.toBeVisible();
+  await page.locator("#pause-btn").click();
+  await expect(page.locator("#pause-btn")).toContainText("Resume");
+  await page.locator(".battle-company-member").first().click();
+  await expect(page.locator(".battle-inspection")).toBeVisible();
+  await expect(modal(page)).not.toBeVisible();
+  expect(
+    await page
+      .locator(".expedition-workspace .inspector")
+      .evaluate((el) => getComputedStyle(el).position),
+  ).toBe("static");
+  await page.locator("[data-deselect]").click();
+  await expect(page.locator("#hero-detail")).toBeEmpty();
+  await page.waitForTimeout(1200);
+  await expect(page.locator("#hero-detail")).toBeEmpty();
+  const box = await page.locator("#battlefield").boundingBox();
+  await page.mouse.move(box.x + box.width * 0.75, box.y + box.height * 0.5);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * 0.35, box.y + box.height * 0.5, {
+    steps: 8,
+  });
+  await page.mouse.up();
+  await expect(page.locator("#hero-detail")).toBeEmpty();
+  await page.locator("#follow-btn").click();
+  await fits(page);
+  await snapshot(page, "pixel-battlefield");
+  await page.reload();
+  await expect(page.locator("#battlefield")).toBeVisible();
+  await expect(page.locator("#hero-detail")).toBeEmpty();
+  await expect(modal(page)).not.toBeVisible();
+  await fits(page);
+  expect(errors).toEqual([]);
+});
