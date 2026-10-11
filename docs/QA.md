@@ -4,7 +4,7 @@ Version 0.13 builds on a recovered v12 baseline with 130 passing tests. The expa
 
 The GitHub browser pipeline executes 12 scenarios: four flows each in desktop Chromium, Android Pixel 7 Chromium and iPhone 13 WebKit emulation. It checks horizontal fit, accessible tap alternatives, reduced motion, persisted tent memories, profiles, Market districts, profession promotion, scripted NPC/Board quests, comparisons, Attribute removal, storage equipment, Pantry replacement, crafting and island party preparation. It captures Camp, Market and lakeshore images and retains failure traces.
 
-The first browser run passed 7/12; five failures exposed duplicate hidden-dialog selectors and an automatic-closing race in the tests. Those test issues were corrected. The final run status is recorded below after verification.
+The first browser run passed 7/12; five failures exposed duplicate hidden-dialog selectors and an automatic-closing race in the tests. Those test issues were corrected. The corrected run passed all 12 scenarios: [Game checks run 38137043359](https://github.com/threebeat/Camp-Collector/actions/runs/38137043359), commit `c352dfdf747ca8514dcc910ad2f87961761eec79`. Both the Node/artifact job and browser job succeeded.
 
 Native contact sheets verify SVG parsing and show the southern lake/island inside the forest map bounds. Gear/race art is shared with battle rendering. The island's original marker position was corrected during this review.
 

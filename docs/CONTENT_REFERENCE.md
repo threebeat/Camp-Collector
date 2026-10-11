@@ -1,6 +1,6 @@
 # Current content reference
 
-Generated with `node scripts/generate-content-reference.mjs` for version 0.12.0. These tables describe current content; all names, counts, balance and progression choices may change. Stable IDs are useful save references, not a requirement to keep every design forever.
+Generated with `node scripts/generate-content-reference.mjs` for version 0.13.0. These tables describe current content; all names, counts, balance and progression choices may change. Stable IDs are useful save references, not a requirement to keep every design forever.
 
 ## Races
 
