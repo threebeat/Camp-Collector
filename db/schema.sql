@@ -1,0 +1,3 @@
+-- Migration-owned schema: see drizzle/0000_challenges.sql and subsequent immutable migrations.
+-- 0001_fresh_camps.sql intentionally replaces the previous board for the requested fresh season.
+-- No live player Camp save is stored here; only consenting challenge snapshots and pledges.

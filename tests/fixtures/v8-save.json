@@ -1,0 +1,444 @@
+{
+  "version": 8,
+  "regionBossClears": {},
+  "portalUnlocked": false,
+  "lockedJourney": null,
+  "marketParty": [],
+  "mapPositions": {
+    "camp": {},
+    "market": {}
+  },
+  "exploration": {
+    "greenway": [
+      "camp"
+    ]
+  },
+  "regionUnlocks": [
+    "greenway"
+  ],
+  "journeyClears": {},
+  "questClaims": [],
+  "trackedQuest": "first-road",
+  "eggs": 0,
+  "campName": "Old Oak",
+  "campNamed": true,
+  "buildings": {
+    "bonfire": 1,
+    "crossroads": 1,
+    "tent": 1,
+    "storage": 1,
+    "pantry": 1,
+    "training": 0,
+    "workbench": 0,
+    "outfitter": 0,
+    "kitchen": 0,
+    "alchemist": 0
+  },
+  "materials": {
+    "wood": 0,
+    "stone": 0,
+    "ore": 0,
+    "herbs": 0,
+    "meat": 0,
+    "obsidian": 0,
+    "relic": 0
+  },
+  "food": 6,
+  "gemstones": [],
+  "calendarClaims": {},
+  "calendarBonuses": {},
+  "branchClears": {},
+  "packed": [],
+  "challengeReceipts": [],
+  "challengeDeposits": {},
+  "screen": "camp",
+  "gold": 30,
+  "gems": 0,
+  "roster": [
+    {
+      "schema": 7,
+      "id": "hero-mv39nzoo-1-o2kt",
+      "name": "Lashaan Mistglade",
+      "race": "Human",
+      "classId": "vanguard",
+      "level": 80,
+      "xp": 0,
+      "items": [
+        {
+          "id": "item-mv39nzoo-2-4lgxb",
+          "key": "ironblade",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv39nzoo-3-6dhzs",
+          "key": "boots",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        }
+      ],
+      "extraSlots": [],
+      "deployed": true,
+      "fusion": [],
+      "talents": [],
+      "armor": [
+        {
+          "id": "item-mv39nzoo-4-2h68h",
+          "key": "heavy-head",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv39nzoo-5-8fq7n",
+          "key": "heavy-chest",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv39nzoo-6-9xidx",
+          "key": "heavy-legs",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        }
+      ],
+      "classPath": "breaker",
+      "classNodes": [
+        "breaker:0",
+        "breaker:1",
+        "breaker:2",
+        "breaker:3"
+      ],
+      "attributes": [
+        {
+          "key": "race:Human",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        }
+      ],
+      "training": {},
+      "bonus": {},
+      "tier": 0,
+      "specialization": null,
+      "lineage": null,
+      "currentHp": 173,
+      "battles": 0,
+      "rarityTier": 0,
+      "appearance": {
+        "hue": 39,
+        "hair": 5,
+        "crest": 2,
+        "eyes": 0,
+        "idle": 339,
+        "height": 1.0675072141492732,
+        "width": 1.0708127876523181,
+        "crown": 3
+      },
+      "favorite": false,
+      "bonds": {},
+      "journal": [
+        {
+          "text": "One of your first three. The road began here.",
+          "at": 1791712800000
+        }
+      ],
+      "transformations": [],
+      "skills": {
+        "class:vanguard": {
+          "key": "class:vanguard",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        }
+      },
+      "companion": null,
+      "cosmetic": null,
+      "uncharmable": false
+    },
+    {
+      "schema": 7,
+      "id": "hero-mv39nzoo-7-50es8",
+      "name": "Fiaein Riverwhisper",
+      "race": "Elf",
+      "classId": "ranger",
+      "level": 5,
+      "xp": 0,
+      "items": [
+        {
+          "id": "item-mv39nzoo-8-ckel",
+          "key": "longbow",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv39nzoo-9-8m4dz",
+          "key": "quiver",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv39nzoo-10-9fouf",
+          "key": "boots",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        }
+      ],
+      "extraSlots": [],
+      "deployed": true,
+      "fusion": [],
+      "talents": [],
+      "armor": [
+        {
+          "id": "item-mv39nzoo-11-22vd6",
+          "key": "medium-head",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv39nzoo-12-6gvbe",
+          "key": "medium-chest",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv39nzoo-13-2kuhp",
+          "key": "medium-legs",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        }
+      ],
+      "classPath": null,
+      "classNodes": [],
+      "attributes": [
+        {
+          "key": "race:Elf",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        }
+      ],
+      "training": {},
+      "bonus": {},
+      "tier": 0,
+      "specialization": null,
+      "lineage": null,
+      "currentHp": 111,
+      "battles": 0,
+      "rarityTier": 0,
+      "appearance": {
+        "hue": 348,
+        "hair": 2,
+        "crest": 4,
+        "eyes": 0,
+        "idle": 369,
+        "height": 0.9237473327613571,
+        "width": 0.9911372781315649,
+        "crown": 3
+      },
+      "favorite": false,
+      "bonds": {},
+      "journal": [
+        {
+          "text": "One of your first three. The road began here.",
+          "at": 1791712800000
+        }
+      ],
+      "transformations": [],
+      "skills": {
+        "class:ranger": {
+          "key": "class:ranger",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        }
+      },
+      "companion": null,
+      "cosmetic": null,
+      "uncharmable": false
+    },
+    {
+      "schema": 7,
+      "id": "hero-mv39nzoo-14-7zd5j",
+      "name": "Wiviia Mossbloom",
+      "race": "Nereid",
+      "classId": "healer",
+      "level": 5,
+      "xp": 0,
+      "items": [
+        {
+          "id": "item-mv39nzoo-15-3m9mh",
+          "key": "lens",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        }
+      ],
+      "extraSlots": [],
+      "deployed": true,
+      "fusion": [],
+      "talents": [],
+      "armor": [
+        {
+          "id": "item-mv39nzoo-16-3yr1y",
+          "key": "light-head",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv39nzop-17-7rs8a",
+          "key": "light-chest",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv39nzop-18-1jckg",
+          "key": "light-legs",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        }
+      ],
+      "classPath": null,
+      "classNodes": [],
+      "attributes": [
+        {
+          "key": "race:Nereid",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        }
+      ],
+      "training": {},
+      "bonus": {},
+      "tier": 0,
+      "specialization": null,
+      "lineage": null,
+      "currentHp": 121,
+      "battles": 0,
+      "rarityTier": 0,
+      "appearance": {
+        "hue": 209,
+        "hair": 3,
+        "crest": 2,
+        "eyes": 2,
+        "idle": 487,
+        "height": 1.0271103678700284,
+        "width": 1.0298648672088222,
+        "crown": 1
+      },
+      "favorite": false,
+      "bonds": {},
+      "journal": [
+        {
+          "text": "One of your first three. The road began here.",
+          "at": 1791712800000
+        }
+      ],
+      "transformations": [],
+      "skills": {
+        "class:healer": {
+          "key": "class:healer",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        }
+      },
+      "companion": null,
+      "cosmetic": null,
+      "uncharmable": false
+    }
+  ],
+  "inventory": [
+    {
+      "id": "old-weapon",
+      "key": "ironblade",
+      "level": 55,
+      "xp": 0,
+      "rank": 0,
+      "rarityTier": 4,
+      "evolution": 2
+    }
+  ],
+  "companions": [],
+  "scrolls": [],
+  "recipes": [
+    "Human",
+    "Elf",
+    "Dwarf",
+    "Gnome",
+    "Orc",
+    "Fae",
+    "Shade",
+    "Nereid",
+    "Kobold",
+    "Myconid",
+    "Sylph",
+    "Drakeling",
+    "Celestial"
+  ],
+  "cosmetics": [],
+  "consumables": {
+    "ration": 1,
+    "might": 0,
+    "warding": 0,
+    "luck": 0,
+    "treat": 0,
+    "helper": 0
+  },
+  "essences": {},
+  "staging": [],
+  "location": "greenway",
+  "destination": {
+    "mode": "journey",
+    "location": "greenway",
+    "target": "clearing",
+    "routeIndex": 0,
+    "difficulty": "normal"
+  },
+  "campaign": {
+    "greenway": 0,
+    "marsh": 0,
+    "volcano": 0,
+    "cinder": 0,
+    "jungle": 0
+  },
+  "eventClaims": {},
+  "arenaWins": 0,
+  "expeditions": [],
+  "expeditionCount": 0,
+  "lifetimeEncounters": 0,
+  "bestEncounter": 0,
+  "firstExpedition": true,
+  "selectedExpedition": null,
+  "market": {},
+  "lastClock": 1791712800000,
+  "notifications": []
+}

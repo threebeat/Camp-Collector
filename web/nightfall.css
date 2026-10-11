@@ -1,0 +1,593 @@
+/* Night outside; warm, readable parchment where a player makes choices. */
+:root {
+  --paper: #f0e8d8;
+  --panel: #fff8e8;
+  --ink: #2b3038;
+  --muted: #666b70;
+  --line: #d5cbb6;
+  --gold: #b2874e;
+  --green: #385745;
+  --dark: #171b26;
+}
+body {
+  background: #141a25;
+}
+.app {
+  background: var(--paper);
+  min-height: calc(100dvh - 100px);
+}
+.site-header {
+  background: #171b26;
+  border-color: #bf874b;
+}
+.brand strong {
+  color: #f2c67c;
+}
+.page-heading .eyebrow {
+  color: #775438;
+}
+.camp-map,
+.market-map,
+.expanded-camp {
+  isolation: isolate;
+  background: #1a2631;
+}
+.camp-map:after,
+.market-map:after,
+.expanded-camp:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(145deg, #141932b0, #15223265 65%, #22213a80);
+}
+.camp-map:before {
+  background: radial-gradient(ellipse at 50% 60%, #ffb64a62, transparent 48%);
+}
+.camp-building,
+.camp-resident,
+.camp-map-caption,
+.map-caption,
+.market-map-sign,
+.market-map-stall {
+  z-index: 4;
+}
+.camp-bonfire {
+  filter: drop-shadow(0 0 22px #ff9d40);
+}
+.camp-resident {
+  filter: drop-shadow(0 2px 3px #0008);
+}
+.camp-expansion-arrow,
+.camp-market-sign,
+.market-direction {
+  background: #f6e9cced;
+  color: #303641;
+  border: 1px solid #bba477;
+  box-shadow: 0 2px 5px #0004;
+  font-size: 12px;
+}
+.camp-map-caption,
+.market-map-sign {
+  background: #16202dea;
+  color: #efe4d1;
+  border-color: #776651;
+}
+.resident-pet {
+  width: var(--pet-size, 30px);
+  height: var(--pet-size, 30px);
+  left: calc(var(--pet-size, 30px) * -0.6);
+}
+#hero-detail[data-allegiance="friendly"] {
+  background: linear-gradient(#8ebf9580, transparent 200px);
+}
+#hero-detail[data-allegiance="enemy"] {
+  background: linear-gradient(#dd999d80, transparent 200px);
+}
+#hero-detail[data-allegiance="neutral"] {
+  background: linear-gradient(#83b5e380, transparent 200px);
+}
+#hero-detail > [data-deselect] {
+  background: transparent;
+}
+.armor-row,
+.profile-gear {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.equipment-slot {
+  position: relative;
+  min-height: 48px;
+  min-width: 0;
+  white-space: normal;
+}
+.new-gear-dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 9px;
+  height: 9px;
+  background: #e9ad42;
+  border: 2px solid #fff8e8;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px #9b7136;
+}
+.profile-intro {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: linear-gradient(120deg, #cad8b8, #f8efdc);
+}
+.profile-intro.neutral {
+  background: linear-gradient(120deg, #c1d3e1, #f7efdc);
+}
+.profile-intro > div:last-child {
+  min-width: 0;
+}
+.profile-portrait {
+  flex: none;
+  width: 140px;
+  min-height: 160px;
+  display: grid;
+  place-items: end center;
+}
+.profile-portrait > svg {
+  height: calc(135px * var(--body-height, 1));
+  width: calc(130px * var(--body-width, 1));
+  max-width: 170px;
+  max-height: 200px;
+}
+.profile-intro p {
+  margin: 5px 0;
+  font-size: 13px;
+}
+.profile-gear .equipment-slot {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 8px;
+  padding: 10px;
+}
+.profile-gear svg {
+  width: 36px;
+  height: 40px;
+}
+.profile-gear span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.profile-gear small {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+}
+.modal-body > h3 {
+  margin: 24px 0 12px;
+}
+.profile-companion {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 14px;
+  background: #ede6d5;
+  border-radius: 8px;
+}
+.profile-companion > svg {
+  width: 68px;
+  height: 68px;
+}
+.profile-companion p {
+  flex: 1;
+  min-width: 100px;
+}
+.profile-journal {
+  max-height: 220px;
+  overflow: auto;
+  background: #f0e8d4;
+  padding: 12px;
+  border-radius: 8px;
+}
+.profile-journal p {
+  padding: 6px 0;
+  border-bottom: 1px dashed #cdc1a8;
+  font-size: 13px;
+}
+textarea.modal-select {
+  width: 100%;
+  min-height: 78px;
+  resize: vertical;
+  font: inherit;
+  color: var(--ink);
+  padding: 12px;
+}
+.guild-stalls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+.guild-stalls article {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid #cbbb9e;
+  border-radius: 8px;
+  background: #f5eedc;
+  min-width: 0;
+}
+.guild-stalls article > svg {
+  height: 58px;
+  width: 58px;
+}
+.guild-stalls article p {
+  font-size: 12px;
+}
+.guild-stalls article button {
+  margin-top: auto;
+}
+.equipment-comparison {
+  text-align: left;
+  max-width: 100%;
+  width: 100%;
+  font-size: 12px;
+  overflow-x: auto;
+}
+.equipment-comparison p {
+  margin: 7px 0;
+}
+.equipment-comparison table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.equipment-comparison caption {
+  text-align: left;
+  font-size: 11px;
+  padding-bottom: 7px;
+}
+.equipment-comparison th,
+.equipment-comparison td {
+  text-align: left;
+  padding: 6px;
+  border-bottom: 1px solid #d6cfbe;
+  font-size: 11px;
+}
+.positive {
+  color: #236447;
+  font-weight: 700;
+}
+.negative {
+  color: #a5373e;
+  font-weight: 700;
+}
+.equip-target {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.equip-target > svg {
+  float: left;
+  width: 48px;
+  height: 58px;
+  margin: 0 12px 8px 0;
+}
+.equip-target h3 {
+  font-size: 17px;
+  margin: 0 0 10px;
+}
+.neutral-visitors {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+.neutral-visitor {
+  position: absolute;
+  transform: translate(-50%, -85%);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  width: 44px;
+  height: 52px;
+  pointer-events: auto;
+  filter: drop-shadow(0 0 4px #87baff65);
+}
+.neutral-visitor > svg {
+  width: 100%;
+  height: 100%;
+}
+.neutral-visitor small {
+  display: block;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  white-space: nowrap;
+  background: #192539dd;
+  color: #eef2f8;
+  padding: 2px 5px;
+  border-radius: 3px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.npc-marker {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  background: #346994;
+  border: 1px solid #a4c5e4;
+  border-radius: 10px;
+  width: 20px;
+  height: 22px;
+  font:
+    bold 17px/21px Georgia,
+    serif;
+  box-shadow: 0 2px 3px #0005;
+}
+.npc-marker.challenger {
+  background: #aa3949;
+  border-color: #ed99a2;
+}
+.npc-marker.quest {
+  background: #856a36;
+  border-color: #e6c273;
+}
+.market-directions {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+.market-direction {
+  pointer-events: auto;
+  position: absolute;
+  padding: 9px 12px;
+  min-height: 44px;
+  font-weight: 600;
+  max-width: 36%;
+  white-space: normal;
+}
+.market-direction.north {
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.market-direction.south {
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.market-direction.west {
+  left: 5px;
+  top: 53%;
+  transform: translateY(-50%);
+}
+.market-direction.east {
+  right: 5px;
+  top: 53%;
+  transform: translateY(-50%);
+}
+.market-map {
+  min-height: 470px;
+}
+.market-district {
+  position: relative;
+  min-height: 390px;
+  padding: 45px 24px;
+  background: radial-gradient(ellipse at bottom, #464337, #1b2534);
+  border-radius: 10px;
+  border: 1px solid #655b49;
+  color: #ece3d1;
+}
+.market-district h2 {
+  margin: 12px 0;
+  color: #eac088;
+}
+.market-district p {
+  max-width: 440px;
+  margin-bottom: 24px;
+}
+.market-district button {
+  margin: 0 6px 12px 0;
+}
+.lakeshore-map {
+  min-height: 450px;
+  background: #152434;
+}
+.lakeshore-map > svg {
+  filter: none;
+}
+.lakeshore-map:after {
+  background: linear-gradient(#12152a35, transparent);
+}
+.island-sign {
+  position: absolute;
+  right: 19%;
+  top: 18%;
+  z-index: 6;
+  width: 132px;
+  min-height: 64px;
+  color: #ebd9ff;
+  background: #352845eb;
+  border: 1px solid #a27fc5;
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  gap: 4px;
+  box-shadow: 0 0 30px #a170c438;
+}
+.island-sign small {
+  font-size: 10px;
+  color: #e0c6ed;
+}
+.dock-story {
+  padding: 20px;
+  background: #202d3b;
+  color: #e6ddcf;
+  border: 1px solid #857157;
+  border-radius: 10px;
+}
+.dock-story h3 {
+  color: #d9b6fa;
+  margin: 10px 0;
+}
+.dock-story p {
+  margin: 10px 0;
+  font-size: 13px;
+}
+.dock-arrivals {
+  margin-top: 18px;
+}
+.dock-arrivals > button > svg {
+  width: 54px;
+  height: 66px;
+}
+.dock-arrivals small {
+  display: block;
+}
+@media (max-width: 600px) {
+  button {
+    -webkit-tap-highlight-color: #b9956450;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    scroll-margin-bottom: 90px;
+  }
+  .modal-body {
+    padding: 16px;
+  }
+  .profile-intro {
+    gap: 12px;
+    padding: 12px;
+    align-items: center;
+  }
+  .profile-portrait {
+    width: 90px;
+    min-height: 120px;
+  }
+  .profile-portrait > svg {
+    height: calc(98px * var(--body-height, 1));
+    width: calc(86px * var(--body-width, 1));
+    max-height: 150px;
+    max-width: 112px;
+  }
+  .profile-intro h3 {
+    font-size: 18px;
+  }
+  .profile-intro p {
+    font-size: 12px;
+  }
+  .profile-intro .text-button {
+    white-space: normal;
+    min-height: 44px;
+    padding: 7px;
+  }
+  .profile-gear {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .profile-gear .equipment-slot {
+    padding: 8px;
+    font-size: 11px;
+  }
+  .profile-gear svg {
+    width: 26px;
+  }
+  .guild-stalls {
+    grid-template-columns: 1fr;
+  }
+  .guild-stalls article {
+    padding: 16px;
+  }
+  .guild-stalls article button {
+    min-height: 44px;
+  }
+  .market-map {
+    min-height: 420px;
+  }
+  .market-direction {
+    padding: 8px;
+    font-size: 11px;
+  }
+  .market-direction.west,
+  .market-direction.east {
+    top: 57%;
+  }
+  .neutral-visitor {
+    width: 40px;
+    height: 48px;
+  }
+  .neutral-visitor small {
+    max-width: 106px;
+  }
+  .island-sign {
+    right: 16%;
+    width: 117px;
+    padding: 9px;
+  }
+  .lakeshore-map {
+    min-height: 420px;
+  }
+  .equipment-comparison th,
+  .equipment-comparison td {
+    padding: 5px 3px;
+  }
+  .inspector #hero-detail {
+    padding: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *:before,
+  *:after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.dock-service,
+.shore-garden,
+.shore-archaeology {
+  position: absolute;
+  z-index: 6;
+  min-height: 44px;
+  padding: 12px;
+  border: 1px solid #bb9e6e;
+  background: #eaddbb;
+  color: #343e46;
+  box-shadow: 0 2px 5px #0005;
+}
+.dock-service {
+  left: 35%;
+  top: 42%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 5px;
+}
+.shore-garden {
+  left: 8%;
+  top: 25%;
+}
+.shore-archaeology {
+  right: 8%;
+  top: 28%;
+}
+.lakeshore-map .camp-map-label {
+  z-index: 5;
+  color: #f0e2c5;
+  background: #162130cf;
+}

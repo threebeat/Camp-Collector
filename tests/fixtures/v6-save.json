@@ -1,0 +1,2091 @@
+{
+  "version": 6,
+  "campName": "Old Oak",
+  "campNamed": true,
+  "buildings": {
+    "tent": 1,
+    "storage": 1,
+    "pantry": 1,
+    "training": 0,
+    "workbench": 0,
+    "outfitter": 0,
+    "kitchen": 0,
+    "alchemist": 0
+  },
+  "materials": {
+    "wood": 0,
+    "stone": 0,
+    "ore": 0,
+    "herbs": 0,
+    "meat": 0
+  },
+  "food": 6,
+  "gemstones": [
+    {
+      "id": "gem-mv2tviwo-1-ew9p",
+      "kind": "ruby",
+      "size": 2
+    },
+    {
+      "id": "gem-mv2tviwo-2-5v6tp",
+      "kind": "ruby",
+      "size": 2
+    }
+  ],
+  "calendarClaims": {},
+  "calendarBonuses": {},
+  "branchClears": {},
+  "packed": [],
+  "challengeReceipts": [],
+  "challengeDeposits": {},
+  "screen": "expedition",
+  "gold": 1200,
+  "gems": 18,
+  "roster": [
+    {
+      "id": "hero-mv2tviwm-1-856h",
+      "name": "Almius Silverbell",
+      "race": "Human",
+      "classId": "vanguard",
+      "level": 5,
+      "xp": 0,
+      "items": [
+        {
+          "id": "item-mv2tviwm-2-95fiw",
+          "key": "ironblade",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv2tviwm-3-6ybe2",
+          "key": "ward",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv2tviwm-4-48ggr",
+          "key": "boots",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        }
+      ],
+      "extraSlots": [],
+      "deployed": true,
+      "fusion": [],
+      "attributes": [
+        {
+          "key": "race:Human",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        }
+      ],
+      "training": {},
+      "bonus": {},
+      "tier": 0,
+      "specialization": null,
+      "lineage": null,
+      "currentHp": 213,
+      "battles": 0,
+      "rarityTier": 0,
+      "appearance": {
+        "hue": 263,
+        "hair": 1,
+        "crest": 0,
+        "eyes": 0,
+        "idle": 386
+      },
+      "favorite": true,
+      "bonds": {},
+      "journal": [
+        {
+          "text": "One of your first three. The road began here.",
+          "at": 1791547200000
+        }
+      ],
+      "transformations": [],
+      "skills": {
+        "class:vanguard": {
+          "key": "class:vanguard",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        }
+      },
+      "companion": null,
+      "cosmetic": null,
+      "uncharmable": false
+    },
+    {
+      "id": "hero-mv2tviwm-5-3eqlk",
+      "name": "Palael Cloudcrest",
+      "race": "Elf",
+      "classId": "ranger",
+      "level": 5,
+      "xp": 0,
+      "items": [
+        {
+          "id": "item-mv2tviwm-6-3qfmg",
+          "key": "longbow",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv2tviwm-7-9rwy6",
+          "key": "quiver",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv2tviwm-8-7ha5",
+          "key": "boots",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        }
+      ],
+      "extraSlots": [],
+      "deployed": true,
+      "fusion": [],
+      "attributes": [
+        {
+          "key": "race:Elf",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        }
+      ],
+      "training": {},
+      "bonus": {},
+      "tier": 0,
+      "specialization": null,
+      "lineage": null,
+      "currentHp": 111,
+      "battles": 0,
+      "rarityTier": 0,
+      "appearance": {
+        "hue": 103,
+        "hair": 0,
+        "crest": 2,
+        "eyes": 1,
+        "idle": 174
+      },
+      "favorite": false,
+      "bonds": {},
+      "journal": [
+        {
+          "text": "One of your first three. The road began here.",
+          "at": 1791547200000
+        }
+      ],
+      "transformations": [],
+      "skills": {
+        "class:ranger": {
+          "key": "class:ranger",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        }
+      },
+      "companion": null,
+      "cosmetic": null,
+      "uncharmable": false
+    },
+    {
+      "id": "hero-mv2tviwm-9-870xl",
+      "name": "Jatiya Bloomglade",
+      "race": "Nereid",
+      "classId": "healer",
+      "level": 5,
+      "xp": 0,
+      "items": [
+        {
+          "id": "item-mv2tviwm-10-5p1mz",
+          "key": "lens",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv2tviwm-11-82h9u",
+          "key": "robe",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        }
+      ],
+      "extraSlots": [],
+      "deployed": true,
+      "fusion": [],
+      "attributes": [
+        {
+          "key": "race:Nereid",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        }
+      ],
+      "training": {},
+      "bonus": {},
+      "tier": 0,
+      "specialization": null,
+      "lineage": null,
+      "currentHp": 121,
+      "battles": 0,
+      "rarityTier": 0,
+      "appearance": {
+        "hue": 335,
+        "hair": 1,
+        "crest": 3,
+        "eyes": 0,
+        "idle": 325
+      },
+      "favorite": false,
+      "bonds": {},
+      "journal": [
+        {
+          "text": "One of your first three. The road began here.",
+          "at": 1791547200000
+        }
+      ],
+      "transformations": [],
+      "skills": {
+        "class:healer": {
+          "key": "class:healer",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        }
+      },
+      "companion": null,
+      "cosmetic": null,
+      "uncharmable": false
+    },
+    {
+      "id": "old-miner",
+      "name": "Nox Underhill",
+      "race": "Vampire",
+      "classId": "miner",
+      "level": 25,
+      "xp": 0,
+      "items": [
+        {
+          "id": "item-mv2tviwo-14-2ey4c",
+          "key": "pickaxe",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv2tviwo-15-4esuv",
+          "key": "ward",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv2tviwo-16-9fy7k",
+          "key": "kit",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        }
+      ],
+      "extraSlots": [],
+      "deployed": true,
+      "fusion": [],
+      "attributes": [
+        {
+          "key": "race:Vampire",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        },
+        {
+          "key": "training:strength",
+          "level": 3,
+          "xp": 0,
+          "rarityTier": 1
+        },
+        {
+          "key": "Vampire",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        }
+      ],
+      "training": {},
+      "bonus": {},
+      "tier": 0,
+      "specialization": null,
+      "lineage": null,
+      "currentHp": null,
+      "battles": 0,
+      "rarityTier": 0,
+      "appearance": {
+        "hue": 272,
+        "hair": 5,
+        "crest": 2,
+        "eyes": 3,
+        "idle": 252
+      },
+      "favorite": false,
+      "bonds": {},
+      "journal": [
+        {
+          "text": "A new character joined your company.",
+          "at": 1791662974584
+        }
+      ],
+      "transformations": [],
+      "companion": {
+        "id": "pet-mv2tviwn-12-7wnxg",
+        "key": "horse",
+        "level": 10,
+        "xp": 0,
+        "rank": 0,
+        "rarityTier": 2,
+        "sockets": []
+      },
+      "skills": {
+        "class:miner": {
+          "key": "class:miner",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        }
+      },
+      "cosmetic": null,
+      "uncharmable": false
+    },
+    {
+      "id": "old-zombie",
+      "name": "Sora Moss",
+      "race": "Zombie",
+      "classId": "healer",
+      "level": 21,
+      "xp": 0,
+      "items": [
+        {
+          "id": "item-mv2tviwo-18-6szs",
+          "key": "lens",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        },
+        {
+          "id": "item-mv2tviwo-19-77dkf",
+          "key": "robe",
+          "level": 1,
+          "xp": 0,
+          "rank": 0,
+          "rarityTier": 0
+        }
+      ],
+      "extraSlots": [],
+      "deployed": true,
+      "fusion": [],
+      "attributes": [
+        {
+          "key": "race:Zombie",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        },
+        {
+          "key": "training:mind",
+          "level": 4,
+          "xp": 0,
+          "rarityTier": 1
+        }
+      ],
+      "training": {},
+      "bonus": {},
+      "tier": 0,
+      "specialization": "protector",
+      "lineage": null,
+      "currentHp": null,
+      "battles": 0,
+      "rarityTier": 0,
+      "appearance": {
+        "hue": 254,
+        "hair": 1,
+        "crest": 2,
+        "eyes": 2,
+        "idle": 336
+      },
+      "favorite": false,
+      "bonds": {},
+      "journal": [
+        {
+          "text": "A new character joined your company.",
+          "at": 1791662974584
+        }
+      ],
+      "transformations": [],
+      "skills": {
+        "class:healer": {
+          "key": "class:healer",
+          "level": 1,
+          "xp": 0,
+          "rarityTier": 0
+        }
+      },
+      "companion": null,
+      "cosmetic": null,
+      "uncharmable": false
+    }
+  ],
+  "inventory": [
+    {
+      "id": "item-mv2tviwo-20-4yc0j",
+      "key": "starRobe",
+      "level": 12,
+      "xp": 0,
+      "rank": 0,
+      "rarityTier": 2
+    }
+  ],
+  "companions": [],
+  "scrolls": [],
+  "recipes": [
+    "Human",
+    "Elf",
+    "Dwarf",
+    "Gnome",
+    "Orc",
+    "Fae",
+    "Shade",
+    "Nereid",
+    "Kobold",
+    "Myconid",
+    "Sylph",
+    "Drakeling",
+    "Celestial"
+  ],
+  "cosmetics": [],
+  "consumables": {
+    "ration": 1,
+    "might": 0,
+    "warding": 0,
+    "luck": 0,
+    "treat": 0,
+    "helper": 0,
+    "tonic": 1
+  },
+  "essences": {},
+  "staging": [],
+  "location": "greenway",
+  "destination": {
+    "mode": "campaign",
+    "location": "greenway",
+    "node": 0,
+    "route": "main",
+    "difficulty": "normal"
+  },
+  "campaign": {
+    "greenway": 2,
+    "marsh": 0,
+    "cinder": 0
+  },
+  "eventClaims": {},
+  "arenaWins": 0,
+  "expeditions": [
+    {
+      "mode": "campaign",
+      "location": "greenway",
+      "node": 0,
+      "route": "main",
+      "difficulty": "normal",
+      "name": "The first clearing",
+      "encounters": 3,
+      "level": 1,
+      "milestone": "gold",
+      "reward": 1,
+      "branch": null,
+      "unlocked": true,
+      "id": "expedition-mv2tviwp-3-11hw4",
+      "number": 1,
+      "stage": 0,
+      "seed": 17,
+      "party": [
+        "hero-mv2tviwm-1-856h",
+        "hero-mv2tviwm-5-3eqlk",
+        "hero-mv2tviwm-9-870xl"
+      ],
+      "status": "active",
+      "phase": "battle",
+      "phaseSeconds": 0,
+      "startedAt": 1791547200000,
+      "elapsedSeconds": 5.9999999999999885,
+      "pendingSeconds": 1.1310397063368782e-14,
+      "history": [],
+      "captures": [],
+      "recruits": [],
+      "earned": {
+        "gold": 0,
+        "gems": 0,
+        "items": 0,
+        "essences": 0,
+        "kills": 0
+      },
+      "waveDefeated": [],
+      "battleState": {
+        "version": 1,
+        "mode": "campaign",
+        "recruitLimit": 2,
+        "hazards": false,
+        "hazardsAdded": false,
+        "props": [
+          {
+            "id": 0,
+            "x": 736.3814307097346,
+            "y": 182.19915948808193,
+            "kind": "barrel",
+            "hp": 35,
+            "r": 13,
+            "vx": 0,
+            "vy": 0,
+            "burning": 0,
+            "dead": false
+          },
+          {
+            "id": 1,
+            "x": 596.002046992071,
+            "y": 293.5215619299561,
+            "kind": "crate",
+            "hp": 50,
+            "r": 15,
+            "vx": 0,
+            "vy": 0,
+            "burning": 0,
+            "dead": false
+          },
+          {
+            "id": 2,
+            "x": 698.4665828826837,
+            "y": 255.73711902834475,
+            "kind": "crate",
+            "hp": 50,
+            "r": 15,
+            "vx": 0,
+            "vy": 0,
+            "burning": 0,
+            "dead": false
+          },
+          {
+            "id": 3,
+            "x": 664.7425057319924,
+            "y": 258.2783602271229,
+            "kind": "barrel",
+            "hp": 35,
+            "r": 13,
+            "vx": 0,
+            "vy": 0,
+            "burning": 0,
+            "dead": false
+          },
+          {
+            "id": 4,
+            "x": 553.2278512092307,
+            "y": 117.87213215604424,
+            "kind": "crate",
+            "hp": 50,
+            "r": 15,
+            "vx": 0,
+            "vy": 0,
+            "burning": 0,
+            "dead": false
+          },
+          {
+            "id": 5,
+            "x": 389.1648777257651,
+            "y": 345.43381039984524,
+            "kind": "crate",
+            "hp": 50,
+            "r": 15,
+            "vx": 0,
+            "vy": 0,
+            "burning": 0,
+            "dead": false
+          },
+          {
+            "id": 6,
+            "x": 506.3952135806903,
+            "y": 218.84110522456467,
+            "kind": "barrel",
+            "hp": 35,
+            "r": 13,
+            "vx": 0,
+            "vy": 0,
+            "burning": 0,
+            "dead": false
+          },
+          {
+            "id": 7,
+            "x": 679.2283083265647,
+            "y": 269.4254657160491,
+            "kind": "crate",
+            "hp": 50,
+            "r": 15,
+            "vx": 0,
+            "vy": 0,
+            "burning": 0,
+            "dead": false
+          }
+        ],
+        "decals": [],
+        "debris": [],
+        "fires": [],
+        "environmentAt": 1.0333333333333334,
+        "stage": 0,
+        "time": 0.9999999999999999,
+        "randomState": 2079754318,
+        "map": {
+          "biome": "forest",
+          "seed": 17
+        },
+        "serial": 5,
+        "initialCount": [
+          3,
+          2
+        ],
+        "units": [
+          {
+            "uid": 1,
+            "hero": {
+              "id": "hero-mv2tviwm-1-856h",
+              "name": "Almius Silverbell",
+              "race": "Human",
+              "classId": "vanguard",
+              "level": 5,
+              "xp": 0,
+              "items": [
+                {
+                  "id": "item-mv2tviwm-2-95fiw",
+                  "key": "ironblade",
+                  "level": 1,
+                  "xp": 0,
+                  "rank": 0,
+                  "rarityTier": 0
+                },
+                {
+                  "id": "item-mv2tviwm-3-6ybe2",
+                  "key": "ward",
+                  "level": 1,
+                  "xp": 0,
+                  "rank": 0,
+                  "rarityTier": 0
+                },
+                {
+                  "id": "item-mv2tviwm-4-48ggr",
+                  "key": "boots",
+                  "level": 1,
+                  "xp": 0,
+                  "rank": 0,
+                  "rarityTier": 0
+                }
+              ],
+              "extraSlots": [],
+              "deployed": true,
+              "fusion": [],
+              "attributes": [
+                {
+                  "key": "race:Human",
+                  "level": 1,
+                  "xp": 0,
+                  "rarityTier": 0
+                }
+              ],
+              "training": {},
+              "bonus": {},
+              "tier": 0,
+              "specialization": null,
+              "lineage": null,
+              "currentHp": 213,
+              "battles": 0,
+              "rarityTier": 0,
+              "appearance": {
+                "hue": 263,
+                "hair": 1,
+                "crest": 0,
+                "eyes": 0,
+                "idle": 386
+              },
+              "favorite": true,
+              "bonds": {},
+              "journal": [
+                {
+                  "text": "One of your first three. The road began here.",
+                  "at": 1791547200000
+                }
+              ],
+              "transformations": [],
+              "skills": {
+                "class:vanguard": {
+                  "key": "class:vanguard",
+                  "level": 1,
+                  "xp": 0,
+                  "rarityTier": 0
+                }
+              },
+              "companion": null,
+              "cosmetic": null,
+              "uncharmable": false
+            },
+            "team": 0,
+            "originTeam": 0,
+            "classId": "vanguard",
+            "name": "Almius Silverbell",
+            "vitality": 17.28,
+            "armor": 4.42,
+            "strength": 15.6,
+            "mind": 8.7,
+            "agility": 14.48,
+            "endurance": 11.69,
+            "hp": 213,
+            "attack": 29,
+            "speed": 53,
+            "range": 32,
+            "rate": 1.0913300941390829,
+            "cooldown": 6.401346111639476,
+            "mass": 1.365096,
+            "force": 1,
+            "healing": 1.1131,
+            "dodge": 0,
+            "flying": false,
+            "ranged": false,
+            "regen": 0,
+            "regenSelf": 0,
+            "knock": 25,
+            "splash": 0,
+            "slow": false,
+            "slowDuration": 2,
+            "magical": false,
+            "maxStamina": 70.07,
+            "power": 1,
+            "maxHp": 213,
+            "stamina": 70.07,
+            "x": 245.38195039652985,
+            "y": 251.1232838521763,
+            "r": 12,
+            "vx": 0,
+            "vy": 0,
+            "facing": 1,
+            "shield": 0,
+            "attackAt": 0.7240052072331309,
+            "abilityAt": 2.1853138424456118,
+            "schoolAt": 5,
+            "scrollAt": {},
+            "learnedAt": [],
+            "extraAt": 7,
+            "targetAt": 1.4166666666666665,
+            "pathAt": 1.414058174332604,
+            "path": [
+              {
+                "x": 276,
+                "y": 252
+              },
+              {
+                "x": 300,
+                "y": 252
+              },
+              {
+                "x": 324,
+                "y": 252
+              },
+              {
+                "x": 348,
+                "y": 252
+              },
+              {
+                "x": 372,
+                "y": 252
+              },
+              {
+                "x": 396,
+                "y": 252
+              },
+              {
+                "x": 420,
+                "y": 252
+              },
+              {
+                "x": 444,
+                "y": 252
+              },
+              {
+                "x": 468,
+                "y": 252
+              },
+              {
+                "x": 492,
+                "y": 252
+              },
+              {
+                "x": 516,
+                "y": 252
+              },
+              {
+                "x": 540,
+                "y": 252
+              },
+              {
+                "x": 564,
+                "y": 252
+              },
+              {
+                "x": 588,
+                "y": 252
+              },
+              {
+                "x": 612,
+                "y": 252
+              },
+              {
+                "x": 636,
+                "y": 252
+              },
+              {
+                "x": 660,
+                "y": 252
+              },
+              {
+                "x": 684,
+                "y": 252
+              },
+              {
+                "x": 708,
+                "y": 252
+              },
+              {
+                "x": 732,
+                "y": 252
+              },
+              {
+                "x": 756,
+                "y": 252
+              },
+              {
+                "x": 780,
+                "y": 252
+              },
+              {
+                "x": 804,
+                "y": 252
+              },
+              {
+                "x": 828,
+                "y": 252
+              },
+              {
+                "x": 852,
+                "y": 252
+              },
+              {
+                "x": 876,
+                "y": 252
+              },
+              {
+                "x": 900,
+                "y": 252
+              },
+              {
+                "x": 924,
+                "y": 252
+              },
+              {
+                "x": 948,
+                "y": 252
+              },
+              {
+                "x": 972,
+                "y": 252
+              },
+              {
+                "x": 996,
+                "y": 228
+              },
+              {
+                "x": 1020,
+                "y": 228
+              }
+            ],
+            "dead": false,
+            "stealthUntil": 0,
+            "slowUntil": 0,
+            "buffUntil": 0,
+            "swingUntil": 0,
+            "hitUntil": 0,
+            "expires": null,
+            "buildCount": 0,
+            "damage": 0,
+            "healed": 0,
+            "speechAt": 21.28459766227752,
+            "moving": true,
+            "targetId": 4
+          },
+          {
+            "uid": 2,
+            "hero": {
+              "id": "hero-mv2tviwm-5-3eqlk",
+              "name": "Palael Cloudcrest",
+              "race": "Elf",
+              "classId": "ranger",
+              "level": 5,
+              "xp": 0,
+              "items": [
+                {
+                  "id": "item-mv2tviwm-6-3qfmg",
+                  "key": "longbow",
+                  "level": 1,
+                  "xp": 0,
+                  "rank": 0,
+                  "rarityTier": 0
+                },
+                {
+                  "id": "item-mv2tviwm-7-9rwy6",
+                  "key": "quiver",
+                  "level": 1,
+                  "xp": 0,
+                  "rank": 0,
+                  "rarityTier": 0
+                },
+                {
+                  "id": "item-mv2tviwm-8-7ha5",
+                  "key": "boots",
+                  "level": 1,
+                  "xp": 0,
+                  "rank": 0,
+                  "rarityTier": 0
+                }
+              ],
+              "extraSlots": [],
+              "deployed": true,
+              "fusion": [],
+              "attributes": [
+                {
+                  "key": "race:Elf",
+                  "level": 1,
+                  "xp": 0,
+                  "rarityTier": 0
+                }
+              ],
+              "training": {},
+              "bonus": {},
+              "tier": 0,
+              "specialization": null,
+              "lineage": null,
+              "currentHp": 111,
+              "battles": 0,
+              "rarityTier": 0,
+              "appearance": {
+                "hue": 103,
+                "hair": 0,
+                "crest": 2,
+                "eyes": 1,
+                "idle": 174
+              },
+              "favorite": false,
+              "bonds": {},
+              "journal": [
+                {
+                  "text": "One of your first three. The road began here.",
+                  "at": 1791547200000
+                }
+              ],
+              "transformations": [],
+              "skills": {
+                "class:ranger": {
+                  "key": "class:ranger",
+                  "level": 1,
+                  "xp": 0,
+                  "rarityTier": 0
+                }
+              },
+              "companion": null,
+              "cosmetic": null,
+              "uncharmable": false
+            },
+            "team": 0,
+            "originTeam": 0,
+            "classId": "ranger",
+            "name": "Palael Cloudcrest",
+            "vitality": 11.08,
+            "armor": 1.42,
+            "strength": 16.18,
+            "mind": 11.85,
+            "agility": 22.72,
+            "endurance": 10.65,
+            "hp": 111,
+            "attack": 23,
+            "speed": 71,
+            "range": 335,
+            "rate": 1.0844669627984453,
+            "cooldown": 6.450423884998157,
+            "mass": 1.1703999999999999,
+            "force": 1,
+            "healing": 1.15405,
+            "dodge": 0,
+            "flying": false,
+            "ranged": true,
+            "regen": 0,
+            "regenSelf": 0,
+            "knock": 0,
+            "splash": 0,
+            "slow": false,
+            "slowDuration": 2,
+            "magical": false,
+            "maxStamina": 66.95,
+            "power": 1,
+            "maxHp": 111,
+            "stamina": 66.95,
+            "x": 204.72062203034946,
+            "y": 251.71626968151514,
+            "r": 12,
+            "vx": 0,
+            "vy": 0,
+            "facing": 1,
+            "shield": 0,
+            "attackAt": 0.3658306202851236,
+            "abilityAt": 1.9755703557282687,
+            "schoolAt": 5,
+            "scrollAt": {},
+            "learnedAt": [],
+            "extraAt": 7,
+            "targetAt": 1.4166666666666665,
+            "pathAt": 1.4051975279425581,
+            "path": [
+              {
+                "x": 228,
+                "y": 252
+              },
+              {
+                "x": 252,
+                "y": 252
+              },
+              {
+                "x": 276,
+                "y": 252
+              },
+              {
+                "x": 300,
+                "y": 252
+              },
+              {
+                "x": 324,
+                "y": 252
+              },
+              {
+                "x": 348,
+                "y": 252
+              },
+              {
+                "x": 372,
+                "y": 252
+              },
+              {
+                "x": 396,
+                "y": 252
+              },
+              {
+                "x": 420,
+                "y": 252
+              },
+              {
+                "x": 444,
+                "y": 252
+              },
+              {
+                "x": 468,
+                "y": 252
+              },
+              {
+                "x": 492,
+                "y": 252
+              },
+              {
+                "x": 516,
+                "y": 252
+              },
+              {
+                "x": 540,
+                "y": 252
+              },
+              {
+                "x": 564,
+                "y": 252
+              },
+              {
+                "x": 588,
+                "y": 252
+              },
+              {
+                "x": 612,
+                "y": 252
+              },
+              {
+                "x": 636,
+                "y": 252
+              },
+              {
+                "x": 660,
+                "y": 252
+              },
+              {
+                "x": 684,
+                "y": 252
+              },
+              {
+                "x": 708,
+                "y": 252
+              },
+              {
+                "x": 732,
+                "y": 252
+              },
+              {
+                "x": 756,
+                "y": 252
+              },
+              {
+                "x": 780,
+                "y": 252
+              },
+              {
+                "x": 804,
+                "y": 252
+              },
+              {
+                "x": 828,
+                "y": 252
+              },
+              {
+                "x": 852,
+                "y": 252
+              },
+              {
+                "x": 876,
+                "y": 252
+              },
+              {
+                "x": 900,
+                "y": 252
+              },
+              {
+                "x": 924,
+                "y": 252
+              },
+              {
+                "x": 948,
+                "y": 252
+              },
+              {
+                "x": 972,
+                "y": 252
+              },
+              {
+                "x": 996,
+                "y": 228
+              },
+              {
+                "x": 1020,
+                "y": 228
+              }
+            ],
+            "dead": false,
+            "stealthUntil": 0,
+            "slowUntil": 0,
+            "buffUntil": 0,
+            "swingUntil": 0,
+            "hitUntil": 0,
+            "expires": null,
+            "buildCount": 0,
+            "damage": 0,
+            "healed": 0,
+            "speechAt": 27.0205687249545,
+            "moving": true,
+            "targetId": 4
+          },
+          {
+            "uid": 3,
+            "hero": {
+              "id": "hero-mv2tviwm-9-870xl",
+              "name": "Jatiya Bloomglade",
+              "race": "Nereid",
+              "classId": "healer",
+              "level": 5,
+              "xp": 0,
+              "items": [
+                {
+                  "id": "item-mv2tviwm-10-5p1mz",
+                  "key": "lens",
+                  "level": 1,
+                  "xp": 0,
+                  "rank": 0,
+                  "rarityTier": 0
+                },
+                {
+                  "id": "item-mv2tviwm-11-82h9u",
+                  "key": "robe",
+                  "level": 1,
+                  "xp": 0,
+                  "rank": 0,
+                  "rarityTier": 0
+                }
+              ],
+              "extraSlots": [],
+              "deployed": true,
+              "fusion": [],
+              "attributes": [
+                {
+                  "key": "race:Nereid",
+                  "level": 1,
+                  "xp": 0,
+                  "rarityTier": 0
+                }
+              ],
+              "training": {},
+              "bonus": {},
+              "tier": 0,
+              "specialization": null,
+              "lineage": null,
+              "currentHp": 121,
+              "battles": 0,
+              "rarityTier": 0,
+              "appearance": {
+                "hue": 335,
+                "hair": 1,
+                "crest": 3,
+                "eyes": 0,
+                "idle": 325
+              },
+              "favorite": false,
+              "bonds": {},
+              "journal": [
+                {
+                  "text": "One of your first three. The road began here.",
+                  "at": 1791547200000
+                }
+              ],
+              "transformations": [],
+              "skills": {
+                "class:healer": {
+                  "key": "class:healer",
+                  "level": 1,
+                  "xp": 0,
+                  "rarityTier": 0
+                }
+              },
+              "companion": null,
+              "cosmetic": null,
+              "uncharmable": false
+            },
+            "team": 0,
+            "originTeam": 0,
+            "classId": "healer",
+            "name": "Jatiya Bloomglade",
+            "vitality": 12.11,
+            "armor": 3.42,
+            "strength": 7.66,
+            "mind": 29.18,
+            "agility": 12.53,
+            "endurance": 12.48,
+            "hp": 121,
+            "attack": 35,
+            "speed": 49,
+            "range": 190,
+            "rate": 1.3587483986179587,
+            "cooldown": 9.092231597323247,
+            "mass": 1.19968,
+            "force": 1,
+            "healing": 1.37934,
+            "dodge": 0,
+            "flying": false,
+            "ranged": true,
+            "regen": 0,
+            "regenSelf": 1,
+            "knock": 0,
+            "splash": 0,
+            "slow": false,
+            "slowDuration": 2,
+            "magical": true,
+            "maxStamina": 72.44,
+            "power": 1,
+            "maxHp": 121,
+            "stamina": 72.44,
+            "x": 154.03737146911854,
+            "y": 251.00787557048778,
+            "r": 12,
+            "vx": 0,
+            "vy": 0,
+            "facing": 1,
+            "shield": 0,
+            "attackAt": 0.44748497991822656,
+            "abilityAt": 2.89290181286633,
+            "schoolAt": 5,
+            "scrollAt": {},
+            "learnedAt": [],
+            "extraAt": 7,
+            "targetAt": 1.4166666666666665,
+            "pathAt": 1.5560578387385855,
+            "path": [
+              {
+                "x": 180,
+                "y": 252
+              },
+              {
+                "x": 204,
+                "y": 252
+              },
+              {
+                "x": 228,
+                "y": 252
+              },
+              {
+                "x": 252,
+                "y": 252
+              },
+              {
+                "x": 276,
+                "y": 252
+              },
+              {
+                "x": 300,
+                "y": 252
+              },
+              {
+                "x": 324,
+                "y": 252
+              },
+              {
+                "x": 348,
+                "y": 252
+              },
+              {
+                "x": 372,
+                "y": 252
+              },
+              {
+                "x": 396,
+                "y": 252
+              },
+              {
+                "x": 420,
+                "y": 252
+              },
+              {
+                "x": 444,
+                "y": 252
+              },
+              {
+                "x": 468,
+                "y": 252
+              },
+              {
+                "x": 492,
+                "y": 252
+              },
+              {
+                "x": 516,
+                "y": 252
+              },
+              {
+                "x": 540,
+                "y": 252
+              },
+              {
+                "x": 564,
+                "y": 252
+              },
+              {
+                "x": 588,
+                "y": 252
+              },
+              {
+                "x": 612,
+                "y": 252
+              },
+              {
+                "x": 636,
+                "y": 252
+              },
+              {
+                "x": 660,
+                "y": 252
+              },
+              {
+                "x": 684,
+                "y": 252
+              },
+              {
+                "x": 708,
+                "y": 252
+              },
+              {
+                "x": 732,
+                "y": 252
+              },
+              {
+                "x": 756,
+                "y": 252
+              },
+              {
+                "x": 780,
+                "y": 252
+              },
+              {
+                "x": 804,
+                "y": 252
+              },
+              {
+                "x": 828,
+                "y": 252
+              },
+              {
+                "x": 852,
+                "y": 252
+              },
+              {
+                "x": 876,
+                "y": 252
+              },
+              {
+                "x": 900,
+                "y": 252
+              },
+              {
+                "x": 924,
+                "y": 252
+              },
+              {
+                "x": 948,
+                "y": 252
+              },
+              {
+                "x": 972,
+                "y": 252
+              },
+              {
+                "x": 996,
+                "y": 228
+              },
+              {
+                "x": 1020,
+                "y": 228
+              }
+            ],
+            "dead": false,
+            "stealthUntil": 0,
+            "slowUntil": 0,
+            "buffUntil": 0,
+            "swingUntil": 0,
+            "hitUntil": 0,
+            "expires": null,
+            "buildCount": 0,
+            "damage": 0,
+            "healed": 0,
+            "speechAt": 14.418990745441988,
+            "moving": true,
+            "targetId": 4
+          },
+          {
+            "uid": 4,
+            "hero": {
+              "id": "foe-expedition-mv2tviwp-3-11hw4-0-0",
+              "name": "Lilora Aquastone",
+              "race": "Elf",
+              "classId": "ranger",
+              "level": 1,
+              "xp": 0,
+              "items": [
+                {
+                  "id": "foe-expedition-mv2tviwp-3-11hw4-0-0-gear-0",
+                  "key": "longbow",
+                  "level": 1,
+                  "xp": 0,
+                  "rank": 0,
+                  "rarityTier": 0
+                },
+                {
+                  "id": "foe-expedition-mv2tviwp-3-11hw4-0-0-gear-1",
+                  "key": "quiver",
+                  "level": 1,
+                  "xp": 0,
+                  "rank": 0,
+                  "rarityTier": 0
+                },
+                {
+                  "id": "foe-expedition-mv2tviwp-3-11hw4-0-0-gear-2",
+                  "key": "boots",
+                  "level": 1,
+                  "xp": 0,
+                  "rank": 0,
+                  "rarityTier": 0
+                }
+              ],
+              "extraSlots": [],
+              "deployed": true,
+              "fusion": [],
+              "attributes": [
+                {
+                  "key": "race:Elf",
+                  "level": 1,
+                  "xp": 0,
+                  "rarityTier": 0
+                }
+              ],
+              "training": {},
+              "bonus": {
+                "hp": 0,
+                "damageScale": 1
+              },
+              "tier": 0,
+              "specialization": null,
+              "lineage": null,
+              "currentHp": null,
+              "battles": 0,
+              "rarityTier": 0,
+              "appearance": {
+                "hue": 196,
+                "hair": 1,
+                "crest": 3,
+                "eyes": 3,
+                "idle": 152
+              },
+              "favorite": false,
+              "bonds": {},
+              "journal": [
+                {
+                  "text": "A new character joined your company.",
+                  "at": 1791662974587
+                }
+              ],
+              "transformations": [],
+              "boss": false,
+              "skills": {
+                "class:ranger": {
+                  "key": "class:ranger",
+                  "level": 1,
+                  "xp": 0,
+                  "rarityTier": 0
+                }
+              },
+              "companion": null,
+              "cosmetic": null,
+              "uncharmable": false
+            },
+            "team": 1,
+            "originTeam": 1,
+            "classId": "ranger",
+            "name": "Lilora Aquastone",
+            "vitality": 10,
+            "armor": 1,
+            "strength": 14,
+            "mind": 11,
+            "agility": 21,
+            "endurance": 10,
+            "hp": 100,
+            "attack": 20,
+            "speed": 67,
+            "range": 335,
+            "rate": 1.1042402826855122,
+            "cooldown": 6.481481481481481,
+            "mass": 1.16,
+            "force": 1,
+            "healing": 1.143,
+            "dodge": 0,
+            "flying": false,
+            "ranged": true,
+            "regen": 0,
+            "regenSelf": 0,
+            "knock": 0,
+            "splash": 0,
+            "slow": false,
+            "slowDuration": 2,
+            "magical": false,
+            "maxStamina": 65,
+            "power": 1,
+            "maxHp": 100,
+            "stamina": 65,
+            "x": 998.6042425639849,
+            "y": 227.72920626604656,
+            "r": 12,
+            "vx": 0,
+            "vy": 0,
+            "facing": -1,
+            "shield": 0,
+            "attackAt": 0.728365033888258,
+            "abilityAt": 3.393180109746754,
+            "schoolAt": 5,
+            "scrollAt": {},
+            "learnedAt": [],
+            "extraAt": 7,
+            "targetAt": 1.4166666666666665,
+            "pathAt": 1.5269773888712128,
+            "path": [
+              {
+                "x": 972,
+                "y": 228
+              },
+              {
+                "x": 948,
+                "y": 228
+              },
+              {
+                "x": 924,
+                "y": 228
+              },
+              {
+                "x": 900,
+                "y": 228
+              },
+              {
+                "x": 876,
+                "y": 228
+              },
+              {
+                "x": 852,
+                "y": 228
+              },
+              {
+                "x": 828,
+                "y": 228
+              },
+              {
+                "x": 804,
+                "y": 228
+              },
+              {
+                "x": 780,
+                "y": 228
+              },
+              {
+                "x": 756,
+                "y": 228
+              },
+              {
+                "x": 732,
+                "y": 228
+              },
+              {
+                "x": 708,
+                "y": 228
+              },
+              {
+                "x": 684,
+                "y": 228
+              },
+              {
+                "x": 660,
+                "y": 228
+              },
+              {
+                "x": 636,
+                "y": 228
+              },
+              {
+                "x": 612,
+                "y": 228
+              },
+              {
+                "x": 588,
+                "y": 228
+              },
+              {
+                "x": 564,
+                "y": 228
+              },
+              {
+                "x": 540,
+                "y": 228
+              },
+              {
+                "x": 516,
+                "y": 228
+              },
+              {
+                "x": 492,
+                "y": 228
+              },
+              {
+                "x": 468,
+                "y": 228
+              },
+              {
+                "x": 444,
+                "y": 228
+              },
+              {
+                "x": 420,
+                "y": 228
+              },
+              {
+                "x": 396,
+                "y": 228
+              },
+              {
+                "x": 372,
+                "y": 228
+              },
+              {
+                "x": 348,
+                "y": 228
+              },
+              {
+                "x": 324,
+                "y": 228
+              },
+              {
+                "x": 300,
+                "y": 228
+              },
+              {
+                "x": 276,
+                "y": 228
+              },
+              {
+                "x": 252,
+                "y": 252
+              },
+              {
+                "x": 228,
+                "y": 252
+              }
+            ],
+            "dead": false,
+            "stealthUntil": 0,
+            "slowUntil": 0,
+            "buffUntil": 0,
+            "swingUntil": 0,
+            "hitUntil": 0,
+            "expires": null,
+            "buildCount": 0,
+            "damage": 0,
+            "healed": 0,
+            "speechAt": 15.623889413662255,
+            "moving": true,
+            "targetId": 1
+          },
+          {
+            "uid": 5,
+            "hero": {
+              "id": "foe-expedition-mv2tviwp-3-11hw4-0-1",
+              "name": "Savian Silverlight",
+              "race": "Myconid",
+              "classId": "ranger",
+              "level": 1,
+              "xp": 0,
+              "items": [
+                {
+                  "id": "foe-expedition-mv2tviwp-3-11hw4-0-1-gear-0",
+                  "key": "longbow",
+                  "level": 1,
+                  "xp": 0,
+                  "rank": 0,
+                  "rarityTier": 0
+                },
+                {
+                  "id": "foe-expedition-mv2tviwp-3-11hw4-0-1-gear-1",
+                  "key": "quiver",
+                  "level": 1,
+                  "xp": 0,
+                  "rank": 0,
+                  "rarityTier": 0
+                },
+                {
+                  "id": "foe-expedition-mv2tviwp-3-11hw4-0-1-gear-2",
+                  "key": "boots",
+                  "level": 1,
+                  "xp": 0,
+                  "rank": 0,
+                  "rarityTier": 0
+                }
+              ],
+              "extraSlots": [],
+              "deployed": true,
+              "fusion": [],
+              "attributes": [
+                {
+                  "key": "race:Myconid",
+                  "level": 1,
+                  "xp": 0,
+                  "rarityTier": 0
+                }
+              ],
+              "training": {},
+              "bonus": {
+                "hp": 0,
+                "damageScale": 1
+              },
+              "tier": 0,
+              "specialization": null,
+              "lineage": null,
+              "currentHp": null,
+              "battles": 0,
+              "rarityTier": 0,
+              "appearance": {
+                "hue": 200,
+                "hair": 3,
+                "crest": 2,
+                "eyes": 2,
+                "idle": 31
+              },
+              "favorite": false,
+              "bonds": {},
+              "journal": [
+                {
+                  "text": "A new character joined your company.",
+                  "at": 1791662974587
+                }
+              ],
+              "transformations": [],
+              "boss": false,
+              "skills": {
+                "class:ranger": {
+                  "key": "class:ranger",
+                  "level": 1,
+                  "xp": 0,
+                  "rarityTier": 0
+                }
+              },
+              "companion": null,
+              "cosmetic": null,
+              "uncharmable": false
+            },
+            "team": 1,
+            "originTeam": 1,
+            "classId": "ranger",
+            "name": "Savian Silverlight",
+            "vitality": 15,
+            "armor": 2,
+            "strength": 14,
+            "mind": 10,
+            "agility": 13,
+            "endurance": 15,
+            "hp": 150,
+            "attack": 20,
+            "speed": 50,
+            "range": 310,
+            "rate": 1.2065637065637065,
+            "cooldown": 6.249999999999999,
+            "mass": 1.24,
+            "force": 1,
+            "healing": 1.13,
+            "dodge": 0,
+            "flying": false,
+            "ranged": true,
+            "regen": 1,
+            "regenSelf": 0,
+            "knock": 0,
+            "splash": 0,
+            "slow": false,
+            "slowDuration": 2,
+            "magical": false,
+            "maxStamina": 80,
+            "power": 1,
+            "maxHp": 150,
+            "stamina": 80,
+            "x": 1015.4790111107559,
+            "y": 252.84274557838623,
+            "r": 12,
+            "vx": 0,
+            "vy": 0,
+            "facing": -1,
+            "shield": 0,
+            "attackAt": 0.4151777418097481,
+            "abilityAt": 2.197099087014794,
+            "schoolAt": 5,
+            "scrollAt": {},
+            "learnedAt": [],
+            "extraAt": 7,
+            "targetAt": 1.4166666666666665,
+            "pathAt": 1.6281667337287216,
+            "path": [
+              {
+                "x": 996,
+                "y": 252
+              },
+              {
+                "x": 972,
+                "y": 252
+              },
+              {
+                "x": 948,
+                "y": 252
+              },
+              {
+                "x": 924,
+                "y": 252
+              },
+              {
+                "x": 900,
+                "y": 252
+              },
+              {
+                "x": 876,
+                "y": 252
+              },
+              {
+                "x": 852,
+                "y": 252
+              },
+              {
+                "x": 828,
+                "y": 252
+              },
+              {
+                "x": 804,
+                "y": 252
+              },
+              {
+                "x": 780,
+                "y": 252
+              },
+              {
+                "x": 756,
+                "y": 252
+              },
+              {
+                "x": 732,
+                "y": 252
+              },
+              {
+                "x": 708,
+                "y": 252
+              },
+              {
+                "x": 684,
+                "y": 252
+              },
+              {
+                "x": 660,
+                "y": 252
+              },
+              {
+                "x": 636,
+                "y": 252
+              },
+              {
+                "x": 612,
+                "y": 252
+              },
+              {
+                "x": 588,
+                "y": 252
+              },
+              {
+                "x": 564,
+                "y": 252
+              },
+              {
+                "x": 540,
+                "y": 252
+              },
+              {
+                "x": 516,
+                "y": 252
+              },
+              {
+                "x": 492,
+                "y": 252
+              },
+              {
+                "x": 468,
+                "y": 252
+              },
+              {
+                "x": 444,
+                "y": 252
+              },
+              {
+                "x": 420,
+                "y": 252
+              },
+              {
+                "x": 396,
+                "y": 252
+              },
+              {
+                "x": 372,
+                "y": 252
+              },
+              {
+                "x": 348,
+                "y": 252
+              },
+              {
+                "x": 324,
+                "y": 252
+              },
+              {
+                "x": 300,
+                "y": 252
+              },
+              {
+                "x": 276,
+                "y": 252
+              },
+              {
+                "x": 252,
+                "y": 252
+              }
+            ],
+            "dead": false,
+            "stealthUntil": 0,
+            "slowUntil": 0,
+            "buffUntil": 0,
+            "swingUntil": 0,
+            "hitUntil": 0,
+            "expires": null,
+            "buildCount": 0,
+            "damage": 0,
+            "healed": 0,
+            "speechAt": 23.765226434450597,
+            "moving": true,
+            "targetId": 1
+          }
+        ],
+        "projectiles": [],
+        "zones": [],
+        "traps": [],
+        "convertedIds": [],
+        "effects": [],
+        "floats": [],
+        "events": [],
+        "damageDone": {},
+        "healingDone": {},
+        "result": null
+      },
+      "stop": null,
+      "supplies": [],
+      "temporaryParty": [],
+      "placements": []
+    }
+  ],
+  "expeditionCount": 1,
+  "lifetimeEncounters": 0,
+  "bestEncounter": 0,
+  "firstExpedition": false,
+  "selectedExpedition": "expedition-mv2tviwp-3-11hw4",
+  "market": {},
+  "lastClock": 1791547206000,
+  "notifications": []
+}
