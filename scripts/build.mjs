@@ -44,3 +44,8 @@ console.log(
     Object.keys(assets).length +
     " embedded web assets.",
 );
+
+// Ship the same append-only database schema alongside the deployable Worker.
+await cp(resolve(root, "drizzle"), resolve(out, "drizzle"), {
+  recursive: true,
+});

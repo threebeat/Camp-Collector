@@ -1,6 +1,6 @@
 # Vision and open direction
 
-This project is a persistent character collector built around watching automatic battles and bringing a memorable company home. The owner has compared the desired attachment to Pokémon and the automatic team battles to a superhero squad battler. Those references describe the feeling, not a request to copy names, characters, assets or gameplay wholesale.
+Camp Collector is a persistent character collector built around watching automatic battles and bringing a memorable company home. The owner has compared the desired attachment to Pokémon and the automatic team battles to a superhero squad battler. Those references describe the feeling, not a request to copy names, characters, assets or gameplay wholesale.
 
 ## What should guide decisions
 
@@ -30,6 +30,14 @@ These are current product goals and may evolve with the owner. They do not manda
 
 Server saves and an authenticated economy would improve cross-device play, competitive fairness and durable ownership. Timestamp-based authoritative progression or scheduled server simulation are both options; the choice should follow expected scale, cost and required fidelity. Do not introduce heavy infrastructure before the owner knows the problem it solves.
 
-Other useful directions include richer class choices, more distinct companion behavior, camp construction depth, authored encounters, biome-specific movement/projectiles, better map boss silhouettes, deeper relationship interactions, accessibility settings, optional gore controls, stronger asset variety and easier content authoring. A final game name, public sharing policy, license and any monetization model still need owner decisions.
+Other useful directions include richer class choices, more distinct companion behavior, camp construction depth, authored encounters, biome-specific movement/projectiles, better map boss silhouettes, deeper relationship interactions, accessibility settings, optional gore controls, stronger asset variety and easier content authoring. The owner has chosen Camp Collector and permanent-night camp-horror lore. Public game sharing, an open-source license and any monetization model remain undecided.
 
 Balance constants are provisional. Content counts and release snapshots describe what exists now rather than promising a permanent campaign structure. Treat new user feedback as steering, update this document when goals shift, and keep the code/documentation usable by a future human or agent.
+
+## Current visual and agency direction
+
+Permanent night connects the name to campfires and permits a gentle double meaning: comfort at Camp, theatrical horror beyond its glow. Warm parchment keeps decisions readable while darker scenes, violet island signals and expressive original silhouettes establish a retro mood.
+
+Version 0.13 keeps scalable original SVG assets and shared portrait rendering. A wholesale pixel-art conversion is deferred until an art direction is chosen: consistent silhouette sizes, armor layers, mounts, animation frames and ownership/licensing of any outsourced assets need a coherent pass. Existing code-native art remains easy to iterate and clear at phone sizes.
+
+Intermediate agency now comes from Side/NPC quests, gathering profession choices, cooking, meaningful equipment comparisons and a visible distant island goal. These are implemented opportunities, not proof of retention or balanced first-hour pacing. Observe players before increasing the number of systems.

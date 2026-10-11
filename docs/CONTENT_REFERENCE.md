@@ -118,7 +118,7 @@ Each of these keys has its own SVG silhouette. `weaponKind` controls slot compat
 
 ## Other equipment
 
-Armor occupies separate Helmet, Chest or Leg slots. Accessory and tool compatibility is checked against each character.
+Armor occupies separate Head, Chest, Legs and Boots slots. Accessory and tool compatibility is checked against each character.
 
 | ID | Name | Type / weight / position | Effect |
 | --- | --- | --- | --- |
@@ -149,16 +149,22 @@ Armor occupies separate Helmet, Chest or Leg slots. Accessory and tool compatibi
 | light-head | Light hood | armor / light / head | +1 Armor. Light head protection. |
 | light-chest | Light vest | armor / light / chest | +1 Armor. Light chest protection. |
 | light-legs | Light greaves | armor / light / legs | +1 Armor. Light legs protection. |
+| light-boots | Light boots | armor / light / boots | +1 Armor. Light boots protection. |
 | medium-head | Medium hood | armor / medium / head | +2 Armor. Medium head protection. |
 | medium-chest | Medium vest | armor / medium / chest | +2 Armor. Medium chest protection. |
 | medium-legs | Medium greaves | armor / medium / legs | +2 Armor. Medium legs protection. |
+| medium-boots | Medium boots | armor / medium / boots | +2 Armor. Medium boots protection. |
 | heavy-head | Heavy hood | armor / heavy / head | +3 Armor. Heavy head protection. |
 | heavy-chest | Heavy vest | armor / heavy / chest | +3 Armor. Heavy chest protection. |
 | heavy-legs | Heavy greaves | armor / heavy / legs | +3 Armor. Heavy legs protection. |
+| heavy-boots | Heavy boots | armor / heavy / boots | +3 Armor. Heavy boots protection. |
+| light-night-boots | Steps of the Unrung Bell | armor / light / boots | Authored Mythical boots from floor 25. +6 Armor, +4 Agility; the bell-shaped soles glow violet. |
+| medium-night-boots | Steps of the Unrung Bell | armor / medium / boots | Authored Mythical boots from floor 25. +6 Armor, +4 Agility; the bell-shaped soles glow violet. |
+| heavy-night-boots | Steps of the Unrung Bell | armor / heavy / boots | Authored Mythical boots from floor 25. +6 Armor, +4 Agility; the bell-shaped soles glow violet. |
 
 ## Attributes and Talents
 
-Attributes are passive conditions or traits. Talents are learned skills. Both have levels and rarities. Every race also contributes its own racial Attribute, and each trained stat gets a separate training Talent.
+Attributes are passive conditions or traits; Miner, Lumberjack and Hunter are Guildhall Professions. Talents include timed stat training and legacy learned skills. Both have levels and rarities. Every race also contributes its own racial Attribute, and each trained stat gets a separate training Talent.
 
 | Attribute | Effect |
 | --- | --- |
@@ -174,6 +180,9 @@ Attributes are passive conditions or traits. Talents are learned skills. Both ha
 | Shieldbearer | +2 Armor. |
 | Empath | +2 Mind; better at overcoming enemy resolve. |
 | Zombie | Undead body: +4 Vitality, +3 Endurance, 28% slower movement, 25% heavier, and slow self-regeneration. Keeps its original race. |
+| Miner | Mining guild profession. Equip a pickaxe to gather extra stone and ore; occasionally find gems and Obsidian. Ranks I, II and III improve yields. |
+| Lumberjack | Foresters guild profession. Equip an axe to gather extra wood. Ranks I, II and III improve yields. |
+| Hunter | Hunters guild profession. Gather extra ingredients and occasionally hides for crafting armor. Ranks I, II and III improve yields. |
 | Angel | Feathered wings grant flight over water, barricades, and ground obstacles. Ground melee units cannot reach this adventurer. |
 
 | Talent | Effect |
@@ -253,8 +262,7 @@ Later region names appear here for developers; the Crossroads picker only reveal
 | pantry | Pantry | Stock food to halve recovery time after expeditions. | Available initially |
 | training | Training Grounds | Learn a permanent training Talent for one stat. The character stays here until their timed session ends. | 90 gold, 18 wood, 10 stone; roster 4+ |
 | blacksmith | Blacksmith | Improve weapons, choose transformative modifiers, or craft a new Common weapon. | 65 gold, 12 wood, 8 stone |
-| outfitter | Outfitter | Unlock more equipment slots, up to eight per character. | 90 gold, 15 wood, 12 stone |
-| kitchen | Kitchen | Cook gathered ingredients into food or expedition supplies. | 120 gold, 22 wood, 16 stone |
+| kitchen | Kitchen | Upgrade the Pantry into a Kitchen. Stock food, cook six meals efficiently, and choose ingredients for expedition dishes. | 90 gold, 18 wood, 12 stone |
 | alchemist | Alchemist | Combine gems, transmute them, and brew consumables. | 160 gold, 20 wood, 24 stone, 8 ore |
 | bonfire | Bonfire | Spend class points or transform armor and companions. | Available initially |
 | crossroads | Crossroads | Open the regional road map and plan a journey. | Available initially |
@@ -262,6 +270,8 @@ Later region names appear here for developers; the Crossroads picker only reveal
 | cabins | Cabins | Each cabin adds room for 20 adventurers. Your Camp starts with capacity for 20. | 140 gold, 24 wood, 12 stone; expansion: west |
 | garden | Herb garden | Harvest herbs for your Kitchen and Alchemist every five minutes, up to 12 stored herbs. | 100 gold, 16 wood, 8 stone; expansion: south |
 | archaeology | Archaeology Camp | Hatch dinosaur eggs and grow companions from fossils. Requires any repaired Camp expansion. | 180 gold, 20 wood, 30 stone, 6 ore; expansion: any |
+| armory | Equipment Workshop | Buy, craft, sell and transform armor and equipment. Weapon work is also available at the Blacksmith. | 90 gold, 15 wood, 12 stone |
+| dock | Lantern Dock | Meet Legendary travelers, with occasional Mythicals, and sail to the island's 25-floor dungeon. | 400 gold, 50 wood, 25 stone, 10 ore; expansion: south |
 
 ## Weapon modifiers
 

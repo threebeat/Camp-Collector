@@ -41,9 +41,19 @@ async function start(page, funded = false) {
 }
 const modal = (page) => page.locator("#modal");
 async function close(page) {
-  if (await modal(page).isVisible())
-    await modal(page).locator("[data-close]").first().click();
+  if (await modal(page).isVisible()) {
+    try {
+      await modal(page)
+        .locator("[data-close]:visible")
+        .first()
+        .click({ timeout: 1500 });
+    } catch (error) {
+      if (await modal(page).isVisible()) throw error;
+    }
+  }
+  await expect(modal(page)).not.toBeVisible();
 }
+
 async function market(page) {
   await page.locator("[data-market-visit]").first().click();
   await modal(page).locator("#confirm-market-visit").click();
@@ -129,13 +139,13 @@ test("Market districts, guild lessons, NPC stories, item comparisons and clinic"
   await modal(page).locator('[data-profession="Miner"]').click();
   await expect(modal(page)).toContainText("Miner II");
   await close(page);
-  await page.locator('[data-market-district="square"]').click();
+  await page.locator('[data-market-district="square"]:visible').click();
   await page.locator('[data-market-district="board"]').click();
   await page.locator('[data-district-open="board"]').click();
   await modal(page).locator('[data-accept-quest="guild-initiate"]').click();
   await expect(modal(page)).toContainText("Claim reward");
   await close(page);
-  await page.locator('[data-market-district="square"]').click();
+  await page.locator('[data-market-district="square"]:visible').click();
   await page
     .locator("[data-neutral]")
     .filter({ has: page.locator(".npc-marker.quest") })

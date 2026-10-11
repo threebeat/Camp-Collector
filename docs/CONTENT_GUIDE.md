@@ -34,7 +34,7 @@ Class trees are built from the class callings and shared node helpers. A chosen 
 
 `ATTRIBUTES` describe passive conditions, racial flavor or supernatural changes. `TALENTS` describe learned skills; stat training creates `training:<stat>` Talents. Every facet stores a key, level and XP, with rarity derived from progression. Mechanical scaling is implemented by `facetScale()`, `trainingBonus()` and the relevant engine/stat helpers.
 
-For a new Attribute, consider both its numeric behavior and visible effect: wings, eye shapes, aura, smoke, colors or silhouette changes can make the collection readable. For a Talent that unlocks a tool slot, include its slot and acquisition capsule, ensure the eight-slot cap is respected, and verify the gathering/effect requires appropriate equipment. Miner and Lumberjack are Talents; they do not replace a character's battle class.
+For a new Attribute, consider both its numeric behavior and visible effect: wings, eye shapes, aura, smoke, colors or silhouette changes can make the collection readable. Miner, Lumberjack and Hunter are Profession Attributes taught at the Guildhall. Legacy gathering Talents are preserved for compatibility. Tool-slot metadata is shared, deduplicated and checked against the eight-slot cap. A new profession needs lesson costs/ranks, gathering behavior, tool acquisition if relevant, UI text and snapshot validation; do not reintroduce purchasable Attribute capsules. Professions preserve the battle class.
 
 ## Weapons and other equipment
 
@@ -42,7 +42,7 @@ For a new Attribute, consider both its numeric behavior and visible effect: wing
 
 `weaponShape()` uses the base path, finish and optional engraving. `weaponPresentation()` adds cosmetic finish and authored theme; `modifiersArt()` adds shared modifier signatures. The resulting art is used on item cards and in the character's hand. Add the identity to the stat/item model and both rendering paths through shared helpers rather than adding a disconnected thumbnail.
 
-Weapon compatibility combines equipment `type`, `weaponKind`, the slot's permitted families, minimum Strength, restricted classes and any magical-only rule. Spell scrolls require a Scroll slot and a magic class. Armor uses separate `armorSlot`/`weight` checks; Celestials have no Helmet slot. Basic armor remains distinct from the eight extensible equipment slots.
+Weapon compatibility combines equipment `type`, `weaponKind`, the slot's permitted families, minimum Strength, restricted classes and any magical-only rule. Spell scrolls require a Scroll slot and a magic class. Armor uses separate `armorSlot`/`weight` checks; Celestials have no Head slot. Four armor slots are Head, Chest, Legs and Boots; implement distinct icon and worn-art shapes together. Basic armor remains distinct from the eight extensible equipment slots.
 
 Level raises numeric potency/rarity. The timed Blacksmith improvement rank is another multiplier. A transformation unlocks a modifier category and changes presentation; it does not replace identity or discard XP. Never use an authored Mythical base in ordinary loot/Market/forge pools unless that is an intentional new acquisition decision.
 
@@ -66,7 +66,7 @@ Cosmetic pet guises preserve the mechanical companion key, including mount behav
 
 `MYTHICAL_HEROES` and `MYTHICAL_WEAPONS` define specific themed identities. Their factories construct legal canonical equipment/attributes. The gem Shop references these factories; challenge sanitization checks their allowed identity. Current themes are a solar sentinel, a storm traveler and a brass reactor guardian, with original names/art rather than copied commercial characters.
 
-For a Mythical, author a coherent silhouette, colors, signature gear and meaningful play style. A numeric rarity flag on a random ordinary character is not the intended experience. New pets or armor could gain authored Mythical identities later, but no dedicated catalog of them exists yet.
+For a Mythical, author a coherent silhouette, colors, signature gear and meaningful play style. A numeric rarity flag on a random ordinary character is not the intended experience. The island now awards authored Mythical bell-themed Boots in each armor weight, once per Camp. These bases must stay out of ordinary loot, Market and crafting pools.
 
 Cosmetic definitions distinguish character palettes, full-body `character` guises, `weapon` skins with allowed families and `pet` guises. Provide `cosmeticSvg()`/Atelier previews and a clear description before purchase. `applyCosmetic()` validates ownership, target identity and compatibility. Cosmetics currently remain local-owned; server-proof ownership is future economy work.
 

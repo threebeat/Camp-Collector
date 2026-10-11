@@ -1,91 +1,57 @@
-# Development and handoff
+# Development and publishing
 
-## Files and setup
+## Local workflow
 
-Clone the source or unpack the source ZIP, then use Node.js 24+ and `npm ci`. This installs only the native canvas development dependency; the game does not load it in a player's browser. The lockfile is committed. No `.env` values or production credentials are needed for local tests.
+Clone `https://github.com/threebeat/Camp-Collector.git`, use Node.js 24+, and run `npm ci`. Development dependencies are pinned: native canvas for art/test rendering, esbuild for the Worker, Playwright for browser checks and Prettier for readable source.
 
-```bash
-npm run dev
-```
+`npm run dev` builds and serves at `http://127.0.0.1:4173`. The local adapter applies SQL migrations once to `.local/camp.sqlite` and supplies the development board identity `local-developer`. It is not production authentication. Set `CAMP_DEV_PORT` to change the port; rebuild and restart after editing. Stop with Ctrl+C.
 
-The local Node adapter builds then serves `dist/server/index.js` at `http://127.0.0.1:4173`. Set `CAMP_DEV_PORT` to use another port. It automatically applies numbered SQL migrations once to `.local/camp.sqlite` and provides a SQLite-backed D1-compatible adapter. It injects the identity `local-developer` so the challenge board works locally. This is **local development**, not a production authentication implementation. Rebuild/restart after changing files. Stop with Ctrl+C.
+Personal Camps are stored in that browser/origin, separately from SQLite challenge data. No `.env` values or production tokens are needed for local checks. In a managed Sites agent environment, obey its supported preview/browser workflow; CI browser testing does not require starting a local preview in that environment.
 
-The browser's personal Camp save is separate from the board database. A second browser profile/origin creates another local Camp; the default adapter still represents one board identity. Use unit/integration tests for multiple-account races. A real multi-account manual test requires hosted identity or a deliberately configured development identity flow.
+## Checks and pipelines
 
-`node scripts/dev.mjs` assumes the build already exists. `node --check scripts/dev.mjs` checks syntax without starting a server. In a managed Sites execution environment, use its prescribed preview/browser workflow; do not improvise a new preview server when that environment disallows it.
-
-## Checks
-
-```bash
-npm test
-npm run build
-npm run validate
-node scripts/art-contact-sheet.mjs
+```sh
+npm run check
 node scripts/generate-content-reference.mjs
+node scripts/art-contact-sheet.mjs
+npx playwright install --with-deps chromium webkit
+npm run test:e2e
 ```
 
-| Check | What it proves | What it does not prove |
-| --- | --- | --- |
-| Node test suite | Model rules, caps/costs, serialization, real worker transport, DOM interactions, SQLite challenge transactions and reset behavior | Real browser layout, phone ergonomics or long-term balance |
-| Build | The current source becomes an embedded Worker artifact | Live database health or deployment completion |
-| Artifact validation | The actual built Worker imports and serves its assets/API routes with expected bindings/auth | End-to-end hosted user behavior |
-| Native asset sheets | SVG assets load and can be inspected together | CSS animation timing or responsive layouts |
-| Content reference generation | Current definitions become searchable tables | The definitions are balanced or every prose claim is mechanically correct |
+The `Game checks` workflow runs on main pushes, pull requests and manual dispatch. Independent jobs cover model/integration tests plus built-artifact validation, and desktop/Android/iPhone browser scenarios. Concurrent updates cancel older runs. Jobs have time limits, read-only repository permissions, a locked dependency install and 14-day artifact retention.
 
-The connected-interface test uses a small DOM emulator and native canvas. It exercises real application commands and service flows, but has no browser layout engine. Output images are under the OS temp directory. The art script writes ignored `artifacts/` by default. GitHub Actions uses Node 24 and runs tests/build/validation on pushes and pull requests.
+| Check | Evidence |
+| --- | --- |
+| 142 Node tests | Combat, service costs/restrictions, worker transport, save/checkpoint migration, UI command flows and challenge transactions |
+| Build + validation | The actual bundled ESM Worker serves embedded assets, routes and the expected auth/storage contract |
+| Playwright | Desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit emulation; live Worker transport, naming, memory/reload, class/race sheets, districts, professions, quests, comparisons, clinic, storage, upgrades, crafting, lakeshore and reduced motion |
+| Screenshots/report | Every browser project saves scene snapshots; failures retain screenshots, DOM context and traces in `browser-report` |
+| Native art sheets | SVG validity and consistent shared equipment/race/map artwork; these do not prove browser layout |
 
-For manual QA, prioritize a fresh phone portrait Camp, naming, selection/deselection, service sheets, touch drag/drop, Market filters, Crossroads fitted/zoomed map, route/difficulty comparison, party supplies, battle countdown/AUTO/results, ability explanations and background/reload behavior. Include reduced motion, slow connections and a full roster.
+Real physical-device testing, hosted multi-account behavior and long-term retention/balance remain separate work. See [QA.md](QA.md).
 
-## Source and content edits
+## Implementation boundaries
 
-Keep mutable gameplay state in simulation/model commands rather than directly modifying the view snapshot. `web/app.js` should dispatch actions and render responses. Content definitions often have overlays later in `data.js`; inspect the final exported object, not only its first literal. Update canonical restrictions and challenge sanitization when adding new equipment, modifiers or identity flags.
+Dispatch changes through `web/simulation.js`; do not mutate view snapshots. Night-world services and sheets live in `nightfall.js` / `nightfall-ui.js`. Canonical definitions still live in the existing content modules. Compatibility must agree across storage choices, equipping, crafting, loot, art, saved records and `worker/api.js` challenge sanitization.
 
-The cache query currently uses `?v=12` throughout the ES module graph. Change it coherently if a release needs new asset URLs. The save `version` and `season` are separate concepts: an ordinary release should migrate current player records, not erase them merely because the asset version changes.
+`scripts/build.mjs` uses esbuild to resolve the Worker module graph and embeds native browser modules/CSS into the asset map. `dist/` is generated and ignored. The `camp-collector-worker` CI artifact contains the built Worker, manifest and append-only database migration files. CI does not itself change the production Site.
 
-`scripts/build.mjs` is a narrow import-stripping concatenation build for known backend modules. Keep it valid or replace it deliberately with a more robust approach; do not assume newly imported backend files are included automatically. Do not edit generated `dist/` as source.
+Asset queries use `?v=13`; save version/key remain 12. Changing asset cache URLs never authorizes deleting progress. The current version-12 season is `camp-fresh-2026-10-11` and the key is `camp-collector-v12`. Version 0.13 adds backward-compatible fields and an empty Boots slot. Existing paid Outfitter construction becomes the Equipment Workshop.
 
-## Hosted publishing
+## Production deployment
 
-The existing project is identified in `.openai/hosting.json`: `appgprj_6ac836008248819185e27fe6a5051fd1`. Its private URL is [camp-collector.johnmoore2048.chatgpt.site](https://camp-collector.johnmoore2048.chatgpt.site), with `DB` D1 and no R2 binding. Preserve the site, source origin and audience unless the owner asks to change them. The local checkout directory's historical name is not the current brand.
+The existing owner-private Site is bound by `.openai/hosting.json`, project `appgprj_6ac836008248819185e27fe6a5051fd1`, with `DB` D1 and no R2. Its URL is `https://camp-collector.johnmoore2048.chatgpt.site`. Preserve that audience, project and configured source origin unless the owner directs a change.
 
-In a Sites-enabled agent session, read the Sites skill, open the existing source using its helper, build/test/validate, push the exact source state through the source/package helper, and publish that verified commit/archive using the matching audience operation. Retain deployment IDs on nonterminal responses and check until success or a reported failure. Never expose or commit a short-lived source credential, private access bypass token or account secret. `.openai/hosting.json` contains a project binding, not an authentication token.
+In a Sites-enabled session, use the existing-source helper to open the checkout, run the remaining ordered checks/builds, and commit/push/package the exact source. Deploy the returned commit/archive with the matching private operation. Retain saved/deployment IDs, and poll only while nonterminal. Never expose a short-lived source credential. A project ID is a binding, not a token.
 
-Running `npm run build` locally does not deploy anything. Running the game on another hosting provider would require an intentional equivalent of the authenticated identity boundary, database binding and migrations; the present docs do not claim a one-command production deployment elsewhere.
+GitHub Actions automatically verifies and packages every change. Production publication remains an authenticated Sites operation; no fake automatic deployment or unconfigured secret-dependent workflow is presented as working. The two repositories retain matching source snapshots, although their import/commit history SHAs differ. Do not replace the Sites origin with GitHub merely to align them.
 
-## GitHub transfer
+Deploying elsewhere requires an equivalent trusted identity boundary, D1-compatible database binding and migrations. `npm run build` alone does not deploy or provide authentication.
 
-At this release the connected account is `threebeat`, but the connector can write only to an **existing accessible repository**; it exposes no repository-creation operation. `threebeat/camp-collector` was not accessible/found during preparation. No GitHub repository or upload should be reported as completed until verified.
+## Recovery, migrations and releases
 
-For connector transfer, the owner can create a private repository named `camp-collector`, initialize it with a README, and allow the connected app access to it. A later agent can obtain its current branch/tree, upload all tracked source/docs/configuration files as a tree/commit, advance the branch and verify representative files and checks. The prepared source ZIP contains the complete current snapshot. A Git bundle additionally preserves source history for Git workflows. Do not upload `node_modules`, `dist`, `.local`, real saves, `.env`, credentials or ephemeral tool state.
+`archives/v12-source-history.bundle` preserves the original history. See [SOURCE_TRANSFER.md](SOURCE_TRANSFER.md) for ordinary Git recovery. GitHub contains the current complete source; dependencies, runtime state, production credentials and real player saves are excluded.
 
-For ordinary Git, an **empty** private repository is simplest. In an existing checkout:
+The old v12 reset was explicitly authorized at that time. `drizzle/0001_fresh_camps.sql` is already applied to the existing Site and must not be edited/reused as a new wipe. All SQL migrations are append-only. Version 0.13 introduces no database migration and no reset. Code rollback does not undo a destructive database migration.
 
-```bash
-git remote add github https://github.com/threebeat/camp-collector.git
-git push github main
-```
-
-Authenticate through GitHub's normal credential flow. Keep the existing Sites remote as the deployment origin. Do not force-push over an initialized/nonempty repository: fetch it and intentionally merge/import, or use a new branch/PR. The owner may choose a different repository name; update links/status after transfer.
-
-To reconstruct the supplied Git bundle without an AI agent:
-
-```bash
-git clone camp-collector-history.bundle camp-collector
-cd camp-collector
-git remote rename origin archive
-git remote add github https://github.com/threebeat/camp-collector.git
-npm ci
-npm test
-```
-
-Then push to the chosen empty target or merge an initialized target deliberately. The ZIP also works without history: unzip, `npm ci`, `npm run dev`. Neither archive includes a Git credential. No open-source license is selected; keep the repository private until the owner decides otherwise.
-
-## Reset procedure and rollback implications
-
-Version 12 is an explicitly requested destructive fresh-season release. Its browser key is `camp-collector-v12`, season `camp-fresh-2026-10-11`. The client removes known earlier keys, validation rejects prior versions/seasons, and imported old backups cannot reverse the reset. Active old parties, collections, Camp construction and currency therefore do not carry forward.
-
-`drizzle/0001_fresh_camps.sql` drops/recreates the three shared challenge tables, clearing offers, matches and payouts. The migration journal appends it; `0000_challenges.sql` remains immutable. Test data demonstrates the migration removes old rows and leaves usable tables. Sites applies committed migrations before the new Worker is uploaded. Old clients' board requests get a season-mismatch response and must reload.
-
-This reset does not delete code history, account identities or hosting credentials. Personal progress was browser-local, so its old data is removed/rejected when that browser loads the new client; there is no central personal-account save table to clear. A previously closed browser will reset when it returns. The database wipe is not undone by merely rolling back code. Never add another wipe, change this season or reuse this destructive migration without a new explicit owner instruction.
-
-Future save changes should preserve IDs, names, favorites, equipment, journals, bonds, earned rewards and active-party checkpoints, or define a reviewed migration explaining each intentional change. Keep database migrations append-only. Tests should check real old→new data transitions when migration is supported.
+Preserve IDs, names, favorites, journals, bonds, belongings, claims and active-party checkpoints. Use focused tests for genuine behavior changes. Record observed browser results separately from assumed physical-device behavior. Before release, update current-game rules, release notes, generated reference and the next-agent handoff.

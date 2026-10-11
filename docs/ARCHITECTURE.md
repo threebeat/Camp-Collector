@@ -1,6 +1,6 @@
 # Architecture
 
-This describes the implementation at version 0.12.0. It is a map of the present code, not a commitment to keep its boundaries or technology forever.
+This describes the implementation at version 0.13.0. It is a map of the present code, not a commitment to keep its boundaries or technology forever.
 
 ## Runtime boundaries
 
@@ -18,7 +18,8 @@ The hosted backend is an ESM Worker. It serves embedded web assets and the authe
 | Combat model | `web/engine.js` | Movement, targeting, collision, abilities, projectiles, terrain, effects, recruitment and serialization |
 | Time and commands | `web/simulation.js` | State within one browser session, fixed steps, concurrent parties, catch-up, observation and action dispatch |
 | Worker transport | `web/expedition-worker.js`, `web/client.js` | Messages, responses, fallback simulation and local save checkpoints |
-| Interface | `web/app.js`, `web/index.html`, `web/styles.css` | Navigation, Camp/Market scenes, route selection, services, character inspector and battle controls |
+| Night-world commands/screens | `web/nightfall.js`, `web/nightfall-ui.js` | Professions, visitors, armor crafting/comparison, save additions, profile/district sheets and island configuration |
+| Interface | `web/app.js`, `web/index.html`, `web/styles.css`, `web/nightfall.css` | Navigation, Camp/Market scenes, route selection, services, character inspector and battle controls |
 | Presentation | `web/art.js`, `web/landmarks.js`, `web/renderer.js`, `web/chatter.js`, `web/map-interaction.js` | SVG art, geography, canvas scenes, occasional dialogue and pointer-based drag/drop |
 | Explanations and backups | `web/codex.js`, `web/saves.js` | Searchable mechanical/lore content, backup export and validated import |
 | Hosted API | `worker/api.js`, `worker/index.js` | Challenge identity, snapshots, offers, atomic results, payouts, assets and health |
@@ -60,10 +61,20 @@ These guards make the board functional, but do not prove the caller actually ear
 
 ## Build and deployment
 
-`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and combines the shared definitions, battle engine and backend into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. The concatenation build strips single-line imports/exports from a known module list; introducing another backend dependency or complex module syntax may require changing the build.
+`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=13` cache URLs. Generated output is excluded from source control.
 
 The hosting manifest binds the existing Sites project with `d1: 'DB'` and no R2 bucket. Sites applies committed `drizzle/` migrations before uploading the Worker. The original source origin and owner-private audience must be preserved when publishing unless the owner directs otherwise. A separate GitHub remote can coexist; it is not a replacement deployment ID.
 
 ## Areas to revisit
 
-The broad `data.js`, `progression.js` and `app.js` files have accumulated content overlays and retained historical mechanics. Extracting smaller modules and separating current generation from compatibility handling would help, provided saves, content IDs and UI behaviors remain covered. Cross-device persistence, server-backed offline progression, competitive integrity, phone layout testing and economy balance are the largest practical gaps. Alternatives are welcome; no framework migration or permanent backend shape is mandated.
+The broad `data.js`, `progression.js` and `app.js` files have accumulated content overlays and retained historical mechanics. Extracting smaller modules and separating current generation from compatibility handling would help, provided saves, content IDs and UI behaviors remain covered. Cross-device persistence, server-backed offline progression, competitive integrity, physical-device testing and economy balance remain practical gaps. Alternatives are welcome; no framework migration or permanent backend shape is mandated.
+
+## Version 0.13 state additions
+
+The save schema stays at version 12 and the same season/key. `normalizeNightfall()` appends empty Boots slots to owned and checkpoint heroes, migrates paid Outfitter construction into the Equipment Workshop, supplies new fields and removes obsolete Attribute purchase stock. IDs, existing slots, journals, bonds, claims and active battle time remain intact. No SQL migration or fresh-season change was introduced.
+
+New state includes accepted Side quest IDs, frozen generated contracts, service counters, per-slot seen inventory IDs, deterministic visitor epochs/receipts and deepest island floor. Visitors use a three-hour seeded cycle; hiring consumes the exact arrival once. Main quests remain a single ordered chain. Accepted contracts store a numeric encounter target instead of serializing a function.
+
+Profession slots count together with legacy gathering Talents, deduplicated by key, before enforcing the eight-slot maximum. Snapshot sanitization handles both representations. New authored Mythical armor is excluded from normal item generation and crafting, and accepted canonically by challenge snapshots.
+
+UI sheets dispatch through the existing simulation boundary. Model restrictions remain authoritative within the local simulation; views only present available choices. Browser-local ownership is still not a server-authoritative economy.

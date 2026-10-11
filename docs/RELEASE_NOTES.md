@@ -1,3 +1,22 @@
+# Release notes
+
+## 0.13.0 — The long night
+
+The owner chose Camp Collector and permanent-night lore. Existing v12 saves are preserved; no new season or SQL wipe is introduced.
+
+- Detailed tent profiles support companions, friends, memories, growth and ordinary character care. The smaller inspector has friendly/enemy/neutral gradients and click-through race/class foundations/trees.
+- The Market gains districts, Profession Guilds, a moved Outfitter, an Attribute-removal clinic, stable neutral wanderers, Mara's scripted quest and the Night Watch challenger.
+- Professions have three ranks, real gathering bonuses, dedicated tools and rare-resource chances. Attributes are removed from direct purchase and generic granting.
+- Armor has Head, Chest, Legs and Boots, distinct worn/card art, shared rarity/modifiers/transformation and authored Mythical island boots. Storage and shopping use compatible-character comparison sheets; slots flag new inventory instances.
+- The Equipment Workshop crafts armor and offers trading/transformation. Kitchen upgrades replace the Pantry in place, retaining food shopping and adding efficient meals and ingredient dishes.
+- One Main and two starter Side quests create early choices. The Market Board offers additional Side quests and generated daily patrols with frozen accepted objectives and once-only rewards.
+- The south lakeshore and visible violet island connect geography to a built Lantern Dock, Legendary/occasional authored Mythical arrivals and 25 playable dungeon floors with five guardians.
+- The Worker uses esbuild rather than import-stripping concatenation. GitHub has the complete source and preserved v12 history. Current Actions run Node checks, desktop/Android/iPhone browser flows and artifact packaging; production publication remains a verified private Sites operation.
+
+Verification: 142 Node tests, build and artifact validation pass. Browser CI results and physical-device limits are recorded in QA.md. Native SVG contact sheets were regenerated and the island marker was moved into the visible forest map.
+
+Personal saves and economy remain browser-local. Authoritative cross-device saves, multi-device conflicts and competitive ownership are still future work.
+
 # Version 0.12.0 · Fresh Camps
 
 Prepared on 2026-10-11 after implementing the owner's latest change request. This is a new season, not a routine save-compatible update.

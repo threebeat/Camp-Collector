@@ -3,12 +3,12 @@ export const MATERIALS = {
   wood: {
     name: "Wood",
     icon: "leaf",
-    text: "Builds Camp structures. The Lumberjack Talent gathers extra wood with an axe.",
+    text: "Builds Camp structures. The Lumberjack Profession gathers extra wood with an axe.",
   },
   stone: {
     name: "Stone",
     icon: "stone",
-    text: "Foundations and Camp construction. The Miner Talent gathers extra stone with a pickaxe.",
+    text: "Foundations and Camp construction. The Miner Profession gathers extra stone with a pickaxe.",
   },
   ore: { name: "Ore", icon: "ore", text: "Sharpening and advanced metalwork." },
   herbs: {

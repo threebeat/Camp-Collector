@@ -1,51 +1,46 @@
-# Camp Collector · 0.12.0
+# Camp Collector
 
-A browser character collector with automatic battles, a living Camp, branching journeys, companions and an evolving equipment collection. **Camp Collector is a repository label, not a chosen game title.** The interface uses the player's Camp name. The owner has rejected Frutiger Fighters, Wayward Company and Little Legends; the final brand remains open.
+The sun never returned. Campfires keep a small company alive, and something beyond the lanterns keeps collecting names.
 
-The private test build is [here](https://camp-collector.johnmoore2048.chatgpt.site). Its sharing policy is unchanged. This source can also run locally without ChatGPT or an AI agent.
+Camp Collector is a browser character collector and automatic squad battler, designed for desktop and phone portrait screens. Build a home, recruit distinctive adventurers, choose their equipment and callings, and bring them back through the dark.
 
-## Run it yourself
+[Play the private game](https://camp-collector.johnmoore2048.chatgpt.site) · [Game checks](https://github.com/threebeat/Camp-Collector/actions) · [Current rules](docs/CURRENT_GAME.md)
 
-Use Node.js 24 or later. From this directory:
+## Run it
 
-```bash
+Use Node.js 24 or newer:
+
+```sh
+git clone https://github.com/threebeat/Camp-Collector.git
+cd Camp-Collector
 npm ci
 npm run dev
 ```
 
-Open `http://127.0.0.1:4173`. The local adapter serves the built application and uses `.local/camp.sqlite` for the challenge board, with a development-only identity. Rebuild and restart after changing source. `CAMP_DEV_PORT` changes the port. Your personal Camp is saved in this browser; use the in-game backup controls to move a current-season save.
+Open `http://127.0.0.1:4173`. Local development uses SQLite and a local test identity; no production credentials are required. Stop with Ctrl+C. Rebuild and restart after source edits.
 
-```bash
-npm test
-npm run build
-npm run validate
+```sh
+npm run check
+npx playwright install --with-deps chromium webkit
+npm run test:e2e
 ```
 
-No production secrets are required for these commands. GitHub Actions runs the same checks. `node scripts/art-contact-sheet.mjs` produces asset sheets under ignored `artifacts/`; it does not test browser layouts.
+The browser suite covers desktop Chromium, Android Chromium and iPhone WebKit emulation. GitHub Actions runs both pipelines on main pushes and pull requests, and retains the built Worker and browser reports. See [DEVELOPMENT.md](docs/DEVELOPMENT.md) for environment details and [QA.md](docs/QA.md) for verification limits.
 
-## Read the project
+## Version 0.13
 
-| Document | What it explains |
-| --- | --- |
-| [Current game](docs/CURRENT_GAME.md) | Player flow, services, progression, combat and reward rules |
-| [Architecture](docs/ARCHITECTURE.md) | Browser, simulation worker, backend, saves and module responsibilities |
-| [Content guide](docs/CONTENT_GUIDE.md) | Adding races, classes, weapons, traits, companions and maps |
-| [Content reference](docs/CONTENT_REFERENCE.md) | Current inventories, baseline stats, slots and modifier effects |
-| [Vision](docs/VISION.md) | Product goals, open questions and room to change direction |
-| [Development](docs/DEVELOPMENT.md) | Local work, tests, deployment, GitHub import and reset procedure |
-| [Release notes](docs/RELEASE_NOTES.md) | Changes and verification for the fresh-Camp release |
-| [Next agent prompt](docs/NEXT_AGENT_PROMPT.md) | A reusable, implementation-aware handoff |
+- Permanent-night Camp and Market scenes with warm parchment service sheets.
+- Detailed tent profiles: companions, friends, memories and growth. Click a class or race for its real foundations, slots and calling tree.
+- Guildhall professions I–III, wandering recruits, scripted NPC stories and red-marked challengers.
+- Four armor slots, comparison sheets, storage-to-character equipping and compatible-item notification dots.
+- Pantry-to-Kitchen upgrades, ingredient dishes, an Equipment Workshop and a Market Outfitter/Attribute clinic.
+- One main quest and two starter side quests, plus accepted daily patrol contracts.
+- A south lakeshore, Legendary and occasional authored Mythical arrivals, and a playable 25-floor island descent.
 
-Start with `web/data.js`, `web/progression.js`, `web/simulation.js` and `web/engine.js` for the game model. `web/app.js` renders the interface. `worker/api.js` handles shared player challenges. No framework or generated image service is required at runtime; visual assets are SVG and canvas code.
+This release migrates existing v12 Camps without resetting progress. Personal saves and economy are still browser-local; the Worker handles open-page progression and reconstructs missed time at 1×. Cross-device saves and authoritative competitive ownership remain future work.
 
-## Fresh season and current limits
+## Continue development
 
-Version 12 intentionally resets all earlier progress. The new season is `camp-fresh-2026-10-11`, with browser key `camp-collector-v12`. Old saves and backups are rejected. The appended database migration also clears the old shared challenge board and payouts. This reset was explicitly requested by the owner; future releases should preserve player progress unless another reset is requested.
+Read [CURRENT_GAME](docs/CURRENT_GAME.md), [ARCHITECTURE](docs/ARCHITECTURE.md), [CONTENT_GUIDE](docs/CONTENT_GUIDE.md), [VISION](docs/VISION.md), [DEVELOPMENT](docs/DEVELOPMENT.md), [RELEASE_NOTES](docs/RELEASE_NOTES.md) and the generated [CONTENT_REFERENCE](docs/CONTENT_REFERENCE.md). The updated [next-agent handoff](docs/NEXT_AGENT_PROMPT.md) lists decisions and remaining work.
 
-Expeditions run in a browser Web Worker and reconstruct elapsed time at 1× after a suspended or closed page is reopened. There is no continuously running server expedition scheduler or cross-device Camp save yet. The shared challenge board is server-backed, but the underlying economy and owned collection are browser-local and cannot provide strong anti-cheat guarantees. Real phone/browser layout QA is still needed; automated interaction checks use DOM emulation.
-
-## Ownership and repository status
-
-This is a private project. No open-source license has been chosen. The owner should choose a license before public distribution.
-
-The existing Sites source repository remains the deployment origin. The connected GitHub account is `threebeat`; no repository-creation operation was available during this release. The intended private GitHub repository is `threebeat/camp-collector`, pending creation and code transfer. Do not claim that transfer is complete until the repository can be opened and its committed files are verified. The [development guide](docs/DEVELOPMENT.md#github-transfer) explains both connector upload and ordinary Git workflows.
+[Source recovery](docs/SOURCE_TRANSFER.md) explains the preserved v12 Git history. The existing private Site identity and append-only database migrations are retained. Source is public in the owner-supplied repository; the game remains private. An open-source license has not been selected.
