@@ -13,7 +13,7 @@ The owner renamed the game/repository and made permanent night the core world me
 - UTC Daily Battle month calendar and twelve themed Shop collections with once-only monthly appearance ownership.
 - Consolidated Codex pages and five class points alternating talent/subclass/talent/subclass/talent, while preserving learned branch IDs. Equipment transformations retain their separate thresholds.
 
-Verification: 157 local Node tests plus bundled build/artifact validation pass. The expanded remote browser workflow and its result are recorded in QA.md. GitHub pipelines verify/package changes; production publishing uses the authenticated Sites operation.
+Verification: 157 local Node tests plus bundled build/artifact validation pass. All 21 remote browser scenarios passed across desktop, Android and iPhone emulation; run evidence is recorded in QA.md. GitHub pipelines verify/package changes; production publishing uses the authenticated Sites operation.
 
 Previous recommendations on bundling, source recovery, player agency/profiles/content and automated phone-layout checks were reviewed and addressed. Physical devices, retention/economy tuning, cross-device saves, conflict handling and authoritative ownership remain future work. Personal saves/economy stay browser-local; offline battle time reconstructs on return.
 

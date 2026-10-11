@@ -6,7 +6,7 @@ The local suite passes **157 Node tests**, followed by build and bundled Worker 
 
 The browser pipeline now contains **21 scenarios**: seven flows across desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit emulation. It exercises the three-page opening, naming, four Camp metrics, tutorial placement/Skip/settings, saved profiles, all new district maps, eight guild booths, lessons/standing/shops, Tavern hiring, Quest organization, compatible light equipping, alternating class choices, global difficulty, chosen portals, calendar state, monthly collections, Arena stake deduction, reduced motion and horizontal fit. Screenshots and failure traces are retained in `browser-report`.
 
-Browser run evidence will be recorded after the remote workflow finishes. Local DOM/native canvas tests establish model/command/render behavior; they do not establish actual browser layout.
+All 21 browser scenarios passed without retries in [Game checks run 38171105838](https://github.com/threebeat/Evernight/actions/runs/38171105838), source commit `e144cd8a3317b54c469d05e1374d773b3964245f`. Both jobs succeeded: the 157-test model/artifact job and browser job. The browser run took 1.2 minutes; its reports include scene screenshots. Local DOM/native canvas tests provide additional model/command/render evidence.
 
 ## Prior release evidence
 
