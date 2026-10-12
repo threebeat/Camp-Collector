@@ -1,5 +1,17 @@
 # Release notes
 
+## 0.2.0 — A growing home
+
+- Reused terrain and stable sprite/light caches, interpolated units/projectiles, cached viewport measurements and updated observation controls without replacing the screen.
+- Added smooth party-bounds combat zoom, Focus/free view, two-axis drag, pinch, wheel and keyboard camera controls.
+- Rebuilt Camp as a large forest clearing with paths, a south lake and progressively revealed shadowed plots. Camp expansion arrows are removed.
+- Strengthened the bonfire, added flicker/embers and world-space building/resident shadows. Heroes emit no innate light.
+- Replaced the neighboring town with a constructed four-vendor Camp Market. Camp now houses guild, recruiting, Clinic, Quest, slot, creation and appearance services.
+- Upgraded the tent into a cabin in place, preserving legacy capacity and adding twenty spaces per further upgrade.
+- Collapsed phone Camp details, simplified primary navigation, and prevented inspectors on Crossroads/party assembly. Explicit combat inspection remains a small inline card.
+
+Save schema/key/season, owned records, checkpoints, Site URL/audience and database history are preserved. Local model/build validation passes 171 tests; remote browser results are recorded in QA.md.
+
 ## 0.1.0 — First pixel release
 
 - Replaced all character, equipment, companion, cosmetic, building, map and prop art with an original shared pixel sprite system, including race physiology, worn armor, mounts and Mythicals.

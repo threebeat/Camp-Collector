@@ -1,6 +1,6 @@
-import { pixelTerrainSvg, pixelBuildingSvg } from "./pixel-art.js?v=15";
-import * as E from "./evernight.js?v=15";
-import { vision } from "./lighting.js?v=15";
+import { pixelTerrainSvg, pixelBuildingSvg } from "./pixel-art.js?v=16";
+import * as E from "./evernight.js?v=16";
+import { vision } from "./lighting.js?v=16";
 import {
   CLASSES,
   ITEMS,
@@ -11,12 +11,12 @@ import {
   classNodeState,
   classPoints,
   itemInfo,
-} from "./data.js?v=15";
+} from "./data.js?v=16";
 import {
   activeExpeditions,
   available,
   expeditionSlots,
-} from "./progression.js?v=15";
+} from "./progression.js?v=16";
 import {
   allQuests,
   questState,
@@ -24,9 +24,9 @@ import {
   activeQuests,
   REGION_ORDER,
   REGIONS,
-} from "./journeys.js?v=15";
-import { MATERIALS, calendarMonth, MONTH_THEMES } from "./world.js?v=15";
-import { portraitSvg, itemSvg, icon } from "./art.js?v=15";
+} from "./journeys.js?v=16";
+import { MATERIALS, calendarMonth, MONTH_THEMES } from "./world.js?v=16";
+import { portraitSvg, itemSvg, icon } from "./art.js?v=16";
 export function createEvernightUi(c) {
   const {
       getGame,
@@ -53,7 +53,7 @@ export function createEvernightUi(c) {
       deployed = s.roster.filter((h) =>
         activeExpeditions(s).some((r) => r.party.includes(h.id)),
       ).length;
-    return `<section class="camp-detail evernight-camp-card"><div class="camp-name-row"><h2>${esc(s.campName || "Your Camp")}</h2>${button(icon("gear", 16), 'data-rename-camp aria-label="Rename Camp"', "icon-button")}</div>${button("Build at Camp", "data-build-sites", "secondary-button camp-build")}<button class="camp-level-card" data-camp-progress><span>Camp level <b>${p.level}</b></span><span>${p.xp} / ${p.needed} XP</span><div class="xp-track"><i style="width:${(p.xp / p.needed) * 100}%"></i></div></button><div class="camp-metrics"><div><b>${s.roster.length} / ${c.capacity(s)}</b><span>Adventurers</span></div><div><b>${ready} / ${deployed}</b><span>Ready / on expedition</span></div><button data-service="pantry"><b>${s.food}</b><span>Food · −${food.demand} / 12h</span></button><button data-service="bonfire"><b>${DIFFICULTIES[s.worldDifficulty].name}</b><span>World difficulty</span></button></div><details class="camp-supplies" id="camp-supplies"><summary>Camp resources<span>View stock</span></summary><dl class="camp-resource-list">${Object.entries(
+    return `<section class="camp-detail evernight-camp-card"><div class="camp-name-row"><h2>${esc(s.campName || "Your Camp")}</h2>${button(icon("gear", 16), 'data-rename-camp aria-label="Rename Camp"', "icon-button")}</div>${button("Build at Camp", "data-build-sites", "secondary-button camp-build")}<button class="camp-level-card" data-camp-progress><span>Camp level <b>${p.level}</b></span><span>${p.xp} / ${p.needed} XP</span><div class="xp-track"><i style="width:${(p.xp / p.needed) * 100}%"></i></div></button><details class="camp-overview" ${typeof window === "undefined" || !window.matchMedia?.("(max-width: 850px)").matches ? "open" : ""}><summary>${s.roster.length} / ${c.capacity(s)} adventurers · ${s.food} food · Camp details</summary><div class="camp-metrics"><div><b>${s.roster.length} / ${c.capacity(s)}</b><span>Adventurers</span></div><div><b>${ready} / ${deployed}</b><span>Ready / on expedition</span></div><button data-service="pantry"><b>${s.food}</b><span>Food · −${food.demand} / 12h</span></button><button data-service="bonfire"><b>${DIFFICULTIES[s.worldDifficulty].name}</b><span>World difficulty</span></button></div><details class="camp-supplies" id="camp-supplies"><summary>Camp resources<span>View stock</span></summary><dl class="camp-resource-list">${Object.entries(
       MATERIALS,
     )
       .map(
@@ -62,7 +62,7 @@ export function createEvernightUi(c) {
       )
       .join(
         "",
-      )}<div><dt>${icon("paw", 16)} Dinosaur eggs</dt><dd>${s.eggs || 0}</dd></div></dl></details><p class="camp-meal-time">Next meal in ${Math.max(0, Math.ceil((food.next - s.lastClock) / 3600000))}h · ${food.supplied} supplied</p></section>`;
+      )}<div><dt>${icon("paw", 16)} Dinosaur eggs</dt><dd>${s.eggs || 0}</dd></div></dl></details><p class="camp-meal-time">Next meal in ${Math.max(0, Math.ceil((food.next - s.lastClock) / 3600000))}h · ${food.supplied} supplied</p></details></section>`;
   }
   function progress() {
     const p = E.campProgress(g());
@@ -214,7 +214,7 @@ export function createEvernightUi(c) {
               `<div class="item-option">${itemSvg(i)}<span><strong>${itemInfo(i).name}</strong><small>${ITEMS[i.key].lightRadius}-unit light radius</small></span>${button("Equip", `data-equip-light="${i.id}" data-for="${h.id}" ${available(g(), h) && g().screen === "camp" ? "" : "disabled"}`)}</div>`,
           )
           .join("") ||
-        "<p>Buy lights from the Lanternwright in the Market square.</p>"
+        "<p>Build the Camp Market to buy lights from the supply merchant.</p>"
       }</div>`,
       h.light
         ? button(
@@ -306,7 +306,7 @@ export function createEvernightUi(c) {
         g().staging.length === 3 &&
         g().gold >= w.gold &&
         (!w.resource || g().materials[w.resource] >= w.amount);
-    return `<div class="section-heading"><div><span class="eyebrow">GOLD AND RESOURCES AT RISK</span><h1>The Arena</h1></div>${button("← Arena grounds", "data-arena-back", "secondary-button")}</div><section class="arena-banner"><h2>${rule.name}</h2><p>${rule.text}</p><p>${d.name} world difficulty · ${d.reward}× rewards · ${g().arenaWins} wins</p></section><section class="arena-wager"><h3>Your wager</h3><label>Gold <input id="arena-gold" type="number" min="10" max="1000" value="${w.gold}"></label><label>Resource <select id="arena-resource"><option value="">Gold only</option>${["wood", "stone", "ore", "herbs", "meat", "hide"].map((k) => `<option value="${k}" ${w.resource === k ? "selected" : ""}>${MATERIALS[k]?.name || k}</option>`).join("")}</select></label><label>Amount <input id="arena-amount" type="number" min="0" max="100" value="${w.amount}"></label>${button("Set wager", "data-set-wager", "secondary-button")}<p>Lose or recall: lose the wager. Win: ${Math.floor(w.gold * (rule.id === "four" ? 4 : 2.2) * d.reward)} gold returned${w.resource ? " plus " + Math.ceil(w.amount * 2.2 * d.reward) + " " + w.resource : ""}. No gems, recruits or cosmetic prizes.</p></section>${collection(g().roster, "Choose your three", "staging")}<div class="launch-bar"><strong>${g().staging.length} / 3 staged · ${w.gold} gold at risk</strong>${button("Place wager & fight", `id="launch-btn" ${valid ? "" : "disabled"}`)}</div>`;
+    return `<div class="section-heading"><div><span class="eyebrow">GOLD AND RESOURCES AT RISK</span><h1>The Arena</h1></div>${button("← Camp", "data-arena-back", "secondary-button")}</div><section class="arena-banner"><h2>${rule.name}</h2><p>${rule.text}</p><p>${d.name} world difficulty · ${d.reward}× rewards · ${g().arenaWins} wins</p></section><section class="arena-wager"><h3>Your wager</h3><label>Gold <input id="arena-gold" type="number" min="10" max="1000" value="${w.gold}"></label><label>Resource <select id="arena-resource"><option value="">Gold only</option>${["wood", "stone", "ore", "herbs", "meat", "hide"].map((k) => `<option value="${k}" ${w.resource === k ? "selected" : ""}>${MATERIALS[k]?.name || k}</option>`).join("")}</select></label><label>Amount <input id="arena-amount" type="number" min="0" max="100" value="${w.amount}"></label>${button("Set wager", "data-set-wager", "secondary-button")}<p>Lose or recall: lose the wager. Win: ${Math.floor(w.gold * (rule.id === "four" ? 4 : 2.2) * d.reward)} gold returned${w.resource ? " plus " + Math.ceil(w.amount * 2.2 * d.reward) + " " + w.resource : ""}. No gems, recruits or cosmetic prizes.</p></section>${collection(g().roster, "Choose your three", "staging")}<div class="launch-bar"><strong>${g().staging.length} / 3 staged · ${w.gold} gold at risk</strong>${button("Place wager & fight", `id="launch-btn" ${valid ? "" : "disabled"}`)}</div>`;
   }
   function calendar() {
     const m = calendarMonth(g().lastClock);
@@ -353,7 +353,12 @@ export function createEvernightUi(c) {
     const tips = [
         ["Meet your company at the Character tent.", "tent"],
         ["Stock the Pantry for twelve-hour meals.", "pantry"],
-        ["Explore the Market and equip lights.", "market"],
+        [
+          s.buildings.market
+            ? "Visit your Camp Market and equip lights."
+            : "Grow Camp to level 2, then build a Market.",
+          "market",
+        ],
         ["Follow a quest from your journal.", "quests"],
         ["Choose a road at the Crossroads.", "crossroads"],
       ],
@@ -373,8 +378,8 @@ export function createEvernightUi(c) {
           "No dawn has broken for generations. Roads disappear beyond the firelight, and the things that see in darkness have learned to rule it. A lantern is more than comfort: it tells your company where danger begins.",
         ],
         [
-          "A fire beside the Market",
-          "You have found a clearing beside the lantern Market. Its traders, guilds and tavern offer a foothold in this world. The fire you keep here can become a home, one building and one returning traveler at a time.",
+          "A fire within a dark forest clearing",
+          "You have found a small clearing in the forest. Beyond the bonfire, the land is hidden by night. Build a home, invite travelers and eventually establish a small Market. Every improvement pushes the shadows farther back.",
         ],
         [
           "Three volunteers",
@@ -458,8 +463,7 @@ export function createEvernightUi(c) {
     });
     on("[data-enter-arena]", () => navigate("arena"));
     on("[data-arena-back]", async () => {
-      await c.visitMarket();
-      await act("marketDistrict", { key: "arena" });
+      await navigate("camp");
     });
     on("[data-set-wager]", () =>
       act("wager", {

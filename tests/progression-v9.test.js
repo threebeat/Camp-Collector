@@ -99,9 +99,9 @@ test('daily, weekly and monthly Challenges are single encounters; prizes require
 });
 test('Camp expansions charge escalating costs and unlock real farms, gardens and capacity cabins',()=>{
  const g=funded();g.materials.wood=400;const first=Camp.expansionCost(g,'east'),gold=g.gold;assert.ok(Camp.expandCamp(g,'east'));assert.equal(g.gold,gold-first.gold);assert.ok(Camp.expansionCost(g,'west').gold>first.gold);assert.equal(Camp.expandCamp(g,'east'),false);
- assert.ok(Camp.buildCamp(g,'farm'));assert.equal(Camp.buildCamp(g,'cabins'),false);
+ assert.ok(Camp.buildCamp(g,'farm'));assert.equal(g.buildings.tent,1);
  g.lastClock+=600000;const food=g.food;assert.ok(Camp.harvestCamp(g,'farm'));assert.equal(g.food,food+4);assert.equal(Camp.harvestCamp(g,'farm'),false);
- assert.ok(Camp.expandCamp(g,'west'));assert.ok(Camp.buildCamp(g,'cabins'));assert.equal(Camp.campCapacity(g),60);assert.ok(Camp.buildCamp(g,'cabins'));assert.equal(Camp.campCapacity(g),80);const h=generateHero({classId:'bard',level:40});g.roster.push(h);const belongings=h.items[0];assert.ok(Camp.releaseHero(g,h));assert.ok(!g.roster.includes(h));assert.ok(g.inventory.includes(belongings));
+ assert.ok(Camp.expandCamp(g,'west'));assert.ok(Camp.buildCamp(g,'cabins'));assert.equal(Camp.campCapacity(g),60);assert.equal(g.buildings.tent,2);assert.ok(Camp.buildCamp(g,'cabins'));assert.equal(Camp.campCapacity(g),80);const h=generateHero({classId:'bard',level:40});g.roster.push(h);const belongings=h.items[0];assert.ok(Camp.releaseHero(g,h));assert.ok(!g.roster.includes(h));assert.ok(g.inventory.includes(belongings));
  assert.ok(Camp.expandCamp(g,'south'));assert.ok(Camp.buildCamp(g,'garden'));g.lastClock+=300000;const herbs=g.materials.herbs;assert.ok(Camp.harvestCamp(g,'garden'));assert.equal(g.materials.herbs,herbs+1);g.screen='market';assert.equal(Camp.setCampZone(g,'east'),false);
 });
 test('Owlkin and Bearkin have full growth tables, unique racial attributes, silhouettes, and Market recruitment',()=>{

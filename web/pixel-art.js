@@ -16,7 +16,7 @@ import {
   flightType,
   objectModifiers,
   GUILD_EQUIPMENT,
-} from "./data.js?v=15";
+} from "./data.js?v=16";
 
 export const PIXEL_PALETTE = Object.freeze({
   ink: "#0a0c1a",
@@ -4214,4 +4214,561 @@ export function pixelTerrainSvg(
     `data-terrain-kind="${esc(kind)}"`,
     `width="${finite(width, 1200)}" height="${finite(height, 760)}"`,
   );
+}
+
+// The large Camp uses its own authored geography. Existing battle/Market
+// terrain stays untouched: these paths match the Camp scene's world anchors.
+export function pixelCampGroundSvg(width = 1800, height = 1400, seed = 197) {
+  width = Math.max(4, Math.min(7200, Math.round(finite(width, 1800))));
+  height = Math.max(4, Math.min(5600, Math.round(finite(height, 1400))));
+  const cell = 4,
+    sx = width / 1800,
+    sy = height / 1400,
+    g = new Grid(Math.ceil(width / cell), Math.ceil(height / cell));
+  let state = hash("evernight-large-camp:" + seed);
+  const random = () => {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+  const xy = (x, y) => [
+    Math.round((x * sx) / cell),
+    Math.round((y * sy) / cell),
+  ];
+  const rect = (x, y, w, h, c) => {
+    const [xx, yy] = xy(x, y);
+    return g.rect(
+      xx,
+      yy,
+      Math.max(1, Math.round((w * sx) / cell)),
+      Math.max(1, Math.round((h * sy) / cell)),
+      c,
+    );
+  };
+  const poly = (points, c) =>
+    g.poly(
+      points.map(([x, y]) => xy(x, y)),
+      c,
+    );
+  const dot = (x, y, c) => g.dot(...xy(x, y), c);
+  const path = (points, thickness, c) => {
+    const t = Math.max(1, Math.round((thickness * Math.min(sx, sy)) / cell));
+    for (let n = 1; n < points.length; n++) {
+      const a = xy(...points[n - 1]),
+        b = xy(...points[n]);
+      g.line(
+        a[0] - Math.floor(t / 2),
+        a[1] - Math.floor(t / 2),
+        b[0] - Math.floor(t / 2),
+        b[1] - Math.floor(t / 2),
+        c,
+        t,
+      );
+    }
+  };
+
+  // Broad clumps, broken tufts and tiny moonlit flecks establish texture without
+  // a noisy tile checkerboard. The same seed always gives the same forest.
+  g.rect(0, 0, g.w, g.h, "#1c2b35");
+  for (let n = 0; n < 125; n++) {
+    const x = random() * 1800,
+      y = random() * 1400;
+    rect(
+      x,
+      y,
+      28 + random() * 84,
+      12 + random() * 36,
+      n % 3 ? "#20323a" : "#223239",
+    );
+  }
+  for (let n = 0; n < 1000; n++) {
+    const x = random() * 1800,
+      y = random() * 1400,
+      c = n % 4 ? "#30464a" : "#3e5356";
+    rect(x, y, n % 5 ? 8 : 12, 4, c);
+    if (n % 7 === 0) dot(x + 4, y - 4, c);
+    if (n % 31 === 0) dot(x - 8, y + 8, "#484968");
+  }
+
+  const clearing = [
+    [552, 448],
+    [588, 352],
+    [744, 312],
+    [888, 324],
+    [1032, 304],
+    [1160, 364],
+    [1188, 456],
+    [1232, 552],
+    [1204, 672],
+    [1232, 784],
+    [1152, 868],
+    [1016, 912],
+    [864, 896],
+    [744, 924],
+    [592, 856],
+    [536, 760],
+    [512, 636],
+    [540, 540],
+  ];
+  poly(clearing, "#353d3e");
+  poly(
+    clearing.map(([x, y]) => [900 + (x - 900) * 0.95, 620 + (y - 620) * 0.95]),
+    "#493f3e",
+  );
+  poly(
+    [
+      [644, 516],
+      [700, 452],
+      [856, 432],
+      [1028, 464],
+      [1112, 560],
+      [1116, 708],
+      [1052, 812],
+      [896, 860],
+      [748, 828],
+      [652, 736],
+      [612, 624],
+    ],
+    "#51453f",
+  );
+  poly(
+    [
+      [756, 588],
+      [796, 520],
+      [912, 512],
+      [1012, 576],
+      [1032, 672],
+      [992, 744],
+      [872, 780],
+      [784, 736],
+      [744, 660],
+    ],
+    "#5a493f",
+  );
+
+  // Winding, pixel-stepped roads reach the central services, expansion plots,
+  // northeast Market and lake. Narrow service branches remain visually quiet.
+  const roads = [
+    {
+      points: [
+        [900, 650],
+        [900, 390],
+        [940, 228],
+        [900, 112],
+        [900, -24],
+      ],
+      wide: 72,
+    },
+    {
+      points: [
+        [900, 650],
+        [706, 636],
+        [564, 668],
+        [380, 650],
+        [160, 620],
+        [-24, 660],
+      ],
+      wide: 60,
+    },
+    {
+      points: [
+        [900, 650],
+        [1076, 648],
+        [1228, 680],
+        [1410, 650],
+        [1620, 688],
+        [1824, 650],
+      ],
+      wide: 60,
+    },
+    {
+      points: [
+        [900, 650],
+        [940, 816],
+        [928, 944],
+        [900, 1052],
+        [900, 1112],
+      ],
+      wide: 64,
+    },
+    {
+      points: [
+        [900, 390],
+        [1080, 372],
+        [1228, 408],
+        [1420, 400],
+      ],
+      wide: 68,
+    },
+    {
+      points: [
+        [900, 650],
+        [836, 556],
+        [750, 520],
+      ],
+      wide: 36,
+    },
+    {
+      points: [
+        [900, 650],
+        [844, 720],
+        [730, 740],
+      ],
+      wide: 36,
+    },
+    {
+      points: [
+        [940, 816],
+        [1050, 800],
+      ],
+      wide: 36,
+    },
+    {
+      points: [
+        [1076, 648],
+        [1090, 600],
+      ],
+      wide: 36,
+    },
+    {
+      points: [
+        [900, 390],
+        [1004, 416],
+        [1090, 430],
+      ],
+      wide: 36,
+    },
+    {
+      points: [
+        [900, 390],
+        [796, 416],
+        [700, 390],
+      ],
+      wide: 36,
+    },
+    {
+      points: [
+        [1076, 648],
+        [1136, 716],
+        [1190, 740],
+      ],
+      wide: 36,
+    },
+  ];
+  for (const road of roads) {
+    path(road.points, road.wide + 16, "#343c3e");
+    path(road.points, road.wide, "#57483f");
+    path(road.points, Math.max(12, road.wide - 20), "#635046");
+  }
+  // Bare earth at buildable shadow plots and warm worn stone around the fire.
+  for (const [x, y] of [
+    [380, 650],
+    [1410, 650],
+  ]) {
+    poly(
+      [
+        [x - 76, y - 48],
+        [x - 36, y - 76],
+        [x + 48, y - 68],
+        [x + 88, y - 12],
+        [x + 68, y + 60],
+        [x - 36, y + 76],
+        [x - 84, y + 24],
+      ],
+      "#3a3d3f",
+    );
+    poly(
+      [
+        [x - 56, y - 40],
+        [x + 36, y - 52],
+        [x + 64, y + 8],
+        [x + 32, y + 52],
+        [x - 44, y + 44],
+        [x - 64, y],
+      ],
+      "#454041",
+    );
+  }
+  poly(
+    [
+      [852, 620],
+      [868, 592],
+      [916, 588],
+      [952, 620],
+      [952, 668],
+      [920, 696],
+      [872, 684],
+      [844, 656],
+    ],
+    "#6b5747",
+  );
+  for (let n = 0; n < 370; n++) {
+    const x = 520 + random() * 712,
+      y = 320 + random() * 592;
+    const [xx, yy] = xy(x, y),
+      base = g.p[yy * g.w + xx];
+    if (
+      ![
+        "#493f3e",
+        "#51453f",
+        "#5a493f",
+        "#6b5747",
+        "#57483f",
+        "#635046",
+      ].includes(base)
+    )
+      continue;
+    rect(x, y, n % 6 ? 8 : 16, 4, n % 4 ? "#6b594b" : "#3b3436");
+    if (n % 19 === 0) dot(x + 4, y + 4, "#8a6d50");
+  }
+
+  // Four little booth pads sit on a separate clearing, leaving actual shops,
+  // lamps and their interactive footprints to the Camp scene.
+  poly(
+    [
+      [1248, 272],
+      [1332, 224],
+      [1508, 228],
+      [1628, 292],
+      [1660, 468],
+      [1592, 544],
+      [1364, 552],
+      [1260, 488],
+    ],
+    "#333b42",
+  );
+  poly(
+    [
+      [1268, 292],
+      [1344, 248],
+      [1500, 252],
+      [1608, 308],
+      [1632, 460],
+      [1580, 520],
+      [1372, 528],
+      [1284, 476],
+    ],
+    "#464349",
+  );
+  path(
+    [
+      [1420, 252],
+      [1420, 520],
+    ],
+    44,
+    "#5c4e48",
+  );
+  path(
+    [
+      [1260, 400],
+      [1632, 400],
+    ],
+    48,
+    "#5c4e48",
+  );
+  for (const [x, y] of [
+    [1300, 300],
+    [1520, 300],
+    [1300, 470],
+    [1520, 470],
+  ]) {
+    rect(x - 44, y - 12, 88, 32, "#4b4953");
+    rect(x - 40, y - 8, 80, 4, "#67616a");
+    rect(x - 40, y + 16, 80, 4, "#32303e");
+  }
+
+  // Stepped shoreline, deep blue water, broken cyan reflections and reeds. It
+  // is artwork only; the scene owns the Dock/Island destinations and lighting.
+  const lake = [
+    [628, 1120],
+    [668, 1068],
+    [756, 1048],
+    [840, 1064],
+    [940, 1044],
+    [1048, 1060],
+    [1156, 1100],
+    [1208, 1144],
+    [1180, 1200],
+    [1104, 1228],
+    [992, 1212],
+    [896, 1240],
+    [788, 1220],
+    [708, 1228],
+    [644, 1188],
+  ];
+  poly(lake, "#3b474b");
+  poly(
+    lake.map(([x, y]) => [920 + (x - 920) * 0.96, 1150 + (y - 1150) * 0.89]),
+    "#304958",
+  );
+  poly(
+    lake.map(([x, y]) => [920 + (x - 920) * 0.9, 1150 + (y - 1150) * 0.8]),
+    "#203c50",
+  );
+  poly(
+    lake.map(([x, y]) => [920 + (x - 920) * 0.83, 1150 + (y - 1150) * 0.69]),
+    "#172f47",
+  );
+  for (let n = 0; n < 55; n++) {
+    const x = 656 + random() * 520,
+      y = 1068 + random() * 156;
+    const [xx, yy] = xy(x, y),
+      base = g.p[yy * g.w + xx];
+    if (!["#203c50", "#172f47"].includes(base)) continue;
+    rect(x, y, 12 + random() * 28, 4, n % 5 ? "#315268" : "#65818b");
+    if (n % 11 === 0) rect(x + 8, y + 8, 12, 4, "#829b9e");
+  }
+  for (const [x, y] of [
+    [650, 1124],
+    [708, 1056],
+    [1080, 1080],
+    [1168, 1152],
+    [1084, 1224],
+    [740, 1220],
+  ]) {
+    path(
+      [
+        [x, y + 12],
+        [x, y - 12],
+      ],
+      4,
+      "#5c776e",
+    );
+    path(
+      [
+        [x + 8, y + 12],
+        [x + 12, y - 4],
+      ],
+      4,
+      "#425f5e",
+    );
+    dot(x, y - 12, "#ad9564");
+  }
+  // Small offshore rock/island gives the distant violet dungeon a visual home.
+  poly(
+    [
+      [1016, 1144],
+      [1040, 1128],
+      [1072, 1136],
+      [1084, 1156],
+      [1060, 1168],
+      [1024, 1164],
+    ],
+    "#354b4e",
+  );
+  rect(1032, 1140, 28, 8, "#4c6760");
+  dot(1052, 1140, "#8c7c9d");
+
+  // Front-to-back tree rows use the exact prop sprite rather than a second art
+  // style. Keep the clearing, roads, Market and south shore free for interaction.
+  const trees = [];
+  const open = (x, y) => {
+    // A tree rooted just below water would otherwise cover the entire lake with
+    // its tall canopy. Reserve an open south shore, including that canopy space.
+    if (x > 560 && x < 1280 && y > 1100) return true;
+    const [xx, yy] = xy(x, y),
+      base = g.p[yy * g.w + xx];
+    return [
+      "#493f3e",
+      "#51453f",
+      "#5a493f",
+      "#6b5747",
+      "#57483f",
+      "#635046",
+      "#454041",
+      "#464349",
+      "#5c4e48",
+      "#4b4953",
+      "#304958",
+      "#203c50",
+      "#172f47",
+    ].includes(base);
+  };
+  for (let row = 0; row < 4; row++) {
+    for (let x = 44 + row * 22; x < 1800; x += 128) {
+      for (const y of [28 + row * 76, 1400 - row * 58]) {
+        const xx = x + (random() - 0.5) * 52,
+          yy = y + (random() - 0.5) * 24;
+        if (!open(xx, yy))
+          trees.push({
+            x: xx,
+            y: yy,
+            size: 100 + random() * 44,
+            kind: row % 3,
+          });
+      }
+    }
+    for (let y = 252 + row * 22; y < 1232; y += 124) {
+      for (const x of [42 + row * 90, 1750 - row * 80]) {
+        const xx = x + (random() - 0.5) * 36,
+          yy = y + (random() - 0.5) * 42;
+        if (!open(xx, yy))
+          trees.push({
+            x: xx,
+            y: yy,
+            size: 108 + random() * 40,
+            kind: row % 3,
+          });
+      }
+    }
+  }
+  for (const [x, y] of [
+    [474, 400],
+    [460, 508],
+    [476, 836],
+    [548, 960],
+    [1180, 972],
+    [1300, 916],
+    [1564, 832],
+    [1200, 216],
+    [1136, 108],
+    [656, 160],
+    [514, 288],
+  ])
+    if (!open(x, y)) trees.push({ x, y, size: 116, kind: 1 });
+  trees.sort((a, b) => a.y - b.y);
+  const sprites = [
+    propGrid("tree", 0),
+    propGrid("tree", 1),
+    propGrid("tree", 2),
+  ];
+  for (const tree of trees) {
+    const [x, y] = xy(tree.x - tree.size / 2, tree.y - tree.size * 1.18);
+    g.copy(
+      sprites[tree.kind],
+      x,
+      y,
+      Math.max(1, Math.round((tree.size * sx) / cell)),
+      Math.max(1, Math.round((tree.size * 1.25 * sy) / cell)),
+    );
+  }
+
+  // Rectangles are already merged into runs. Grouping their fill further cuts
+  // repeated attributes; pixelMarkup can cache this whole ground as one image.
+  const colors = new Map();
+  for (const match of g.body().matchAll(/<rect [^>]*fill="([^"]+)"\/>/g)) {
+    const color = match[1],
+      shape = match[0].replace(/ fill="[^"]+"/, "");
+    colors.set(color, (colors.get(color) || "") + shape);
+  }
+  const body = [...colors]
+    .map(([color, shapes]) => `<g fill="${esc(color)}">${shapes}</g>`)
+    .join("");
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" preserveAspectRatio="none" shape-rendering="crispEdges" style="image-rendering:pixelated" aria-hidden="true" data-pixel-art="camp-ground" data-camp-ground-art="true"><g transform="scale(${cell})">${body}</g></svg>`;
+}
+
+export function pixelBonfireEmbersSvg(time = 0) {
+  const frame = Math.floor(finite(time) * 8),
+    g = new Grid(48);
+  // Six integer sparks loop on different periods. Updating this tiny layer
+  // leaves the full Camp ground, building sprite and light mask cache intact.
+  for (let n = 0; n < 6; n++) {
+    const phase =
+      (((frame + n * 7) % (19 + n * 3)) + (19 + n * 3)) % (19 + n * 3);
+    const rise = Math.floor(phase * 0.7),
+      x = 21 + (n % 3) * 3 + (phase % 5 === 0 ? (n % 2 ? 1 : -1) : 0),
+      y = 29 - rise;
+    g.dot(x, y, n % 3 ? C.amber : C.flame);
+    if (n < 2 && phase < 8) g.dot(x, y + 1, C.ivory);
+  }
+  return svg(g, "bonfire-embers", `data-ember-frame="${frame}"`);
 }

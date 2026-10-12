@@ -1,0 +1,200 @@
+import {
+  CAMP_WORLD,
+  CAMP_ANCHORS,
+  CAMP_PLOTS,
+  CAMP_VENDORS,
+  revealedCampAreas,
+} from "./camp-world.js?v=16";
+import { BUILDINGS } from "./world.js?v=16";
+import { VENDORS } from "./data.js?v=16";
+import { available } from "./progression.js?v=16";
+import { vision } from "./lighting.js?v=16";
+import {
+  pixelCampGroundSvg,
+  pixelBuildingSvg,
+  pixelTerrainSvg,
+} from "./pixel-art.js?v=16";
+import { portraitSvg } from "./art.js?v=16";
+import { pixelMarkup } from "./pixel-markup.js?v=16";
+import { WorldCamera, attachCameraInput } from "./camera.js?v=16";
+const views = new Map();
+let ground = null;
+export function createHomesteadUi(c) {
+  const { getGame, button, esc } = c;
+  function viewport(key, content, width, height, center) {
+    return `<section class="world-map-shell"><div class="map-camera-tools"><span>${key === "camp" ? "Your Camp" : "Camp Market"}</span>${button("−", `data-world-zoom="out" aria-label="Zoom out"`, "icon-button")}${button("+", `data-world-zoom="in" aria-label="Zoom in"`, "icon-button")}${button("Focus", `data-world-focus aria-label="Focus map"`, "secondary-button")}${button("Fit", `data-world-fit aria-label="View whole map"`, "secondary-button")}</div><div class="map-viewport" data-map-camera="${key}" tabindex="0" role="region" aria-label="${key} map. Drag to pan, pinch or use plus and minus to zoom. Arrow keys move the map."><div class="map-world ${key}-map local-map" data-local-map="${key}" data-world-width="${width}" data-world-height="${height}" data-home-x="${center.x}" data-home-y="${center.y}" style="width:${width}px;height:${height}px">${content}</div></div></section>`;
+  }
+  function campMap() {
+    const g = getGame();
+    ground ||= pixelMarkup(pixelCampGroundSvg());
+    const buildings = Object.entries(CAMP_ANCHORS)
+      .filter(
+        ([key]) =>
+          g.buildings[key] && !(key === "pantry" && g.buildings.kitchen),
+      )
+      .map(([key, [x, y]]) => {
+        const name =
+          key === "tent" && g.buildings.tent > 1
+            ? "Character cabin"
+            : BUILDINGS[key]?.name || key;
+        const attrs =
+          key === "market" ? "data-market-visit" : `data-building="${key}"`;
+        const art = key === "tent" && g.buildings.tent > 1 ? "cabins" : key;
+        return button(
+          `${pixelBuildingSvg(art, g.buildings[key])}<strong>${name}</strong>`,
+          `${attrs} data-scene-key="${key}" data-world-x="${x}" data-world-y="${y}" style="left:${x}px!important;top:${y}px!important" aria-label="Open ${name}"`,
+          "world-building camp-building built",
+        );
+      })
+      .join("");
+    const plots = Object.entries(CAMP_PLOTS)
+      .map(([key, [x, y]]) =>
+        button(
+          g.campExpansions.includes(key)
+            ? `${key === "south" ? "Lakeshore" : key + " grounds"}`
+            : `Clear ${key} plot`,
+          `${g.campExpansions.includes(key) ? "data-world-zone" : "data-expand-camp"}="${key}" style="left:${x}px;top:${y}px"`,
+          "world-plot",
+        ),
+      )
+      .join("");
+    const residents = g.roster
+      .filter((h) => available(g, h))
+      .slice(0, 6)
+      .map((h, i) => {
+        const x = 820 + (i % 3) * 70,
+          y = 780 + Math.floor(i / 3) * 72;
+        return button(
+          portraitSvg(h, true),
+          `data-hero="${h.id}" data-world-resident="${i}" data-world-x="${x}" data-world-y="${y}" data-light-radius="${vision(h).light}" style="left:${x}px;top:${y}px" aria-label="Inspect ${esc(h.name)}"`,
+          "world-resident",
+        );
+      })
+      .join("");
+    const portal = g.portalUnlocked
+      ? button(
+          pixelBuildingSvg("portal") + "<strong>Portal mage</strong>",
+          'data-portal data-scene-key="portal" data-world-x="1240" data-world-y="480" style="left:1240px;top:480px"',
+          "world-building",
+        )
+      : "";
+    const marketSite = !g.buildings.market
+      ? button(
+          "Market site",
+          'data-building="market" style="left:1410px;top:400px"',
+          "world-plot",
+        )
+      : "";
+    return viewport(
+      "camp",
+      `<div class="world-ground pixel-ground">${ground}</div>${buildings}${residents}${portal}${plots}${marketSite}${g.buildings.dock ? button("The Bell Beneath · 25 floors", 'data-island-preview style="left:1100px;top:1210px"', "world-plot island-sign") : ""}`,
+      CAMP_WORLD.width,
+      CAMP_WORLD.height,
+      CAMP_WORLD.center,
+    );
+  }
+  function marketMap() {
+    const booths = CAMP_VENDORS.map((key, i) => {
+      const v = VENDORS.find((v) => v.id === key),
+        x = 230 + (i % 2) * 340,
+        y = 190 + Math.floor(i / 2) * 280;
+      return button(
+        `${pixelBuildingSvg(key)}<strong>${key === "night" ? "Supplies & lights" : v.name}</strong>`,
+        `data-vendor-map="${key}" data-scene-key="${key}" data-world-x="${x}" data-world-y="${y}" style="left:${x}px;top:${y}px"`,
+        "world-building market-map-stall",
+      );
+    }).join("");
+    return `<div class="compact-market-heading"><h1>Camp Market</h1>${button("Camp", 'data-nav="camp"', "secondary-button")}</div>${viewport("market", `<div class="world-ground pixel-ground">${pixelTerrainSvg("market", 800, 700, 42)}</div>${booths}`, 800, 700, { x: 400, y: 350 })}`;
+  }
+  function bind(root) {
+    const maps = [];
+    for (const viewport of root.querySelectorAll("[data-map-camera]")) {
+      const world = viewport.querySelector(".map-world"),
+        key = viewport.dataset.mapCamera;
+      const w = Number(world.dataset.worldWidth),
+        h = Number(world.dataset.worldHeight);
+      const home = {
+        x: Number(world.dataset.homeX),
+        y: Number(world.dataset.homeY),
+      };
+      let firstSize = !views.has(key);
+      const camera =
+        views.get(key) ||
+        new WorldCamera(w, h, {
+          ...home,
+          span: key === "camp" ? 720 : 760,
+          min: 360,
+        });
+      views.set(key, camera);
+      let r = viewport.getBoundingClientRect();
+      const observer =
+        typeof ResizeObserver !== "undefined"
+          ? new ResizeObserver(() => {
+              r = viewport.getBoundingClientRect();
+            })
+          : null;
+      observer?.observe(viewport);
+      const apply = () => {
+        if (!r.width || !r.height) return;
+        camera.viewport(r.width, r.height);
+        const base = Math.max(
+          key === "camp" ? 720 : 760,
+          (key === "camp" ? 560 : 660) * camera.ratio,
+        );
+        if (!camera.manual) camera.target = { ...home, width: base };
+        if (firstSize) {
+          camera.width = base;
+          camera.constrain();
+          firstSize = false;
+        }
+        const scale = r.width / camera.width;
+        world.style.setProperty?.("--camera-scale", String(scale));
+        world.style.transform = `translate(${-camera.x * scale}px,${-camera.y * scale}px) scale(${scale})`;
+        viewport.dataset.cameraMode = camera.manual ? "free" : "focus";
+      };
+      attachCameraInput(viewport, camera, apply);
+      const shell = viewport.closest(".world-map-shell");
+      shell.querySelectorAll("[data-world-zoom]").forEach((b) =>
+        b.addEventListener("click", () => {
+          camera.zoom(b.dataset.worldZoom === "in" ? 1 / 1.2 : 1.2);
+          apply();
+        }),
+      );
+      shell
+        .querySelector("[data-world-focus]")
+        .addEventListener("click", () => {
+          camera.focus(
+            [home],
+            Math.max(
+              key === "camp" ? 720 : 760,
+              (key === "camp" ? 560 : 660) * camera.ratio,
+            ),
+          );
+          apply();
+        });
+      shell.querySelector("[data-world-fit]").addEventListener("click", () => {
+        camera.manual = true;
+        camera.cx = w / 2;
+        camera.cy = h / 2;
+        camera.width = Math.max(w, h * camera.ratio);
+        apply();
+      });
+      shell.querySelectorAll("[data-world-zone]").forEach((b) =>
+        b.addEventListener("click", () => {
+          const [x, y] = CAMP_PLOTS[b.dataset.worldZone];
+          camera.focus([{ x, y }], 720);
+          apply();
+        }),
+      );
+      apply();
+      maps.push({ camera, apply, dispose: () => observer?.disconnect() });
+    }
+    return maps;
+  }
+  return {
+    campMap,
+    marketMap,
+    bind,
+    areas: () => revealedCampAreas(getGame()),
+  };
+}

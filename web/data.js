@@ -6,7 +6,7 @@ import {
   ENCHANTMENTS,
   WEAPON_MODIFIERS,
   weaponModifiers,
-} from "./weapons.js?v=15";
+} from "./weapons.js?v=16";
 export {
   WEAPONS,
   WEAPON_KINDS,
@@ -23,7 +23,7 @@ import {
   modifierFits,
   objectModifiers,
   validModifiers,
-} from "./modifiers.js?v=15";
+} from "./modifiers.js?v=16";
 export {
   ARMOR_MODIFIERS,
   PET_MODIFIERS,
@@ -2476,6 +2476,7 @@ export function initialGame(random = Math.random, now = Date.now()) {
     arenaWager: { gold: 10, resource: null, amount: 0 },
     waitingRecruits: [],
     challengeTiers: {},
+    campWorldRevision: 1,
     campExpansions: [],
     campZone: "center",
     farmReadyAt: 0,
@@ -2505,6 +2506,12 @@ export function initialGame(random = Math.random, now = Date.now()) {
     campName: "",
     campNamed: false,
     buildings: {
+      market: 0,
+      guildhall: 0,
+      tavern: 0,
+      clinic: 0,
+      questboard: 1,
+      cabins: 0,
       bonfire: 1,
       crossroads: 1,
       tent: 1,

@@ -78,7 +78,7 @@ Each road has style, danger and optional water metadata. Solid strong roads sele
 
 `web/landmarks.js` draws decorative geography below roads. Nodes, roads, off-node landmarks, enemy pools, biome terrain and rewards should suggest the same place. A lake graphic alone does not make battles watery: wire the road metadata too. Crossroads lists unlocked regions; the unlocked Portal Mage deliberately shows all unopened choices. Final bosses grant one Boss Sigil per completed journey, including repeats, and one Sigil opens a chosen region.
 
-For a new destination, choose a meaningful resource, boss, recruit, companion, equipment or cosmetic reward. Tie quests to its node ID and region. Respect 40 starting spaces plus 20 per cabin: full Camps miss character rewards. There is no waiting-arrivals queue. Check space before charging for purchases and report accepted recruit counts accurately. Repeated-resource rewards and first-clear receipts must be intentional.
+For a new destination, choose a meaningful resource, boss, recruit, companion, equipment or cosmetic reward. Tie quests to its node ID and region. Respect 40 starting spaces plus 20 per home upgrade: full Camps miss character rewards. There is no waiting-arrivals queue. Check space before charging for purchases and report accepted recruit counts accurately. Repeated-resource rewards and first-clear receipts must be intentional.
 
 ## Challenges and lore
 
@@ -100,4 +100,6 @@ The Codex groups all subclass detail into class entries and modifier definitions
 
 ## Pixel sprite coverage
 
-Read [PIXEL_ART.md](PIXEL_ART.md). All canonical bases have original authored pixel artwork. `art.js` forwards to `pixel-art.js` for every visual surface; adding content requires a corresponding grid silhouette/layer and a native rendering check. Preserve race anatomy, visible equipment, modifiers, mounts and authored Mythicals. Asset cache URLs are v15. Free asset packs were considered during exploration; this release bundles original sprites and has no external art attribution dependency.
+Read [PIXEL_ART.md](PIXEL_ART.md). All canonical bases have original authored pixel artwork. `art.js` forwards to `pixel-art.js` for every visual surface; adding content requires a corresponding grid silhouette/layer and a native rendering check. Preserve race anatomy, visible equipment, modifiers, mounts and authored Mythicals. Asset cache URLs are v16. Free asset packs were considered during exploration; this release bundles original sprites and has no external art attribution dependency.
+
+Camp service IDs are stable for migration. New home upgrades increment the tent in place and mirror the legacy cabins counter; do not introduce a second cabin placement. Active Market vendors are `forge`, `arcane`, `night`, `menagerie`; the supply sheet also offers the canonical light stock. Guild/recruiting/Clinic/Quest services live at Camp. `pixelCampGroundSvg` provides large, cached forest/path/lake art; align new services to CAMP_ANCHORS and update their world-space shadow/light definitions.

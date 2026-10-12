@@ -1,4 +1,4 @@
-import { ExpeditionSimulation } from "./simulation.js?v=15";
+import { ExpeditionSimulation } from "./simulation.js?v=16";
 let simulation = null,
   lastEmission = 0;
 function send(requestId = null, result = null) {
@@ -13,7 +13,7 @@ self.onmessage = (event) => {
       simulation = new ExpeditionSimulation(args.saved, now);
       send(requestId);
     } else if (type === "observe")
-      send(requestId, simulation.observe(args, now));
+      send(requestId, { ...simulation.observe(args, now), observationOnly: true });
     else if (type === "checkpoint") {
       simulation.advance(now);
       send(requestId);

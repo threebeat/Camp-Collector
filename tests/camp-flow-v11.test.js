@@ -32,11 +32,14 @@ test('Camp chatter has irregular long gaps, short comments, one speaker, and avo
  const director=new CampChatter(seeded(8)),heroes=D.initialGame(seeded(41),NOW).roster,events=[];let before=null;for(let t=NOW;t<NOW+900000;t+=100){director.update(t,heroes);const speaking=heroes.filter(h=>director.forHero(h.id,t));assert.ok(speaking.length<=1);if(speaking.length&&director.speaker!==before){events.push({at:t,id:director.speaker,text:director.line});before=director.speaker;}}
  assert.ok(events.length>=4&&events.length<=12);assert.ok(events.every(e=>e.text.length<30));const gaps=events.slice(1).map((e,i)=>e.at-events[i].at);assert.ok(gaps.every(g=>g>=60000));assert.ok(new Set(gaps).size>2);assert.ok(events.slice(1).every((e,i)=>e.id!==events[i].id));
 });
-test('Camp map contains only constructed services and arrows explain costs in a separate dialog',()=>{
- const source=readFileSync(new URL('../web/app.js',import.meta.url),'utf8'),fn=name=>{const a=source.indexOf('function '+name+'('),b=source.indexOf('\nfunction ',a+10);return source.slice(a,b);},game=D.initialGame(seeded(9),NOW),context={pixelMarkup,pixelTerrainSvg,pixelBuildingSvg,pixelPropSvg,...D,game,Camp,BUILDINGS,icon,portraitSvg,petSvg,esc:s=>s,button:(s,a='',c='')=>`<button class="${c}" ${a}>${s}</button>`,campWalkers:()=>'',portalScene:()=>'',CAMP_PORTRAIT:{crossroads:[17,23],tent:[22,44],storage:[17,70],pantry:[48,82],bonfire:[51,56]}};
- const html=runInNewContext(fn('sceneTerrain')+'\n'+fn('portraitTerrain')+'\n'+fn('expansionArrows')+'\n'+fn('campScene')+';campScene();',context);for(const key of ['training','workbench','outfitter','kitchen','alchemist'])assert.ok(!html.includes('data-building="'+key+'"'));assert.ok(html.includes('data-building="tent"'));assert.ok(!html.includes('Open service'));assert.ok(!html.includes('150 gold'));assert.ok(html.includes('<span aria-hidden="true">→</span>'));assert.ok(html.includes('<strong>Market</strong>'));
+test('Camp world has only constructed services, shadow plots and an unbuilt Market site',async()=>{
+ const {createHomesteadUi}=await import('../web/homestead-ui.js'),game=D.initialGame(seeded(9),NOW);
+ const html=createHomesteadUi({getGame:()=>game,esc:s=>s,button:(s,a='',c='')=>`<button class="${c}" ${a}>${s}</button>`}).campMap();
+ assert.match(html,/data-map-camera="camp"/);assert.match(html,/data-building="tent"/);assert.match(html,/data-building="market"/);
+ assert.doesNotMatch(html,/data-market-visit/);assert.doesNotMatch(html,/camp-expansion-arrow/);
+ for(const key of ['training','blacksmith','kitchen','alchemist'])assert.ok(!html.includes('data-building="'+key+'"'));
+ for(const key of ['west','east','south'])assert.ok(html.includes('data-expand-camp="'+key+'"'));
 });
-
 
 test('Camp backups preserve a running battle and its inventory when moving browser origins',()=>{
  const{sim,r}=launch();tick(sim,5);const game=sim.snapshot().game;game.campName='Willow Rest';const restored=readCampBackup(exportCamp(game));assert.ok(restored);assert.equal(restored.campName,'Willow Rest');assert.deepEqual(restored.roster.map(h=>h.id),game.roster.map(h=>h.id));assert.deepEqual(restored.inventory,game.inventory);assert.equal(restored.expeditions[0].battleState.time,game.expeditions[0].battleState.time);assert.equal(readCampBackup('not json'),null);assert.equal(readCampBackup('{"version":11}'),null);const corrupt=structuredClone(game);corrupt.expeditions[0].battleState={version:1};assert.equal(readCampBackup(exportCamp(corrupt)),null);const legacy=structuredClone(game);legacy.version=10;delete legacy.expeditions[0].auto;assert.equal(readCampBackup(JSON.stringify(legacy)),null);

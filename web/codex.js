@@ -19,8 +19,8 @@ import {
   WEAPON_MODIFIERS,
   ARMOR_MODIFIERS,
   PET_MODIFIERS,
-} from "./data.js?v=15";
-import { CONTEXT, BUILDINGS, MATERIALS } from "./world.js?v=15";
+} from "./data.js?v=16";
+import { CONTEXT, BUILDINGS, MATERIALS } from "./world.js?v=16";
 const mechanics = [
   [
     "Living Camp and Market",
@@ -284,19 +284,7 @@ export const CODEX = [
     category: "Rules & formulas",
     text,
   })),
-  ...Object.values(BUILDINGS).map((b) => ({
-    name: b.name,
-    category: "Camp buildings",
-    text:
-      b.text +
-      (b.cost
-        ? " Construction: " +
-          Object.entries(b.cost)
-            .map(([k, n]) => n + " " + k)
-            .join(", ") +
-          "."
-        : " Available from the beginning."),
-  })),
+  {name:'Camp buildings & services', category:'Camp buildings', text:'Your Camp expands through construction and home upgrades. Pan to the shadowed plots; build a four-vendor Market after Camp level 2.', details:Object.values(BUILDINGS).filter(b=>!b.legacy).map(b=>({name:b.name,text:b.text+(b.cost?' Cost: '+Object.entries(b.cost).map(([k,n])=>n+' '+k).join(', '):' Available from the beginning.')}))},
   ...Object.values(MATERIALS).map((m) => ({
     name: m.name,
     category: "Materials",

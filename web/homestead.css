@@ -1,0 +1,420 @@
+/* Camera-first management screens, with room around the controls on phones. */
+.world-map-shell {
+  min-width: 0;
+  border: 1px solid #353d57;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #0a0c1a;
+}
+.map-camera-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: #171e30;
+}
+.map-camera-tools > span {
+  flex: 1;
+  color: #acb6cc;
+  font-size: 12px;
+}
+.map-camera-tools button {
+  min-height: 40px;
+  min-width: 40px;
+  padding: 5px 9px;
+  font-size: 12px;
+}
+.map-viewport {
+  position: relative;
+  height: 520px;
+  overflow: hidden;
+  touch-action: none;
+  outline: none;
+  background: #080a16;
+  cursor: grab;
+}
+.map-viewport:active {
+  cursor: grabbing;
+}
+.map-viewport:focus-visible {
+  outline: 2px solid #f4c76a;
+  outline-offset: -2px;
+}
+.map-world.local-map {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+  will-change: transform;
+}
+.map-world .world-ground {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.map-world .world-ground > svg {
+  width: 100%;
+  height: 100%;
+}
+.map-world .world-building {
+  position: absolute !important;
+  transform: translate(-50%, -50%) !important;
+  left: auto;
+  top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  width: 140px;
+  min-height: 80px;
+  max-width: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  z-index: 5;
+}
+.map-world .world-building > svg {
+  width: 84px !important;
+  height: 84px !important;
+  filter: none;
+}
+.map-world .world-building strong {
+  font:
+    12px ui-monospace,
+    monospace;
+  line-height: 1.25;
+  max-width: 138px;
+  padding: 5px 7px;
+  color: #f7df9b;
+  background: #0a0c1ae8;
+  border: 1px solid #596481;
+  border-radius: 3px;
+  text-align: center;
+}
+.map-world .world-resident {
+  position: absolute;
+  transform: translate(-50%, -90%);
+  width: 46px;
+  height: 50px;
+  padding: 0;
+  background: none;
+  border: 0;
+  z-index: 4;
+}
+.map-world .world-resident > svg {
+  width: 100%;
+  height: 100%;
+}
+.map-world .world-plot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 10px 14px;
+  max-width: 180px;
+  min-height: 44px;
+  border: 1px dashed #71618d;
+  background: #171e30dd;
+  color: #d8c8e9;
+  border-radius: 3px;
+  font-size: 13px;
+  z-index: 12;
+}
+.map-world .scene-lightfield {
+  z-index: 8;
+}
+.compact-market-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 12px;
+}
+.compact-market-heading h1 {
+  font-size: 24px;
+  margin: 0;
+}
+.camp-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.camp-workspace > .inspector {
+  width: 100%;
+  order: -1;
+}
+.camp-workspace > .main-column {
+  width: 100%;
+}
+.camp-workspace .camp-resource-strip {
+  display: none;
+}
+.camp-workspace .quest-summary {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.camp-workspace .quest-summary p {
+  display: none;
+}
+.camp-workspace .camp-activity:empty {
+  display: none;
+}
+.evernight-camp-card {
+  padding: 12px;
+}
+.camp-overview {
+  margin-top: 8px;
+}
+.camp-overview > summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  color: #acb6cc;
+  font-size: 12px;
+}
+.camp-overview .camp-metrics {
+  margin-top: 6px;
+}
+.camp-meal-time {
+  color: #acb6cc;
+}
+.crossroads-workspace .inspector,
+.party-workspace .inspector {
+  display: none !important;
+}
+.canvas-wrap > canvas {
+  touch-action: none;
+}
+.expedition-workspace .inspector:has(#hero-detail:empty) {
+  display: none !important;
+}
+.battle-toolbar button {
+  border: 1px solid #596481;
+  background: #20283d;
+}
+.packed-supplies {
+  border: 0;
+  background: none;
+}
+#main-nav {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+@media (max-width: 850px) {
+  .app {
+    padding: 8px 10px 92px;
+  }
+  .site-header {
+    padding: 8px 10px;
+    min-height: 56px;
+  }
+  .brand strong {
+    font-size: 19px;
+  }
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+  }
+  .hud {
+    gap: 8px;
+  }
+  .map-viewport {
+    height: min(52dvh, 430px);
+    min-height: 320px;
+  }
+  .camp-workspace {
+    gap: 8px;
+  }
+  .evernight-camp-card {
+    padding: 8px 10px;
+  }
+  .camp-name-row h2 {
+    font-size: 18px;
+  }
+  .camp-build {
+    min-height: 40px;
+    margin: 6px 0 !important;
+  }
+  .camp-level-card {
+    padding: 8px 10px;
+    min-height: 40px;
+    font-size: 12px;
+  }
+  .camp-level-card .xp-track {
+    height: 4px;
+    margin-top: 5px;
+  }
+  .camp-metrics > *,
+  .camp-metrics button {
+    padding: 6px;
+    min-height: 48px;
+  }
+  .camp-metrics b {
+    font-size: 17px;
+  }
+  .camp-metrics span {
+    font-size: 10px;
+  }
+  .map-camera-tools > span {
+    font-size: 11px;
+  }
+  .map-camera-tools button {
+    min-height: 40px;
+    min-width: 40px;
+  }
+  .page-heading {
+    margin-bottom: 8px;
+  }
+  .page-heading h1 {
+    font-size: 22px;
+  }
+  .page-heading > div > p,
+  .region-key span,
+  .map-help {
+    display: none;
+  }
+  .route-map-shell {
+    margin-top: 8px;
+  }
+  .map-toolbar {
+    padding: 5px;
+    gap: 5px;
+  }
+  .map-toolbar > span {
+    font-size: 11px;
+  }
+  .region-map-viewport {
+    height: 52dvh;
+    min-height: 300px;
+  }
+  .locked-route-summary h2 {
+    font-size: 18px;
+  }
+  .locked-route-summary,
+  .journey-provisions {
+    padding: 10px;
+  }
+  .journey-provisions p {
+    font-size: 12px;
+  }
+  .journey-provisions > small {
+    display: none;
+  }
+  .hero-collection {
+    gap: 8px;
+  }
+  .card-portrait {
+    height: 90px;
+  }
+  .hero-card .card-xp,
+  .hero-card .character-status small {
+    display: none;
+  }
+  .battle-toolbar {
+    padding: 4px;
+  }
+  .battle-toolbar button {
+    min-width: 36px !important;
+    width: auto !important;
+    height: 38px !important;
+    min-height: 38px !important;
+  }
+  .battle-toolbar > div {
+    gap: 3px;
+  }
+  .battle-controls {
+    padding: 6px;
+  }
+  .battle-company-member {
+    min-height: 50px;
+    padding: 5px;
+  }
+  .battle-company-member > span {
+    width: 28px;
+    height: 32px;
+  }
+  .battle-company-member strong {
+    font-size: 10px;
+  }
+  .battle-company-member small {
+    font-size: 9px;
+  }
+  .run-status {
+    display: none;
+  }
+  .battle-legend {
+    font-size: 9px;
+    padding: 5px;
+  }
+  #main-nav {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding: 4px;
+    gap: 3px;
+    min-height: 58px;
+  }
+  #main-nav button {
+    min-width: 0;
+    padding: 5px 3px;
+    min-height: 46px;
+  }
+  #main-nav .nav-label {
+    font-size: 10px;
+  }
+  .tutorial-bar {
+    padding: 5px 9px;
+    min-height: 36px;
+    font-size: 10px;
+  }
+  .tutorial-bar button {
+    font-size: 10px;
+    padding: 4px;
+  }
+  .modal {
+    width: calc(100vw - 20px);
+    max-height: calc(100dvh - 24px);
+  }
+  .modal-header h2 {
+    font-size: 20px;
+  }
+  .modal-body {
+    padding: 12px;
+  }
+  .modal-body .market-stock {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .modal-body .offer-art {
+    height: 64px;
+  }
+  .modal-body .offer-art svg {
+    max-height: 64px;
+  }
+  .guild-booth-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .guild-services {
+    display: block;
+  }
+  .guild-services article {
+    margin-bottom: 12px;
+  }
+  .camp-workspace .main-column {
+    display: block;
+  }
+}
+
+.map-world .world-building::after,
+.map-world .world-plot::after,
+.map-world .world-resident::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: max(100%, calc(44px / var(--camera-scale, 1)));
+  height: max(100%, calc(44px / var(--camera-scale, 1)));
+}

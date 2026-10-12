@@ -239,7 +239,7 @@ test("phone camera preserves aspect ratio and converts screen taps back into wor
     renderer.panTo(250);
     const point = renderer.worldPoint(195, 150);
     assert.ok(Math.abs(point.x - (250 + renderer.camera.width / 2)) < 1);
-    assert.ok(Math.abs(point.y - 240) < 1);
+    assert.ok(Math.abs(point.y - renderer.camera.cy) < 1);
     const center = canvas.getContext("2d").getImageData(200, 200, 1, 1).data;
     assert.equal(center[3], 255);
     renderer.followCompany();

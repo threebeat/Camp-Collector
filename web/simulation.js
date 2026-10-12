@@ -1,7 +1,8 @@
-import * as Ever from "./evernight.js?v=15";
-import { questById } from "./journeys.js?v=15";
-import * as Night from "./nightfall.js?v=15";
-import { Battle } from "./engine.js?v=15";
+import { normalizeCampWorld } from "./camp-world.js?v=16";
+import * as Ever from "./evernight.js?v=16";
+import { questById } from "./journeys.js?v=16";
+import * as Night from "./nightfall.js?v=16";
+import { Battle } from "./engine.js?v=16";
 import {
   LOCATIONS,
   initialGame,
@@ -10,9 +11,9 @@ import {
   VENDORS,
   ITEMS,
   uid,
-} from "./data.js?v=15";
-import * as Camp from "./camp.js?v=15";
-import * as P from "./progression.js?v=15";
+} from "./data.js?v=16";
+import * as Camp from "./camp.js?v=16";
+import * as P from "./progression.js?v=16";
 
 // The clock lives outside the view. Every party gets the same fixed simulation steps.
 export const STEP = 1 / 30;
@@ -24,6 +25,7 @@ export class ExpeditionSimulation {
       initialGame(Math.random, now);
     Night.normalizeNightfall(this.g);
     Ever.normalizeEvernight(this.g);
+    normalizeCampWorld(this.g);
     Night.refreshVisitors(this.g);
     this.battles = new Map();
     this.observation = { id: null, visible: false, speed: 1, paused: false };
@@ -318,7 +320,7 @@ export class ExpeditionSimulation {
       case "acceptQuest": {
         const q = questById(g, args.id);
         if (
-          g.screen === "market" &&
+          ["camp","market"].includes(g.screen) &&
           q &&
           q.category !== "Main" &&
           !g.sideQuests.includes(q.id) &&
@@ -333,7 +335,7 @@ export class ExpeditionSimulation {
       }
       case "marketDistrict":
         if (
-          g.screen === "market" &&
+          ["market", "camp"].includes(g.screen) &&
           [
             "square",
             "guildhall",
@@ -412,6 +414,7 @@ export class ExpeditionSimulation {
             difficulty: "normal",
           };
         if (args.screen === "shop") P.gemShopStock(g);
+        if (args.screen === "market" && !g.buildings.market) { g.screen = "camp"; result = false; break; }
         if (args.screen === "market")
           for (const v of VENDORS) P.marketStock(g, v.id);
         result = true;

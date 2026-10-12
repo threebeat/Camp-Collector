@@ -1,24 +1,30 @@
 # Current game behavior
 
-This describes Evernight 0.1.0, the first pixel release following the prior 0.14 implementation. Historical release notes explain earlier behavior; the owner's current direction takes precedence.
+This describes Evernight 0.2.0, the growing-Camp and camera release following the first pixel release. Historical release notes explain earlier behavior; the owner's current direction takes precedence.
 
 ## Pixel world and phone battles
 
 Characters use original 32×34 pixel grids; equipment, companions, props and buildings use matching authored grids. Art is shared across cards, profiles, stores, maps and combat, including armor weights, race anatomy, mounts, guises and Mythicals. No external sprite packs are bundled. Pixelated darkness uses overlapping light bands, ordered dithering and shared terrain shadows. Forest torches, bridge lamps, village windows, volcanic seams and jungle mushrooms join carried lamps, fires and colored spells; natural fixtures participate in actual target detection. Night vision keeps its blue tint and existing racial/Attribute advantages.
 
-On phones, the battlefield has a 300px viewing window and a closer camera that follows the company. Drag sideways to pan; Follow company resumes tracking. The expanded view preserves sprite proportions. Names begin hidden on phones and can be toggled. The company is a compact strip with live HP, and the battle journal collapses during an active expedition.
+Rendering uses animation frames, cached visual sprite identities, interpolated unit/projectile positions and reusable lighting masks. View snapshots reuse the current terrain and hydrate visual state without regenerating its map on every update. Observation, pause and speed responses update controls without rebuilding the screen. Deterministic combat remains at thirty fixed steps per second with observed snapshots approximately every 100ms; this is not a promise of sixty frames per second on every phone.
+
+Combat Focus eases position and zoom to contain the alive party. Drag in either axis, use arrow keys, zoom buttons, wheel or pinch to enter free view. Focus toggles tracking back on. Camera state survives pause, speed and ordinary screen refreshes for the same expedition. Names begin hidden on phones; the party strip and journal remain compact. Phone screens have five primary navigation controls; More opens Shop, Codex and settings. Crossroads and party assembly have no character inspector. Camp overview details collapse on phones.
 
 Inspection is explicit player intent. Launching, watching, loading or advancing an encounter does not select a character. A deliberate tap opens a small inline HP card; Details opens a profile dialog. Closing inspection stays closed through snapshots. Dead, missing and newly hidden selections clear. A pan, vertical scroll or canceled touch cannot open a character. The mobile inspector occupies ordinary layout space and never becomes the old floating profile overlay.
 
 ## Opening and Camp
 
-A new player clicks through three required pages explaining the world of permanent night, their Camp beside the Market, and three volunteers: a level-5 Human Vanguard, Elf Ranger and Nereid Cleric. They name Camp on the last page. Starting resources are 30 gold, six food, one Trail supper and one expedition slot. The circumstances are not repeated across Camp. Named existing Camps skip the new opening.
+A new player clicks through three required pages explaining the world of permanent night, their new forest clearing, and three volunteers: a level-5 Human Vanguard, Elf Ranger and Nereid Cleric. They name Camp on the last page. Starting resources are 30 gold, six food, one Trail supper and one expedition slot. The circumstances are not repeated across Camp. Named existing Camps skip the new opening.
 
 Desktop navigation is at the top; phone navigation is at the bottom. The optional guide attaches to it on non-expedition management screens. Skip hides it, and the currency-adjacent gear opens settings to restore the guide, choose reduced motion or manage backups. Gold and gems are the global counts; food belongs in Camp.
 
-Camp shows its map and overview. Build sits directly below the editable name. The clickable Camp XP card opens its explanation, followed by four metrics: adventurers/capacity, ready/deployed adventurers, stocked food/next-period demand, and world difficulty. Phone Camp puts the overview before a 430px portrait map, with compact status cards and a next-meal estimate. Supplies expand from the Camp resources row; ready harvests, recovering adventurers and active companies appear as small actionable activity entries. The map's top strip contains basic resources; the overview's resource list also exposes hides, Obsidian, Relic fragments, fossils and Boss Sigils. There is no aggregate resource count or repeated expansion copy.
+Camp is one 1800×1400 world. Its initial clearing has the bonfire, Character tent, Storage, Pantry, Quest Board and Crossroads; paths lead to other service sites and a lake in the south. The surrounding land begins hidden by night. Camp level and construction widen the revealed clearing, while cleared west/east/south plots reveal their own areas. Drag, pinch, use the wheel, arrow keys or zoom controls to explore; Focus returns to the center and Fit shows the whole world. Visible plot markers open the existing escalating clearing-cost dialog. Expansion arrows and separate expansion maps are removed from the current flow.
 
-The initial capacity is **40**, plus **20 per cabin**. Purchases, creation, charm and journey rewards respect it. A full Camp misses character rewards; there is no waiting-arrivals service. Migration admits legacy queued adventurers into available new capacity once, then clears the old queue.
+Build sits below the editable Camp name, beside the Camp XP display. Four metrics and detailed supplies live in an expandable Camp section on phones. The map receives most of the screen; short activity and Quest actions remain below it. Basic and rare resources stay visible in the expandable stock list rather than a repeated strip.
+
+The initial capacity is **40**. Upgrade the Character tent into a Cabin in place for 140 gold, 24 wood and 12 stone; every further home upgrade adds **20** spaces and raises that cost by 60% of the base per prior upgrade. The stable tent service key remains; the legacy cabins counter mirrors its upgrades. Existing cabin counts migrate into the upgraded home, preserving all capacity, owned records and checkpoints. Purchases, creation, charm and journey rewards respect capacity; full Camps miss recruits without a waiting queue.
+
+The bonfire lights a broad area, flickers and emits small sparks. Buildings, trees and residents occlude its light. Residents emit light only when their equipped utility item provides it; ordinary sight is not a light aura. Lamp windows and arcane fixtures remain smaller distinct sources. Ground and shadow coordinates stay fixed while the camera moves. Camp revelation is progression-driven, separate from expedition detection and fog memory.
 
 Camp XP has no rarity. Character lifetime XP contributes 25%; equipment and companion lifetime XP contribute 10%. An ID-based ledger prevents equipping/storing the same item or reloading from counting it twice. Victories, quest claims, construction/upgrades, expansions and opening regions also award XP. Level 1 needs 100 XP; each subsequent requirement rises by 60, up to level 100. Existing character/gear levels remain intact; the new Camp progression begins with its own ledger.
 
@@ -40,14 +46,14 @@ Retire combines the previous Release and character Recycle actions. It returns a
 | Alchemist / Farm / Garden | Supplies, gem combination/material conversion and renewable harvests |
 | Archaeology | Dinosaur eggs and fossil companions, after a Camp expansion |
 | Portal Mage | Unlocks after the first regional boss; spends Boss Sigils to open regions |
-| Market square | Important shops and entrances to the surrounding districts |
-| Guildhall | Two rows of four guild booths: lessons, quests, standing and member shops |
-| Lantern Commons | Outfitter equipment-slot additions and Quest Board |
-| Tavern | Five hireable visitors, rotating character stock and gathering services |
+| Camp Market | Construct at Camp level 2 for 80 gold, 24 wood and 12 stone; four vendors offer equipment, curiosities, supplies/lights and companions |
+| Guild lodge | Built on the cleared west grounds; eight guilds offer lessons, quests, standing and member shops |
+| Workshop / Quest Board | Equipment-slot additions at the Workshop; quests at the Camp Board |
+| Travelers’ lodge | Built on the west grounds; Camp recruiting and visitors, plus the Arena entrance |
 | Lantern Clinic | Paid removal of eligible non-racial, non-Profession Attributes |
-| Arena grounds | Arena entrance and stakes screen |
+| Arena | Enter through the Travelers’ lodge for the existing stakes screen |
 
-Residents/companions walk on Camp and Market scenes. Clicking selects a concise allegiance-colored inspector. Profiles show richer information; race and class names open foundations/trees. Pointer dragging repositions characters or drops them on a service; ordinary taps remain an alternative. A fresh Market visit enters the square. Outfitter, Board, guilds, Clinic, Tavern and Arena have their own service maps.
+Camp residents move gently through the clearing. Deliberate taps inspect them; dragging the map pans the camera and suppresses service/character activation. The old neighboring Market and district maps no longer form the current navigation flow. Guilds, recruiting, Clinic, Quest Board, slot additions and transformations are accessible at Camp. The Alchemist handles gem work, relic analysis, creation scrolls and combining adventurers; the tent handles owned appearances. Legacy paid-service access is preserved for migrated named Camps, but the new Market is constructed separately. The old vendor definitions/stock IDs remain for compatibility and owned purchases are untouched.
 
 Stonekeepers, Rootwardens and Wildwatch teach Miner, Lumberjack and Hunter Profession Attributes at ranks I–III, retaining class and respecting the eight equipment-slot cap. Promotions cost 35 / 75 / 150 gold, with resources for higher ranks. All eight guilds offer a 35-gold stat lesson, four-encounter patrols and standing: lessons +10, completed guild patrols +20. At 20 standing, a guild-exclusive level-20 signature item becomes available once per twelve-hour stock period. Its 60-gold starting price discounts with standing, up to 40%. Lantern Runner lessons can teach Night vision after reaching 20 standing.
 
@@ -79,7 +85,7 @@ Automatic combat handles movement, terrain, abilities, projectiles, mana/stamina
 
 At observed 1×, AUTO can be off and interludes wait for Continue. Leaving battle, losing focus, reopening or selecting 2×/3× enables AUTO. Unobserved parties progress at 1×. An open-page Web Worker runs them; after browser suspension/closure, missing time reconstructs incrementally at 1×. There is no continuously running expedition server. Fed returning heroes recover in half the ordinary 30-second/defeat 90-second time.
 
-Arena has no main navigation tab. Enter through its Market district, choose a team and stake **10–1,000 gold**, optionally **0–100** wood, stone, ore, herbs, meat or hides. Rule offers vary between team deathmatch, four-team deathmatch, tigers and team deathmatch with explosive mines. Stakes are deducted before launch; defeat or recall loses them. Winning returns 2.2× gold/resources (four-team gold: 4×), scaled by world rewards, once. Arena does not award gems, equipment or cosmetics; combat XP remains. Mines damage either side.
+Arena has no main navigation tab. Enter through the Camp Travelers’ lodge, choose a team and stake **10–1,000 gold**, optionally **0–100** wood, stone, ore, herbs, meat or hides. Rule offers vary between team deathmatch, four-team deathmatch, tigers and team deathmatch with explosive mines. Stakes are deducted before launch; defeat or recall loses them. Winning returns 2.2× gold/resources (four-team gold: 4×), scaled by world rewards, once. Arena does not award gems, equipment or cosmetics; combat XP remains. Mines damage either side.
 
 ## Calendar, Shop and longer goals
 

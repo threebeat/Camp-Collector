@@ -1,9 +1,11 @@
-import * as Ever from "./evernight.js?v=15";
-import { createEvernightUi } from "./evernight-ui.js?v=15";
-import { vision, revealed } from "./lighting.js?v=15";
-import * as Night from "./nightfall.js?v=15";
-import { createNightfallUi } from "./nightfall-ui.js?v=15";
-import { regionLandmarks } from "./landmarks.js?v=15";
+import { createHomesteadUi } from "./homestead-ui.js?v=16";
+import { CAMP_VENDORS } from "./camp-world.js?v=16";
+import * as Ever from "./evernight.js?v=16";
+import { createEvernightUi } from "./evernight-ui.js?v=16";
+import { vision, revealed } from "./lighting.js?v=16";
+import * as Night from "./nightfall.js?v=16";
+import { createNightfallUi } from "./nightfall-ui.js?v=16";
+import { regionLandmarks } from "./landmarks.js?v=16";
 import {
   GAME_SEASON,
   MYTHICAL_HEROES,
@@ -71,10 +73,10 @@ import {
   objectModifiers,
   modifierPool,
   petInfo,
-} from "./data.js?v=15";
-import { Battle, distance } from "./engine.js?v=15";
-import { Renderer } from "./renderer.js?v=15";
-import { icon, portraitSvg, petSvg, itemSvg, cosmeticSvg } from "./art.js?v=15";
+} from "./data.js?v=16";
+import { Battle, distance } from "./engine.js?v=16";
+import { Renderer } from "./renderer.js?v=16";
+import { icon, portraitSvg, petSvg, itemSvg, cosmeticSvg } from "./art.js?v=16";
 import {
   activeExpeditions,
   expeditionSlots,
@@ -88,8 +90,8 @@ import {
   stockResetAt,
   trialInfo,
   trialClaimKey,
-} from "./progression.js?v=15";
-import * as Camp from "./camp.js?v=15";
+} from "./progression.js?v=16";
+import * as Camp from "./camp.js?v=16";
 import {
   BUILDINGS,
   BRANCHES,
@@ -100,8 +102,8 @@ import {
   CALENDAR_BONUSES,
   COOKING,
   BREWS,
-} from "./world.js?v=15";
-import { CODEX } from "./codex.js?v=15";
+} from "./world.js?v=16";
+import { CODEX } from "./codex.js?v=16";
 import {
   REGIONS,
   REGION_ORDER,
@@ -115,22 +117,22 @@ import {
   questState,
   activeQuests,
   bossDefeated,
-} from "./journeys.js?v=15";
-import { attachResidentDragging } from "./map-interaction.js?v=15";
-import { createClient } from "./client.js?v=15";
-import { CampChatter } from "./chatter.js?v=15";
-import { exportCamp, readCampBackup } from "./saves.js?v=15";
+} from "./journeys.js?v=16";
+import { attachResidentDragging } from "./map-interaction.js?v=16";
+import { createClient } from "./client.js?v=16";
+import { CampChatter } from "./chatter.js?v=16";
+import { exportCamp, readCampBackup } from "./saves.js?v=16";
 import {
   BattleSelection,
   attachBattleGestures,
-} from "./battle-interaction.js?v=15";
+} from "./battle-interaction.js?v=16";
 import {
   pixelBuildingSvg,
   pixelTerrainSvg,
   pixelPropSvg,
-} from "./pixel-art.js?v=15";
-import { pixelMarkup } from "./pixel-markup.js?v=15";
-import { SceneLighting } from "./scene-lighting.js?v=15";
+} from "./pixel-art.js?v=16";
+import { pixelMarkup } from "./pixel-markup.js?v=16";
+import { SceneLighting } from "./scene-lighting.js?v=16";
 let sceneLights = [];
 const battleSelection = new BattleSelection();
 const campChatter = new CampChatter();
@@ -160,6 +162,8 @@ let game = null,
   renderer = null,
   observation = { id: null, visible: true, speed: 1, paused: false },
   catchingUp = false;
+let worldMaps = [],
+  renderedExpeditionId = null;
 let focused =
   typeof document.hasFocus === "function" ? document.hasFocus() : true;
 let signature = "",
@@ -225,21 +229,11 @@ const heroById = (id) => game.roster.find((h) => h.id === id),
   currentExpedition = () =>
     game.expeditions.find((r) => r.id === game.selectedExpedition);
 function selectedHero() {
+  if (["crossroads", "party"].includes(game.screen)) return null;
   if (game.screen === "expedition")
     return battleSelection.resolve(battle)?.hero || null;
   return (
-    heroById(selected) ||
-    game.visitors?.find((h) => h.id === selected) ||
-    ([
-      "camp",
-      "market",
-      "crossroads",
-      "expeditions",
-      "shop",
-      "challenges",
-    ].includes(game.screen)
-      ? null
-      : game.roster[0])
+    heroById(selected) || game.visitors?.find((h) => h.id === selected) || null
   );
 }
 function rarityTag(tier) {
@@ -417,7 +411,7 @@ function sceneTerrain(
     )}${kind === "market" ? `<svg x="${width * 0.45}" y="${height * 0.39}" width="${width * 0.1}" height="${height * 0.2}">${pixelPropSvg("fountain")}</svg>` : ""}</svg></div>`,
   );
 }
-function campScene() {
+function legacyCampScene() {
   if (game.campZone && game.campZone !== "center") return expansionScene();
   return `<div class="camp-map local-map" data-local-map="camp" data-camp-ground>${sceneTerrain("camp")}${portraitTerrain("camp")}${Object.entries(
     BUILDINGS,
@@ -435,6 +429,9 @@ function campScene() {
     .join(
       "",
     )}${campWalkers()}${game.portalUnlocked ? portalScene() : ""}<button class="camp-market-sign" data-market-visit aria-label="Choose adventurers and walk to the Market"><span aria-hidden="true">↑</span><strong>Market</strong></button>${expansionArrows()}</div>`;
+}
+function campScene() {
+  return homeUi.campMap();
 }
 function campActivity() {
   const actions = [];
@@ -559,7 +556,7 @@ function countdownLabel(seconds) {
 }
 function battleView(r) {
   const enc = encounterFor(r);
-  return `<section class="battle-panel"><div class="battle-toolbar"><span><i class="team-dot ally"></i>Your company <strong id="ally-count">—</strong></span><div><span id="battle-time">0:00</span><button class="icon-button" id="names-btn" aria-label="Toggle character names">${icon("info", 17)}</button><button class="icon-button" id="follow-btn" aria-label="Follow company">${icon("army", 17)}</button><button class="icon-button" id="expand-btn" aria-label="Expand battlefield">${icon("expand", 17)}</button></div><span><strong id="enemy-count">—</strong>${r.mode === "arena" ? "Three rival banners" : enc.boss ? "Rare champion" : "Opposing company"}<i class="team-dot enemy"></i></span></div><div class="canvas-wrap ${expanded ? "expanded" : ""}" id="canvas-wrap"><button class="close-field icon-button" id="collapse-field" aria-label="Collapse battlefield">${icon("close")}</button><div id="fight-countdown" class="fight-countdown" role="status" aria-live="polite" ${r.phase !== "prepare" ? "hidden" : ""}>${r.phase === "prepare" ? countdownLabel(r.phaseSeconds) : ""}</div><canvas id="battlefield" role="img" aria-label="Live automatic battle. Tap a character to inspect; drag sideways to explore the battlefield."></canvas><div class="board-hint">${r.phase === "prepare" ? "Formation ready" : "Tap to inspect · Drag to look around"}</div></div><div class="battle-controls"><span>${icon(LOCATIONS[r.location].icon, 17)}${LOCATIONS[r.location].name}</span><div class="battle-actions">${autoControl(r)}<div class="speed-control">${[1, 2, 3].map((s) => `<button data-speed="${s}" class="${observation.speed === s ? "active" : ""}" aria-pressed="${observation.speed === s}">${s}×</button>`).join("")}</div>${button(icon(observation.paused ? "play" : "pause", 15) + (observation.paused ? "Resume" : "Pause"), 'id="pause-btn"', "secondary-button")}</div></div><div class="battle-legend"><span><i class="legend-swatch firelight"></i>Firelight</span><span><i class="legend-swatch nightsight"></i>Night vision</span><span><i class="legend-swatch blessing"></i>Blessing</span><span><i class="legend-swatch curse"></i>Curse / Gravity</span><span><i class="legend-swatch explosion"></i>Physical Explosion</span><span><i class="selection-key"></i>Selected character</span></div></section>`;
+  return `<section class="battle-panel"><div class="battle-toolbar"><span><i class="team-dot ally"></i>Your company <strong id="ally-count">—</strong></span><div><span id="battle-time">0:00</span><button class="icon-button" id="names-btn" aria-label="Toggle character names">${icon("info", 17)}</button><button class="icon-button" id="follow-btn" aria-label="Toggle camera focus" aria-pressed="true">${icon("army", 17)}</button><button class="icon-button" id="battle-zoom-out" aria-label="Zoom battle out">−</button><button class="icon-button" id="battle-zoom-in" aria-label="Zoom battle in">+</button><button class="icon-button" id="expand-btn" aria-label="Expand battlefield">${icon("expand", 17)}</button></div><span><strong id="enemy-count">—</strong>${r.mode === "arena" ? "Three rival banners" : enc.boss ? "Rare champion" : "Opposing company"}<i class="team-dot enemy"></i></span></div><div class="canvas-wrap ${expanded ? "expanded" : ""}" id="canvas-wrap"><button class="close-field icon-button" id="collapse-field" aria-label="Collapse battlefield">${icon("close")}</button><div id="fight-countdown" class="fight-countdown" role="status" aria-live="polite" ${r.phase !== "prepare" ? "hidden" : ""}>${r.phase === "prepare" ? countdownLabel(r.phaseSeconds) : ""}</div><canvas id="battlefield" role="img" aria-label="Live automatic battle. Tap a character to inspect; drag sideways to explore the battlefield."></canvas><div class="board-hint">${r.phase === "prepare" ? "Formation ready" : "Tap to inspect · Drag to look around"}</div></div><div class="battle-controls"><span>${icon(LOCATIONS[r.location].icon, 17)}${LOCATIONS[r.location].name}</span><div class="battle-actions">${autoControl(r)}<div class="speed-control">${[1, 2, 3].map((s) => `<button data-speed="${s}" class="${observation.speed === s ? "active" : ""}" aria-pressed="${observation.speed === s}">${s}×</button>`).join("")}</div>${button(icon(observation.paused ? "play" : "pause", 15) + (observation.paused ? "Resume" : "Pause"), 'id="pause-btn"', "secondary-button")}</div></div><div class="battle-legend"><span><i class="legend-swatch firelight"></i>Firelight</span><span><i class="legend-swatch nightsight"></i>Night vision</span><span><i class="legend-swatch blessing"></i>Blessing</span><span><i class="legend-swatch curse"></i>Curse / Gravity</span><span><i class="legend-swatch explosion"></i>Physical Explosion</span><span><i class="selection-key"></i>Selected character</span></div></section>`;
 }
 function interludeView(r) {
   const s = r.stop,
@@ -664,9 +661,8 @@ function offerInfo(o) {
   };
 }
 function marketView() {
-  if (game.marketDistrict && game.marketDistrict !== "square")
-    return workspace(everUi.districtMap());
-  if (marketMode === "vendors" && vendor === "all") return marketMapView();
+  return homeUi.marketMap();
+  /* Legacy catalog remains available in vendor sheets. */
   let stock = VENDORS.filter(
     (v) => vendor === "all" || vendor === v.id,
   ).flatMap((v) =>
@@ -1289,6 +1285,11 @@ function useService(service, id) {
     return;
   }
   const campServices = {
+    market: showMarketVisit,
+    guildhall: showCampGuilds,
+    tavern: showCampTravelers,
+    clinic: () => nightUi.showClinic(),
+    questboard: () => nightUi.showQuestBoard(),
     archaeology: showArchaeology,
     farm: () => showCampPlot("farm"),
     garden: () => showCampPlot("garden"),
@@ -1330,11 +1331,16 @@ function useService(service, id) {
     slots: () => showSlots(chooseAvailable(selected) || game.roster[0]),
   };
   if (marketServices[service]) {
-    if (game.screen === "market") marketServices[service]();
+    if (["market", "camp"].includes(game.screen)) marketServices[service]();
     return;
   }
   const isMarket = ["combine", "cosmetics"].includes(service);
-  if (game.screen !== (isMarket ? "market" : "camp")) return;
+  if (
+    isMarket
+      ? !["market", "camp"].includes(game.screen)
+      : game.screen !== "camp"
+  )
+    return;
   const h = heroById(id) || chooseAvailable(id);
   if (service === "blacksmith") {
     showBlacksmith(id ? heroById(id) : null);
@@ -1428,9 +1434,7 @@ async function navigate(screen) {
   if ($("modal").open) closeModal();
   if (await act("navigate", { screen })) {
     if (screen === "challenges" && challengeTab === "players") loadChallenges();
-    if (["camp", "crossroads"].includes(screen)) selected = null;
-    if (["party", "calendar", "arena"].includes(screen))
-      selected = game.staging[0] || game.roster[0]?.id;
+    selected = null;
     render(true);
     await syncObservation();
   }
@@ -1957,6 +1961,9 @@ function bindActions(root = document) {
     render(true);
   });
   bind("[data-build-sites]", showBuildSites);
+  bind("[data-upgrade-home]", showHomeUpgrade);
+  bind("[data-camp-arena]", () => navigate("arena"));
+  bind("[data-more-menu]", showMoreMenu);
   bind("[data-island-preview]", () =>
     game.buildings.dock
       ? nightUi.showDock()
@@ -2046,7 +2053,18 @@ function bind() {
   };
   $("expand-btn")?.addEventListener("click", expand);
   $("collapse-field")?.addEventListener("click", expand);
-  $("follow-btn")?.addEventListener("click", () => renderer?.followCompany());
+  $("follow-btn")?.addEventListener("click", () => {
+    renderer?.followCompany();
+    updateHud(true);
+  });
+  $("battle-zoom-in")?.addEventListener("click", () => {
+    renderer?.zoom(1 / 1.2);
+    updateHud();
+  });
+  $("battle-zoom-out")?.addEventListener("click", () => {
+    renderer?.zoom(1.2);
+    updateHud();
+  });
   const field = $("battlefield");
   if (field)
     attachBattleGestures(
@@ -2091,14 +2109,21 @@ function render(force = false) {
     ["expeditions", "Expeditions", "flag"],
     ["challenges", "Challenges", "shield"],
     ["quests", "Quests", "book"],
-    ["shop", "Shop", "spark"],
-    ["codex", "Codex", "book"],
+    ["more", "More", "settings"],
   ]
     .map(
       ([id, name, glyph]) =>
-        `<button data-nav="${id}" class="${game.screen === id || (id === "expeditions" && game.screen === "expedition") ? "nav-active" : ""}">${icon(glyph, 16)}<span class="nav-label">${name}</span>${id === "expeditions" && activeExpeditions(game).length ? '<span class="nav-count">' + activeExpeditions(game).length + "</span>" : ""}</button>`,
+        `<button ${id === "more" ? "data-more-menu" : `data-nav="${id}"`} class="${game.screen === id || (id === "expeditions" && game.screen === "expedition") ? "nav-active" : ""}">${icon(glyph, 16)}<span class="nav-label">${name}</span>${id === "expeditions" && activeExpeditions(game).length ? '<span class="nav-count">' + activeExpeditions(game).length + "</span>" : ""}</button>`,
     )
     .join("");
+  const retainedCamera =
+    game.screen === "expedition" &&
+    renderedExpeditionId === game.selectedExpedition
+      ? renderer?.camera
+      : null;
+  renderer?.dispose();
+  challengeRenderer?.dispose();
+  for (const map of worldMaps) map.dispose?.();
   const inspectorScroll = document.querySelector(".inspector")?.scrollTop || 0;
   rememberDetails();
   $("app-content").innerHTML = pixelMarkup(
@@ -2126,13 +2151,16 @@ function render(force = false) {
     ? new Renderer($("challenge-field"))
     : null;
   renderer = $("battlefield") ? new Renderer($("battlefield")) : null;
+  if (renderer && retainedCamera) renderer.camera = retainedCamera;
+  renderedExpeditionId = renderer ? game.selectedExpedition : null;
   if (renderer && battle) {
     renderer.selected = selectedUid;
     renderer.showNames = names;
     renderer.draw(battle, now / 1000);
   }
-  sceneLights = [...document.querySelectorAll(".local-map, .district-map")].map(
-    (element) => new SceneLighting(element),
+  worldMaps = homeUi.bind(document);
+  sceneLights = [...document.querySelectorAll(".map-world")].map(
+    (element) => new SceneLighting(element, game),
   );
   updateHud();
   everUi.tutorial();
@@ -2142,8 +2170,21 @@ function render(force = false) {
   );
   document.title = `${game.screen === "camp" ? "The Camp" : game.screen === "crossroads" ? "Local map" : game.screen === "party" ? "Assemble your party" : game.screen === "market" ? "The Market" : game.screen === "arena" ? "The Arena" : game.screen === "shop" ? "The Gem Shop" : game.screen === "calendar" ? "Challenges" : game.screen === "challenges" ? "Challenges" : game.screen === "codex" ? "The Codex" : game.screen === "expedition" ? currentExpedition()?.name || "Expedition" : "Expeditions"} · ${game.campName || "Your Camp"} · Evernight`;
 }
-function updateHud() {
+let lastHudAt = -Infinity;
+function updateHud(force = false) {
   if (!game) return;
+  const at = performance.now();
+  if (!force && at - lastHudAt < 150) return;
+  lastHudAt = at;
+  if ($("pause-btn"))
+    $("pause-btn").textContent = observation.paused ? "Resume" : "Pause";
+  if ($("follow-btn")) {
+    $("follow-btn").textContent = renderer?.camera.manual ? "Focus" : "Focused";
+    $("follow-btn").setAttribute(
+      "aria-pressed",
+      String(!renderer?.camera.manual),
+    );
+  }
   document.querySelectorAll("[data-battle-hp]").forEach((el) => {
     const unit = battle?.units.find(
       (u) =>
@@ -2296,7 +2337,13 @@ function updateHud() {
   }
 }
 function onUpdate(data) {
+  const previousScreen = game?.screen;
   game = data.game;
+  if (previousScreen !== game.screen) {
+    selected = null;
+    selectedUid = null;
+    battleSelection.clear();
+  }
   campChatter.update(
     game.lastClock,
     game.screen === "camp"
@@ -2311,7 +2358,17 @@ function onUpdate(data) {
     state =
       game.screen === "expedition" && r?.status === "active" && r.battleState;
   const previous = battle;
-  battle = state ? Battle.fromState(state) : null;
+  battle = state
+    ? previous &&
+      previous.map.seed === state.map.seed &&
+      previous.map.biome === state.map.biome
+      ? Object.assign(Object.create(Battle.prototype), state, {
+          map: previous.map,
+          units: state.units.map((u) => ({ ...u })),
+          projectiles: state.projectiles.map((p) => ({ ...p })),
+        })
+      : Battle.fromState(state)
+    : null;
   lastObservedAt = performance.now();
   if (
     battle &&
@@ -2320,11 +2377,46 @@ function onUpdate(data) {
     battle.map.biome === previous.map.biome
   ) {
     battle.map = previous.map;
+    const t = Math.min(
+      1,
+      Math.max(
+        0,
+        (performance.now() - (previous.receivedAt || performance.now())) / 100,
+      ),
+    );
     const positions = new Map(
-      previous.units.map((u) => [u.uid, { x: u.x, y: u.y }]),
+      previous.units.map((u) => [
+        u.uid,
+        u.fromPosition
+          ? {
+              x: u.fromPosition.x + (u.x - u.fromPosition.x) * t,
+              y: u.fromPosition.y + (u.y - u.fromPosition.y) * t,
+            }
+          : { x: u.x, y: u.y },
+      ]),
     );
     for (const u of battle.units) u.fromPosition = positions.get(u.uid);
+    const availableProjectiles = [...previous.projectiles];
+    for (const p of battle.projectiles) {
+      const i = availableProjectiles.findIndex(
+        (q) =>
+          q.ownerId === p.ownerId &&
+          q.targetId === p.targetId &&
+          q.type === p.type &&
+          Math.hypot(q.x - p.x, q.y - p.y) < 160,
+      );
+      if (i >= 0) {
+        const q = availableProjectiles.splice(i, 1)[0];
+        p.fromPosition = q.fromPosition
+          ? {
+              x: q.fromPosition.x + (q.x - q.fromPosition.x) * t,
+              y: q.fromPosition.y + (q.y - q.fromPosition.y) * t,
+            }
+          : { x: q.x, y: q.y };
+      }
+    }
   }
+  if (battle) battle.receivedAt = performance.now();
   const beforeSelectedUid = selectedUid;
   battleSelection.enter(
     game.screen === "expedition" && battle ? `${r.id}:${r.stage}` : null,
@@ -2347,14 +2439,15 @@ function onUpdate(data) {
   const next = [
     game.screen,
     game.selectedExpedition,
+    JSON.stringify(game.destination),
+    game.staging.join(),
     r?.phase,
     r?.stage,
     r?.auto,
     r?.stop?.done,
     game.roster.length,
     game.expeditions.map((r) => r.status).join(),
-    observation.speed,
-    observation.paused,
+
     JSON.stringify(game.questClaims),
     JSON.stringify(game.journeyClears),
     game.roster.map((h) => h.level + ":" + h.classNodes.length).join(),
@@ -2366,7 +2459,12 @@ function onUpdate(data) {
       .map((h) => h.recoveryUntil > game.lastClock || !!Camp.heroJob(h))
       .join(),
   ].join("|");
-  if (next !== signature || data.requestId) {
+  if (
+    next !== signature ||
+    (data.requestId &&
+      !["expedition", "crossroads"].includes(game.screen) &&
+      !data.observationOnly)
+  ) {
     const stateChanged = next !== signature;
     signature = next;
     render(true);
@@ -2376,7 +2474,7 @@ function onUpdate(data) {
     lastDetail = performance.now();
     updateDetailLive();
   }
-  updateHud();
+  updateHud(!!data.requestId);
   $("save-status").textContent = data.storageFailed
     ? "Saving unavailable · keep this tab open"
     : catchingUp
@@ -2477,7 +2575,7 @@ function showBuilding(key, id) {
       .join("")}</div></div></div>`,
     button(
       (def.upgradeFrom ? "Upgrade to " : "Build ") + def.name,
-      `data-construct="${key}" ${!Camp.hasCost(game, def.cost) || (def.minRoster && game.roster.length < def.minRoster) ? "disabled" : ""}`,
+      `data-construct="${key}" ${!Camp.hasCost(game, def.cost) || (def.minCampLevel && Ever.campProgress(game).level < def.minCampLevel) || (def.minRoster && game.roster.length < def.minRoster) ? "disabled" : ""}`,
     ),
   );
 }
@@ -2522,7 +2620,7 @@ function showAlchemy() {
   openModal(
     "The Alchemist",
     "A workshop for gem fusion, transmutation, and expedition potions.",
-    `<p class="modal-note">${game.gems} available gem value. Three matching gems become one of the next size, preserving total value. Socketed gems stay with their companion. ${info("gems")}</p><h3>Combine gems</h3><div class="item-list">${groups.map((g) => `<div class="item-option"><span class="gem-art" style="color:${GEM_KINDS[g.kind].color}">◆</span><span><strong>${GEM_SIZES[g.size].name} ${GEM_KINDS[g.kind].name} ×${g.count}</strong><small>${g.size < 3 ? "3 → 1 " + GEM_SIZES[g.size + 1].name : "Largest size"}</small></span>${button("Combine", `data-fuse="${g.kind}" data-size="${g.size}" ${g.count < 3 || g.size === 3 ? "disabled" : ""}`, "secondary-button")}</div>`).join("") || "<p>No gems yet. Bosses drop gems; deeper destinations yield larger ones.</p>"}</div><h3>Transmute a gemstone</h3><select id="transmute-gem" class="modal-select">${game.gemstones.map((g) => `<option value="${g.id}">${GEM_SIZES[g.size].name} ${GEM_KINDS[g.kind].name} → ${gemValue(g) * 3} materials</option>`).join("") || '<option value="">No gems available</option>'}</select><div class="card-actions">${["ore", "herbs", "stone"].map((key) => button("Convert to " + key, `data-transmute="${key}" ${!game.gemstones.length ? "disabled" : ""}`, "secondary-button")).join("")}</div><h3>Brew consumables</h3><div class="item-list">${Object.entries(
+    `${button("Analyze relics", 'data-service="analyze"', "secondary-button")}${button("Create from scroll", 'data-service="create"', "secondary-button")}${button("Combine adventurers", 'data-service="combine"', "secondary-button")}<p class="modal-note">${game.gems} available gem value. Three matching gems become one of the next size, preserving total value. Socketed gems stay with their companion. ${info("gems")}</p><h3>Combine gems</h3><div class="item-list">${groups.map((g) => `<div class="item-option"><span class="gem-art" style="color:${GEM_KINDS[g.kind].color}">◆</span><span><strong>${GEM_SIZES[g.size].name} ${GEM_KINDS[g.kind].name} ×${g.count}</strong><small>${g.size < 3 ? "3 → 1 " + GEM_SIZES[g.size + 1].name : "Largest size"}</small></span>${button("Combine", `data-fuse="${g.kind}" data-size="${g.size}" ${g.count < 3 || g.size === 3 ? "disabled" : ""}`, "secondary-button")}</div>`).join("") || "<p>No gems yet. Bosses drop gems; deeper destinations yield larger ones.</p>"}</div><h3>Transmute a gemstone</h3><select id="transmute-gem" class="modal-select">${game.gemstones.map((g) => `<option value="${g.id}">${GEM_SIZES[g.size].name} ${GEM_KINDS[g.kind].name} → ${gemValue(g) * 3} materials</option>`).join("") || '<option value="">No gems available</option>'}</select><div class="card-actions">${["ore", "herbs", "stone"].map((key) => button("Convert to " + key, `data-transmute="${key}" ${!game.gemstones.length ? "disabled" : ""}`, "secondary-button")).join("")}</div><h3>Brew consumables</h3><div class="item-list">${Object.entries(
       BREWS,
     )
       .map(
@@ -2942,7 +3040,10 @@ function updateDetailLive() {
   if (!$("hero-detail")) return;
   const h = selectedHero(),
     u = battle?.units.find((u) => u.uid === selectedUid);
-  if (!h) return;
+  if (!h) {
+    $("hero-detail").innerHTML = "";
+    return;
+  }
   if (detailKey(h, u) !== detailFingerprint) {
     renderDetail();
     return;
@@ -2970,6 +3071,7 @@ function updateDetailLive() {
     $("detail-xp-fill").style.width = (h.xp / xpNeeded(h.level)) * 100 + "%";
 }
 
+const homeUi = createHomesteadUi({ getGame: () => game, button, esc });
 const everUi = createEvernightUi({
   getGame: () => game,
   button,
@@ -3022,7 +3124,11 @@ const nightUi = createNightfallUi({
     renderDetail();
   },
   visitMarketFromWorkshop: async () => {
-    await act("visitMarket", {
+    if (!game.buildings.market) {
+      showBuilding("market");
+      return false;
+    }
+    const ok = await act("visitMarket", {
       ids: game.roster
         .filter((h) => available(game, h))
         .slice(0, 3)
@@ -3030,6 +3136,7 @@ const nightUi = createNightfallUi({
     });
     marketMode = "vendors";
     vendor = "all";
+    return ok;
   },
 });
 client = createClient(onUpdate);
@@ -3094,8 +3201,20 @@ document.addEventListener("keydown", (e) => {
   }
 });
 function frame(now) {
-  if (["camp", "market"].includes(game?.screen) && !document.hidden)
-    animateResidents(now);
+  if (["camp", "market"].includes(game?.screen) && !document.hidden) {
+    for (const map of worldMaps) {
+      map.camera.update(now / 1000);
+      map.apply();
+    }
+    if (!game.settings.reducedMotion)
+      document.querySelectorAll("[data-world-resident]").forEach((el) => {
+        const i = +el.dataset.worldResident;
+        el.style.left =
+          +el.dataset.worldX + Math.sin(now / 9000 + i) * 14 + "px";
+        el.style.top =
+          +el.dataset.worldY + Math.cos(now / 12000 + i) * 10 + "px";
+      });
+  }
   if (
     !document.hidden &&
     focused &&
@@ -3123,7 +3242,7 @@ function frame(now) {
   if (!document.hidden && focused && !closing && renderer && battle) {
     const fraction = Math.min(1, Math.max(0, (now - lastObservedAt) / 100)),
       positions = [];
-    for (const u of battle.units)
+    for (const u of [...battle.units, ...battle.projectiles])
       if (u.fromPosition) {
         positions.push([u, u.x, u.y]);
         u.x = u.fromPosition.x + (u.x - u.fromPosition.x) * fraction;
@@ -3292,6 +3411,10 @@ function v7Detail() {
   const el = $("hero-detail");
   if (!el) return;
   const h = selectedHero();
+  if (["crossroads", "party"].includes(game.screen)) {
+    el.innerHTML = "";
+    return;
+  }
   if (game.screen === "expedition") {
     const unit = battleSelection.resolve(battle);
     el.setAttribute(
@@ -3740,10 +3863,25 @@ function showBuildSites() {
   openModal(
     "Build at your Camp",
     "Your only home. Gather materials to add new services.",
-    `<div class="build-site-list">${
+    `<div class="build-site-list">${button("Upgrade " + (game.buildings.tent > 1 ? "Cabin" : "Tent") + " · +20 spaces", "data-upgrade-home", "secondary-button")}${Object.entries(
+      Camp.CAMP_EXPANSIONS,
+    )
+      .filter(([key]) => !game.campExpansions.includes(key))
+      .map(([key, d]) =>
+        button(
+          "Clear " + d.name,
+          `data-expand-camp="${key}"`,
+          "secondary-button",
+        ),
+      )
+      .join("")}${
       Object.entries(BUILDINGS)
         .filter(
-          ([key, b]) => !game.buildings[key] && Camp.buildingAllowed(game, b),
+          ([key, b]) =>
+            !b.legacy &&
+            b.cost &&
+            !game.buildings[key] &&
+            Camp.buildingAllowed(game, b),
         )
         .map(([key, b]) =>
           button(
@@ -3760,6 +3898,10 @@ function showCharacterService(h) {
   nightUi.showProfile(h);
 }
 function showMarketVisit() {
+  if (!game.buildings.market) {
+    showBuilding("market");
+    return;
+  }
   marketVisitors = marketVisitors.filter((id) =>
     game.roster.some((h) => h.id === id && available(game, h)),
   );
@@ -3856,7 +3998,10 @@ function showVendorShop() {
   if (!v) return;
   const h = heroById(marketFor),
     q = shopSearch.toLowerCase();
-  let stock = (game.market[v.id] || []).filter(
+  let stock = [
+    ...(game.market[v.id] || []),
+    ...(v.id === "night" ? game.market.lights || [] : []),
+  ].filter(
     (o) =>
       offerFitsHero(o, h) &&
       (shopType === "all" || shopType === o.kind) &&
@@ -4245,4 +4390,63 @@ function confirmRelease(id) {
 
 function lakeshoreScene() {
   return `<div class="camp-map local-map lakeshore-map"><div class="lake-terrain pixel-ground">${pixelTerrainSvg("river", 900, 540, 791)}<svg viewBox="0 0 900 540" shape-rendering="crispEdges" aria-hidden="true"><rect y="220" width="900" height="320" fill="#263f50"/>${Array.from({ length: 24 }, (_, i) => `<rect x="${i * 40}" y="${200 + (i % 3) * 12}" width="40" height="24" fill="#416479"/>`).join("")}${Array.from({ length: 30 }, (_, i) => `<rect x="${(i * 113) % 880}" y="${250 + ((i * 79) % 280)}" width="32" height="4" fill="#596d88"/>`).join("")}<rect x="574" y="394" width="184" height="52" fill="#354d4b"/><rect x="598" y="378" width="136" height="20" fill="#354d4b"/><svg x="618" y="320" width="92" height="102">${pixelPropSvg("ruin")}</svg>${game.buildings.dock ? `<svg x="322" y="182" width="98" height="156">${pixelBuildingSvg("dock")}</svg>` : ""}</svg></div><div class="camp-map-label"><strong>South lakeshore</strong><span>The Bell Beneath · an island in the local lake</span></div>${button("↑ Central Camp", 'data-camp-zone="center"', "market-direction north")}${game.buildings.dock ? button(icon("flag", 30) + "<strong>Lantern Dock</strong>", 'data-building="dock"', "dock-service") : button("Build Lantern Dock", 'data-building="dock"', "dock-service")}${button("◈ The Bell Beneath<small>25 floors · " + (game.buildings.dock ? "Sail from the dock" : "Build the dock to reach it") + "</small>", "data-island-preview", "island-sign")}${game.buildings.garden ? button("Herb garden", 'data-building="garden"', "shore-garden") : ""}${game.buildings.archaeology && game.archaeologyZone === "south" ? button("Archaeology Camp", 'data-building="archaeology"', "shore-archaeology") : ""}${nightUi.visitorScene("dock")}</div>`;
+}
+
+function showMoreMenu() {
+  openModal(
+    "More",
+    "Evernight",
+    button("Shop", 'data-nav="shop"', "secondary-button") +
+      button("Codex", 'data-nav="codex"', "secondary-button") +
+      button("Settings", "data-open-settings", "secondary-button"),
+  );
+  document
+    .querySelector("[data-open-settings]")
+    ?.addEventListener("click", showSettings);
+}
+function showHomeUpgrade() {
+  const cost = Camp.cabinCost(game);
+  openModal(
+    game.buildings.tent > 1 ? "Upgrade Cabin" : "Tent → Cabin",
+    "Upgrade your home in place",
+    `<p>Add twenty adventurer spaces without placing another building.</p><p>${Camp.costText(cost)}</p>`,
+    button(
+      "Upgrade · +20 spaces",
+      `data-construct="cabins" ${Camp.hasCost(game, cost) ? "" : "disabled"}`,
+    ),
+  );
+}
+function showCampGuilds() {
+  openModal(
+    "Guild lodge",
+    "Training, quests and guild standing",
+    `<div class="guild-booth-grid">${Ever.GUILDS.map((d) => button(pixelBuildingSvg("guild-" + d.id) + "<strong>" + d.name + "</strong>", `data-guild-booth="${d.id}"`, "district-booth")).join("")}</div>`,
+  );
+}
+function showCampTravelers() {
+  openModal(
+    "Travelers’ lodge",
+    "Meet and hire travelers at Camp",
+    button(
+      "Browse adventurers",
+      'data-vendor-map="guild"',
+      "secondary-button",
+    ) +
+      `<div class="tavern-recruits">${game.visitors
+        .filter((h) => h.place !== "dock")
+        .map((h) =>
+          button(
+            portraitSvg(h, true) +
+              "<strong>" +
+              esc(h.name) +
+              "</strong><small>" +
+              h.price +
+              " gold</small>",
+            `data-neutral="${h.id}"`,
+            "tavern-recruit",
+          ),
+        )
+        .join("")}</div>` +
+      button("Arena wagers", "data-camp-arena", "secondary-button"),
+  );
 }

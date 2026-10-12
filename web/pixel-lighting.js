@@ -1,4 +1,4 @@
-import { sightPolygon } from "./lighting.js?v=15";
+import { sightPolygon } from "./lighting.js?v=16";
 
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const bands = [
@@ -19,9 +19,36 @@ export class PixelLighting {
     this.mask.width = this.tint.width = Math.ceil(width / grid);
     this.mask.height = this.tint.height = Math.ceil(height / grid);
     this.updatedAt = -Infinity;
+    this.signature = "";
   }
   paint(scene, lights, senses, remembered, time, darkness = 0.98) {
     if (time - this.updatedAt < 0.1 && time >= this.updatedAt) return;
+    const signature = JSON.stringify([
+      darkness,
+      lights.map((s) => [
+        Math.round(s.x / 4),
+        Math.round(s.y / 4),
+        s.r,
+        s.color,
+      ]),
+      senses.map((s) => [
+        Math.round(s.x / 4),
+        Math.round(s.y / 4),
+        s.r,
+        s.nightVision,
+      ]),
+      remembered,
+      (scene.map.objects || []).map((o) => [
+        o.type,
+        Math.round(o.x / 4),
+        Math.round(o.y / 4),
+        o.r,
+        o.w,
+        o.h,
+      ]),
+    ]);
+    if (signature === this.signature) return;
+    this.signature = signature;
     this.updatedAt = time;
     const mask = this.mask.getContext("2d", { willReadFrequently: true }),
       tint = this.tint.getContext("2d"),

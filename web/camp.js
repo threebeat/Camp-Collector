@@ -1,5 +1,5 @@
-import * as Ever from "./evernight.js?v=15";
-import { gatherProfessions } from "./nightfall.js?v=15";
+import * as Ever from "./evernight.js?v=16";
+import { gatherProfessions } from "./nightfall.js?v=16";
 import {
   gatheringFacets,
   CORE_STATS,
@@ -34,8 +34,8 @@ import {
   PETS,
   makePet,
   EVOLUTIONS,
-} from "./data.js?v=15";
-import { BUILDINGS, COOKING, BREWS } from "./world.js?v=15";
+} from "./data.js?v=16";
+import { BUILDINGS, COOKING, BREWS } from "./world.js?v=16";
 export const gemsTotal = (g) =>
   g.gemstones.reduce((sum, v) => sum + gemValue(v), 0);
 export function addGems(g, value, kind = "ruby") {
@@ -93,7 +93,7 @@ export function idle(g, h) {
     !heroJob(h)
   );
 }
-export const campCapacity = (g) => 40 + 20 * (g.buildings.cabins || 0);
+export const campCapacity = (g) => 40 + 20 * Math.max(g.buildings.cabins || 0, (g.buildings.tent || 1) - 1);
 export const cabinCost = (g) =>
   Object.fromEntries(
     Object.entries(BUILDINGS.cabins.cost).map(([k, v]) => [
@@ -115,6 +115,7 @@ export function buildCamp(g, key) {
   if (
     g.screen !== "camp" ||
     !cost ||
+    (def.minCampLevel && Ever.campProgress(g).level < def.minCampLevel) ||
     !buildingAllowed(g, def) ||
     (def.upgradeFrom && !g.buildings[def.upgradeFrom]) ||
     (g.buildings[key] && key !== "cabins") ||
@@ -123,6 +124,7 @@ export function buildCamp(g, key) {
   )
     return false;
   g.buildings[key] = (g.buildings[key] || 0) + 1;
+  if (key === "cabins") g.buildings.tent = g.buildings.cabins + 1;
   Ever.awardCampXp(
     g,
     def.upgradeFrom ? 250 : key === "cabins" ? 220 : 160,

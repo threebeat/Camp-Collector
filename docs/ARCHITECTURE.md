@@ -1,6 +1,6 @@
 # Architecture
 
-This describes the implementation at version 0.1.0. It is a map of the present code, not a commitment to keep its boundaries or technology forever.
+This describes the implementation at version 0.2.0. It is a map of the present code, not a commitment to keep its boundaries or technology forever.
 
 ## Runtime boundaries
 
@@ -63,7 +63,7 @@ These guards make the board functional, but do not prove the caller actually ear
 
 ## Build and deployment
 
-`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=15` cache URLs. Generated output is excluded from source control.
+`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=16` cache URLs. Generated output is excluded from source control.
 
 The hosting manifest binds the existing Sites project with `d1: 'DB'` and no R2 bucket. Sites applies committed `drizzle/` migrations before uploading the Worker. The original source origin and owner-private audience must be preserved when publishing unless the owner directs otherwise. A separate GitHub remote can coexist; it is not a replacement deployment ID.
 
@@ -98,3 +98,11 @@ The challenge sanitizer accepts canonical light equipment and new class nodes; i
 `renderer.js` draws the battlefield onto a 600×240 raster world, then scales/crops it without smoothing. Its camera follows the live company or accepts explicit pan input; `worldPoint()` reverses the viewport transform for hit testing. World UI text uses display resolution. `pixel-lighting.js` shades at a four-unit grid with clipped light bands, seven alpha steps and Bayer dithering; masks refresh at most ten times per second. `scene-lighting.js` applies the same bands to management maps, including resident lamps and warm or arcane building windows. It is decorative there; expedition visibility remains owned by `lighting.js` and the engine.
 
 `battle-interaction.js` separates explicit selection from simulation snapshots. Encounter identity changes clear it, and reconciliation rejects dead, missing or hidden units. Pointer travel/cancellation separates taps from panning and page scrolling. `app.js` does not fall back to the first adventurer in expeditions. No new save fields or database migrations are required.
+
+## Growing Camp and performance (0.2)
+
+`camp-world.js` defines the 1800×1400 world anchors, four active merchants, revealed areas and idempotent legacy home/service migration. `homestead-ui.js` owns the Camp/Market world viewports and their disposable ResizeObservers. `camera.js` provides frame-time easing, party-bounds framing, zoom/coordinate inversion, two-axis drag, pinch, keyboard controls and synthetic-click suppression. `homestead.css` is the final compact layout layer.
+
+The renderer caches visual sprite identities without XP/timer fields, reuses terrain and draws finer movement onto a 1200×480 world raster. App snapshots retain the Battle prototype/terrain but shallow-copy visual entities rather than reconstructing the model each update; units and projectiles interpolate from the previous displayed position. The simulation continues owning combat/checkpoints. Camera state survives ordinary expedition rerenders and observation-only responses do not rebuild the DOM. HUD writes are throttled. ResizeObserver caches viewport measurements; observers disconnect when their view is replaced.
+
+Scene lighting samples static world anchors once, uses dynamic resident occluders and equipped lamps, and reuses unchanged mask geometry. Progression revelation has its own world-space mask. Bonfire glow/embers animate separately from the expensive darkness/shadow pass. Background Camp ground is generated and compacted once; do not regenerate its large SVG on snapshots. Save schema/key/season and database history remain unchanged.

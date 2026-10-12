@@ -1,6 +1,6 @@
-import * as Ever from "./evernight.js?v=15";
-import { questById } from "./journeys.js?v=15";
-import * as Night from "./nightfall.js?v=15";
+import * as Ever from "./evernight.js?v=16";
+import { questById } from "./journeys.js?v=16";
+import * as Night from "./nightfall.js?v=16";
 import {
   GAME_SEASON,
   MYTHICAL_HEROES,
@@ -63,14 +63,14 @@ import {
   modifierFits,
   validModifiers,
   petInfo,
-} from "./data.js?v=15";
-import * as Camp from "./camp.js?v=15";
+} from "./data.js?v=16";
+import * as Camp from "./camp.js?v=16";
 import {
   BRANCHES,
   calendarDay,
   calendarMonth,
   CALENDAR_BONUSES,
-} from "./world.js?v=15";
+} from "./world.js?v=16";
 import {
   journeyInfo,
   journeyRequirements,
@@ -82,8 +82,8 @@ import {
   trackQuest,
   difficultyAllowed,
   REGION_CHAMPIONS,
-} from "./journeys.js?v=15";
-import { seeded } from "./engine.js?v=15";
+} from "./journeys.js?v=16";
+import { seeded } from "./engine.js?v=16";
 export const SLOT_MILESTONES = [0, 12, 35, 75];
 export const activeExpeditions = (g) =>
   g.expeditions.filter((r) => r.status === "active");
@@ -249,6 +249,7 @@ export function lockRoute(g) {
 export function visitMarket(g, ids) {
   if (
     g.screen !== "camp" ||
+    !g.buildings.market ||
     !Array.isArray(ids) ||
     ids.length > 6 ||
     new Set(ids).size !== ids.length ||
@@ -369,7 +370,7 @@ function canManage(g, h) {
 }
 function marketManage(g, h) {
   return (
-    !!h && g.screen === "market" && g.roster.includes(h) && available(g, h)
+    !!h && ["market", "camp"].includes(g.screen) && g.roster.includes(h) && available(g, h)
   );
 }
 export function equip(g, h, itemId, slot) {
@@ -435,7 +436,8 @@ export function unlockEquipment(g, h, type) {
     "scroll",
   ];
   if (
-    g.screen !== "market" ||
+    (g.screen === "camp" && !g.buildings.armory) ||
+    !["market", "camp"].includes(g.screen) ||
     (type === "scroll" && !CLASSES[h.classId].magical) ||
     !marketManage(g, h) ||
     h.level < 10 ||
@@ -461,6 +463,7 @@ export const transformationCost = () => 0;
 export const transform = () => false;
 export function combine(g, h, donor) {
   if (
+    (g.screen === "camp" && !g.buildings.alchemist) ||
     !marketManage(g, h) ||
     !marketManage(g, donor) ||
     h.id === donor.id ||
@@ -497,7 +500,8 @@ export function buildHero(g, race, classId, scrollId) {
     (s) => s.id === scrollId && s.analyzed && s.race === race,
   );
   if (
-    g.screen !== "market" ||
+    (g.screen === "camp" && !g.buildings.alchemist) ||
+    !["market", "camp"].includes(g.screen) ||
     g.roster.length >= Camp.campCapacity(g) ||
     !scroll ||
     !RACES[race] ||
@@ -553,7 +557,7 @@ function returnBelongings(g, h) {
   g.staging = g.staging.filter((id) => id !== h.id);
 }
 export function recycle(g, kind, id, sell = false) {
-  if (sell ? g.screen !== "market" : !inCamp(g)) return false;
+  if (sell ? !["market", "camp"].includes(g.screen) : !inCamp(g)) return false;
   const list =
       kind === "hero"
         ? g.roster
@@ -757,7 +761,7 @@ export function marketStock(g, vendor) {
   return (g.market[vendor] ||= makeStock(vendor, g.marketEpoch));
 }
 export function buy(g, input) {
-  if (g.screen !== "market") return false;
+  if (!["market", "camp"].includes(g.screen)) return false;
   let list, index;
   for (const v of VENDORS) {
     const stock = marketStock(g, v.id),
@@ -770,6 +774,7 @@ export function buy(g, input) {
   }
   if (!list) return false;
   const o = list[index];
+  if ((g.screen === "market" && !g.buildings.market) || (g.screen === "camp" && !(o.kind === "hero" && g.buildings.tavern))) return false;
   if (["attribute", "talent"].includes(o.kind)) return false;
   if (
     (o.kind === "hero" && g.roster.length >= Camp.campCapacity(g)) ||
@@ -1002,7 +1007,7 @@ export function stageTrial(g, choice) {
   return true;
 }
 export function analyze(g, id) {
-  if (g.screen !== "market" || g.gold < 25) return false;
+  if (!["market", "camp"].includes(g.screen) || (g.screen === "camp" && !g.buildings.alchemist) || g.gold < 25) return false;
   const s = g.scrolls.find((s) => s.id === id && !s.analyzed),
     i = g.inventory.find((i) => i.id === id && i.unidentified);
   if (!s && !i) return false;
@@ -1015,7 +1020,7 @@ export function analyze(g, id) {
 }
 export function forge(g, kind, key) {
   if (
-    g.screen !== "market" ||
+    !["market", "camp"].includes(g.screen) ||
     !["item", "pet"].includes(kind) ||
     (kind === "item" && ITEMS[key]?.weaponKind)
   )

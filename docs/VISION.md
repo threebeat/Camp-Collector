@@ -51,3 +51,7 @@ Class decisions alternate learned talents and subclass choices instead of spendi
 ## First pixel release — Evernight 0.1
 
 The owner accepted the retro fantasy mock-up and prioritized complete pixel artwork, a clean Camp centered on phones, and a mobile expedition that is not interrupted by automatic profiles. Permanent night remains a mechanic. Warm lanterns, indigo darkness, violet magic and blue night vision overlap on the world with stepped/dithered edges. Text and control targets remain readable. Original equipment/race identities are preserved; the world should keep moving toward this coherent style rather than mixing unrelated asset packs.
+
+## Growing home — Evernight 0.2
+
+The owner now wants a smaller starting footprint within a larger explorable Camp, smooth camera control, a strong welcoming bonfire and less phone clutter. The neighboring Market is replaced by a constructed four-vendor Camp Market; services gradually occupy the Camp grounds. Home upgrades replace separate cabin placement. Treat animation-frame rendering as a performance target, not evidence of physical-device frame rate.

@@ -1,4 +1,4 @@
-import { ExpeditionSimulation } from "./simulation.js?v=15";
+import { ExpeditionSimulation } from "./simulation.js?v=16";
 export const SAVE_KEY = "camp-collector-v12";
 export function loadGame(storage = localStorage) {
   try {
@@ -53,7 +53,7 @@ export function createClient(onUpdate, saved = loadGame()) {
   };
   if (typeof Worker !== "undefined") {
     worker = new Worker(
-      new URL("./expedition-worker.js?v=15", import.meta.url),
+      new URL("./expedition-worker.js?v=16", import.meta.url),
       { type: "module" },
     );
     worker.onmessage = receive;
@@ -69,7 +69,7 @@ export function createClient(onUpdate, saved = loadGame()) {
       try {
         let data;
         if (type === "init") data = simulation.snapshot();
-        else if (type === "observe") data = simulation.observe(args, now);
+        else if (type === "observe") data = { ...simulation.observe(args, now), observationOnly: true };
         else if (type === "checkpoint") {
           simulation.advance(now);
           data = simulation.snapshot();

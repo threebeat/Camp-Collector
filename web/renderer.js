@@ -1,9 +1,10 @@
+import { WorldCamera } from "./camera.js?v=16";
 import {
   vision,
   lightSources,
   environmentLights,
   revealed,
-} from "./lighting.js?v=15";
+} from "./lighting.js?v=16";
 import {
   W,
   H,
@@ -13,14 +14,14 @@ import {
   ITEMS,
   allGear,
   itemRarity,
-} from "./data.js?v=15";
-import { portraitSvg, petSvg, creatureSvg } from "./art.js?v=15";
+} from "./data.js?v=16";
+import { portraitSvg, petSvg, creatureSvg } from "./art.js?v=16";
 import {
   pixelTerrainSvg,
   pixelPropSvg,
   pixelCreatureSvg,
-} from "./pixel-art.js?v=15";
-import { PixelLighting } from "./pixel-lighting.js?v=15";
+} from "./pixel-art.js?v=16";
+import { PixelLighting } from "./pixel-lighting.js?v=16";
 
 const GRID = 2,
   images = new Map();
@@ -49,16 +50,31 @@ function heroSprite(hero, pose) {
     wingPose: pose,
     smokePose: pose,
   };
+  const visualGear = (i) =>
+    i && [
+      i.key,
+      itemRarity(i),
+      i.rank,
+      i.cosmetic,
+      i.prefix,
+      i.affix,
+      i.enchantment,
+      i.modifiers,
+      i.sockets,
+    ];
   const key =
     "hero:" +
     JSON.stringify([
       hero.race,
       hero.classId,
       hero.specialization,
+      hero.classPath,
+      hero.classNodes,
       appearance,
-      hero.items,
-      hero.armor,
-      hero.light,
+      hero.items?.map(visualGear),
+      hero.armor?.map(visualGear),
+      visualGear(hero.light),
+      heroRarity(hero),
       hero.cosmetic,
       hero.attributes?.map((a) => [a.key, a.rank]),
       hero.talents?.map((a) => a.key),
@@ -108,19 +124,36 @@ export class Renderer {
     this.world = document.createElement("canvas");
     this.background = document.createElement("canvas");
     for (const c of [this.world, this.background]) {
-      c.width = W / GRID;
-      c.height = H / GRID;
+      c.width = W;
+      c.height = H;
     }
     this.lighting = new PixelLighting(W, H, 4);
-    this.camera = { x: 0, width: W, manual: false };
+    this.camera = new WorldCamera(W, H, {
+      x: 220,
+      y: H / 2,
+      span: 480,
+      min: 360,
+    });
+    this.baseSpan = 480;
+    this.camera.padding = 100;
     this.map = null;
     this.mapDirty = true;
     this.selected = null;
     this.showNames = false;
     this.lastSize = "";
+    this.bounds = canvas.getBoundingClientRect();
+    this.sizeObserver =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => {
+            this.bounds = canvas.getBoundingClientRect();
+          })
+        : null;
+    this.sizeObserver?.observe(canvas);
   }
   fit() {
-    const r = this.canvas.getBoundingClientRect(),
+    const r = this.sizeObserver
+        ? this.bounds
+        : this.canvas.getBoundingClientRect(),
       dpr = Math.min(window.devicePixelRatio || 1, 2);
     const width = Math.max(1, r.width),
       height = Math.max(1, r.height);
@@ -129,32 +162,31 @@ export class Renderer {
       this.lastSize = key;
       this.canvas.width = Math.round(width * dpr);
       this.canvas.height = Math.round(height * dpr);
-      this.camera.width = Math.min(
-        W,
-        Math.max(480, Math.floor((H * width) / height / GRID) * GRID),
-      );
-      this.camera.x = Math.max(
-        0,
-        Math.min(W - this.camera.width, this.camera.x),
-      );
+      this.camera.viewport(width, height);
+      this.baseSpan = Math.min(W, Math.max(360, (H * width) / height));
     }
   }
+  dispose() {
+    this.sizeObserver?.disconnect();
+  }
   panTo(x) {
-    this.camera.manual = true;
-    this.camera.x = Math.max(0, Math.min(W - this.camera.width, x));
+    this.camera.move(x - this.camera.x, 0);
+  }
+  panBy(dx, dy) {
+    this.camera.move(dx, dy);
+  }
+  zoom(factor) {
+    this.camera.zoom(factor);
   }
   followCompany() {
-    this.camera.manual = false;
+    this.camera.manual = !this.camera.manual;
   }
   worldPoint(clientX, clientY) {
-    const r = this.canvas.getBoundingClientRect(),
-      scale = r.width / this.camera.width;
-    const top = (r.height - H * scale) / 2;
-    const point = {
-      x: this.camera.x + (clientX - r.left) / scale,
-      y: (clientY - r.top - top) / scale,
-    };
-    return point.y < 0 || point.y > H ? null : point;
+    return this.camera.point(
+      this.canvas.getBoundingClientRect(),
+      clientX,
+      clientY,
+    );
   }
   prop(ctx, kind, x, y, width = 64, height = width, variant = 0, ready) {
     const image = sprite(
@@ -166,7 +198,7 @@ export class Renderer {
       ctx.drawImage(
         image,
         Math.round((x - width / 2) / GRID) * GRID,
-        Math.round((y - height) / GRID) * GRID,
+        y - height,
         width,
         height,
       );
@@ -175,7 +207,7 @@ export class Renderer {
     this.map = map;
     this.mapDirty = false;
     const ctx = this.background.getContext("2d");
-    ctx.setTransform(1 / GRID, 0, 0, 1 / GRID, 0, 0);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, W, H);
     rect(ctx, 0, 0, W, H, "#354d4b");
@@ -289,7 +321,7 @@ export class Renderer {
     )
       this.bake(battle.map);
     const ctx = this.world.getContext("2d");
-    ctx.setTransform(1 / GRID, 0, 0, 1 / GRID, 0, 0);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, W, H);
     ctx.drawImage(this.background, 0, 0, W, H);
@@ -402,17 +434,17 @@ export class Renderer {
           56,
         );
       else if (unit.pet) {
-        const image = sprite("pet:" + JSON.stringify(unit.hero.companion), () =>
-          petSvg(unit.hero.companion),
+        const image = sprite(
+          "pet:" +
+            JSON.stringify([
+              unit.hero.companion.key,
+              unit.hero.companion.cosmetic,
+              itemRarity(unit.hero.companion),
+            ]),
+          () => petSvg(unit.hero.companion),
         );
         if (image.complete && image.naturalWidth)
-          ctx.drawImage(
-            image,
-            Math.round((unit.x - 20) / GRID) * GRID,
-            y - 40,
-            40,
-            40,
-          );
+          ctx.drawImage(image, unit.x - 20, y - 40, 40, 40);
       } else if (unit.hazard || unit.summon) {
         const kind =
           unit.hazard ||
@@ -449,7 +481,7 @@ export class Renderer {
         if (image.complete && image.naturalWidth)
           ctx.drawImage(
             image,
-            Math.round((unit.x - 32 * size[1]) / GRID) * GRID,
+            unit.x - 32 * size[1],
             Math.round((y - 68 * size[0] - (unit.mounted ? 14 : 0)) / GRID) *
               GRID,
             64 * size[1],
@@ -573,36 +605,27 @@ export class Renderer {
         line(ctx, x, y, x, y + dy * 10, "#f7df9b", 2);
       }
     }
-    if (!this.camera.manual && this.camera.width < W) {
-      const company = battle.units.filter(
-        (u) => u.team === 0 && !u.dead && !u.structure && !u.summon && !u.pet,
+    if (!this.camera.manual)
+      this.camera.focus(
+        battle.units.filter(
+          (u) => u.team === 0 && !u.dead && !u.structure && !u.summon && !u.pet,
+        ),
+        this.baseSpan,
       );
-      if (company.length) {
-        const center = company.reduce((n, u) => n + u.x, 0) / company.length;
-        const target = Math.max(
-          0,
-          Math.min(W - this.camera.width, center - this.camera.width * 0.42),
-        );
-        this.camera.x += (target - this.camera.x) * 0.12;
-      }
-    }
+    this.camera.update(wallTime);
     const display = this.ctx,
       canvas = this.canvas,
       scale = canvas.width / this.camera.width,
-      offsetY = (canvas.height - H * scale) / 2;
+      offsetY = -this.camera.y * scale;
     display.setTransform(1, 0, 0, 1, 0, 0);
     display.imageSmoothingEnabled = false;
     display.fillStyle = "#0a0c1a";
     display.fillRect(0, 0, canvas.width, canvas.height);
     display.drawImage(
       this.world,
-      Math.floor(this.camera.x / GRID),
-      0,
-      this.camera.width / GRID,
-      H / GRID,
-      0,
+      -this.camera.x * scale,
       offsetY,
-      canvas.width,
+      W * scale,
       H * scale,
     );
     // Text uses display resolution so HP and names stay readable at phone sizes.

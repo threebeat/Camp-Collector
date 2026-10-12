@@ -15,6 +15,7 @@ export function attachResidentDragging(
     dragging(false);
   };
   for (const el of root.querySelectorAll("[data-resident]")) {
+    if (el.closest("[data-map-camera]")) continue;
     el.addEventListener("pointerdown", (event) => {
       if (held || (event.button !== undefined && event.button !== 0)) return;
       const map = el.closest("[data-local-map]");

@@ -1,5 +1,11 @@
 # Verification record
 
+## Evernight 0.2 growing-Camp release
+
+The local suite passes **171 Node tests**, followed by build and Worker artifact validation. New checks cover gated Market construction, four vendors, in-place home capacity, idempotent migration, progressive revelation, camera easing/coordinate inversion, gesture click suppression, keyboard/wheel input and actual Camp light/occluder behavior. The updated connected DOM flow exercises these services in their new locations. Native Camp ground art was rasterized and inspected.
+
+The remote browser suite contains **24 scenarios**, eight each on desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit. It now covers Camp/map gestures, construction and upgrades, all relocated services, persistent saves, route/profile regression, free/focused battle camera and zoom, and retained calendar/light/class/portal content. Browser verification is pending for this source. Paused battlefield animation-frame samples are diagnostic only; they do not establish physical-device performance under heavy combat.
+
 ## Evernight 0.1 pixel release
 
 The local suite passes **164 Node tests**, followed by build and bundled Worker validation. Seven new regressions cover intentional selection across snapshots/encounters, hidden-enemy rejection, tap versus pan/scroll/cancel, deterministic colored environment lights, overlapping pixel light bands with terrain shadows/blue vision, canonical sprite coverage and phone camera coordinate conversion. Native art checks rasterized 307 original sprite variants, and native combat captures were inspected. Dense sprites are compacted at HTML boundaries; the full DOM service regression completes in approximately twelve seconds locally.

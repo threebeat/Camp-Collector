@@ -53,3 +53,5 @@ integer display scales. For native verification, rasterize every canonical
 asset with the existing canvas dependency and inspect the generated contact
 sheets. Node art checks establish valid, coherent sprites; browser/device
 checks remain necessary for viewport layout, touch interaction and frame rate.
+
+The 0.2 Camp uses `pixelCampGroundSvg(1800,1400,seed)`: merged/grouped four-unit cells, irregular forest clearing, connected service paths and a south lake. Cache its compacted image. `pixelBonfireEmbersSvg(timeSeconds)` supplies a pure small ember layer; the live scene currently draws equivalent sparks directly on the lighting canvas to avoid DOM replacement.

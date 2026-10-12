@@ -32,8 +32,10 @@ const home = await app.fetch(new Request("https://camp.test/"), {}, {});
 assert.equal(home.status, 200);
 const html = await home.text();
 assert.ok(html.includes('id="brand-name"'));
-assert.ok(html.includes("app.js?v=15"));
+assert.ok(html.includes("app.js?v=16"));
 assert.ok(!html.includes("Little Legends"));
+assert.ok(html.includes("homestead.css?v=16"));
+assert.equal((await app.fetch(new Request("https://camp.test/homestead.css?v=16"), {}, {})).status,200);
 for (const path of [
   "app.js",
   "evernight.js",
@@ -61,12 +63,15 @@ for (const path of [
   "pixel-lighting.js",
   "scene-lighting.js",
   "battle-interaction.js",
+  "camera.js",
+  "camp-world.js",
+  "homestead-ui.js",
   "art.js",
   "codex.js",
   "client.js",
 ]) {
   const asset = await app.fetch(
-    new Request("https://camp.test/" + path + "?v=15"),
+    new Request("https://camp.test/" + path + "?v=16"),
     {},
     {},
   );
@@ -101,7 +106,7 @@ console.log(
 );
 
 const nightCss = await app.fetch(
-  new Request("https://camp.test/nightfall.css?v=15"),
+  new Request("https://camp.test/nightfall.css?v=16"),
   {},
   {},
 );
@@ -109,7 +114,7 @@ assert.equal(nightCss.status, 200);
 assert.ok((await nightCss.text()).includes("data-allegiance"));
 
 const pixels = await app.fetch(
-  new Request("https://camp.test/pixel.css?v=15"),
+  new Request("https://camp.test/pixel.css?v=16"),
   {},
   {},
 );

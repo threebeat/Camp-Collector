@@ -1,4 +1,4 @@
-import { vision } from "./lighting.js?v=15";
+import { vision } from "./lighting.js?v=16";
 import {
   CLASSES,
   RACES,
@@ -16,17 +16,17 @@ import {
   RARITIES,
   heroRarity,
   makeItem,
-} from "./data.js?v=15";
-import * as Night from "./nightfall.js?v=15";
-import * as Camp from "./camp.js?v=15";
+} from "./data.js?v=16";
+import * as Night from "./nightfall.js?v=16";
+import * as Camp from "./camp.js?v=16";
 import {
   QUESTS,
   generatedContracts,
   allQuests,
   questState,
   activeQuests,
-} from "./journeys.js?v=15";
-import { portraitSvg, itemSvg, petSvg, icon } from "./art.js?v=15";
+} from "./journeys.js?v=16";
+import { portraitSvg, itemSvg, petSvg, icon } from "./art.js?v=16";
 
 // Screens are separate from the simulation and receive its command boundary.
 export function createNightfallUi(c) {
@@ -165,11 +165,7 @@ export function createNightfallUi(c) {
         }).join(
           "",
         )}</div><p>First lesson includes the dedicated tool. Work on expeditions improves the profession; guild lessons unlock ranks sooner.</p>`,
-      button(
-        "← Market square",
-        'data-market-district="square"',
-        "secondary-button",
-      ),
+      button("Back to Camp", 'data-nav="camp"', "secondary-button"),
     );
     const picker = document.getElementById("service-hero");
     if (picker) picker.onchange = (e) => showGuild(hero(e.target.value));
@@ -346,7 +342,7 @@ export function createNightfallUi(c) {
     openModal(
       "Equipment Workshop",
       "Craft, trade and transform your company’s belongings",
-      `<div class="character-service-grid">${button("Buy equipment", "data-workshop-buy", "secondary-button")}${button("Sell belongings", "data-workshop-sell", "secondary-button")}${button("Transform armor", 'data-workshop-transform="armor"', "secondary-button")}${button("Transform weapons", 'data-workshop-transform="weapon"', "secondary-button")}${button("Transform companions", 'data-workshop-transform="pet"', "secondary-button")}</div><h3>Craft armor</h3><p>20 gold + 2 wood + hides (light / medium) or 3 ore (heavy).</p><div class="guild-stalls">${Object.entries(
+      `${button("Equipment slots", 'data-district-open="outfitter"', "secondary-button")}<div class="character-service-grid">${button("Buy equipment", "data-workshop-buy", "secondary-button")}${button("Sell belongings", "data-workshop-sell", "secondary-button")}${button("Transform armor", 'data-workshop-transform="armor"', "secondary-button")}${button("Transform weapons", 'data-workshop-transform="weapon"', "secondary-button")}${button("Transform companions", 'data-workshop-transform="pet"', "secondary-button")}</div><h3>Craft armor</h3><p>20 gold + 2 wood + hides (light / medium) or 3 ore (heavy).</p><div class="guild-stalls">${Object.entries(
         ITEMS,
       )
         .filter(([k, d]) =>
@@ -389,7 +385,7 @@ export function createNightfallUi(c) {
         clinic: "Lantern Clinic",
       },
       key = game().marketDistrict;
-    return `<section class="market-district"><span class="eyebrow">A MARKET OF LANTERNS</span><h2>${names[key]}</h2><p>${key === "guildhall" ? "The guilds keep useful trades alive through the long night." : key === "board" ? "Choose an intermediate goal for your company." : key === "outfitter" ? "More room for the belongings that make a character yours." : "Some things should not follow you home."}</p>${button("Enter " + names[key], `data-district-open="${key}"`)}${button("↓ Market square", 'data-market-district="square"', "secondary-button")}${visitorScene("market")}</section>`;
+    return `<section class="market-district"><span class="eyebrow">A MARKET OF LANTERNS</span><h2>${names[key]}</h2><p>${key === "guildhall" ? "The guilds keep useful trades alive through the long night." : key === "board" ? "Choose an intermediate goal for your company." : key === "outfitter" ? "More room for the belongings that make a character yours." : "Some things should not follow you home."}</p>${button("Enter " + names[key], `data-district-open="${key}"`)}${button("↓ Market square", 'data-nav="camp"', "secondary-button")}${visitorScene("market")}</section>`;
   }
   function marketArrows() {
     return `<nav class="market-directions" aria-label="Market districts">${button("↑ Guildhall", 'data-market-district="guildhall"', "market-direction north")}${button("← Outfitter", 'data-market-district="outfitter"', "market-direction west")}${button("Quest Board →", 'data-market-district="board"', "market-direction east")}${button("↓ Camp", 'data-nav="camp"', "market-direction south")}</nav>`;
@@ -501,12 +497,10 @@ export function createNightfallUi(c) {
     on("[data-compare]", (b) => showComparison(b.dataset.compare));
     on("[data-workshop-buy]", async () => {
       closeModal();
-      await c.visitMarketFromWorkshop();
-      openVendor("forge");
+      if (await c.visitMarketFromWorkshop()) openVendor("forge");
     });
     on("[data-workshop-sell]", async () => {
       closeModal();
-      await c.visitMarketFromWorkshop();
       showSell();
     });
     on("[data-workshop-transform]", (b) =>

@@ -27,24 +27,16 @@ npm run test:e2e
 
 GitHub Actions runs model/artifact checks and desktop Chromium, Android Chromium and iPhone WebKit emulation on main pushes and pull requests. It retains the built Worker, browser reports and scene screenshots. See [DEVELOPMENT.md](docs/DEVELOPMENT.md) for publishing and [QA.md](docs/QA.md) for observed results and limits.
 
-## Evernight 0.1
+## Evernight 0.2
 
-- Original retro pixel sprites cover every race, class, equipment base, companion, cosmetic, building and world prop. Indigo nights, warm lanterns and readable text share one palette.
-- Light pools overlap with stepped, dithered edges and real terrain shadows. Carried lamps, windows, torches, lava, mushrooms, fires and colored magic light the same environment used by combat detection.
-- Phone Camp places its name, Build, level and four metrics first; supplies expand on demand. Harvest and recovering-company activity stay accessible beside the map.
-- Phone battles follow the company at a closer scale, support horizontal panning, and use a compact party strip. Character inspection opens only after a deliberate tap and stays closed after updates, reloads and encounter changes.
+- A larger, camera-controlled Camp opens gradually from a small firelit clearing. Paths, textured forest and a southern lake connect the grounds; clear shadowed plots instead of navigating expansion arrows.
+- Drag or pinch maps, use arrow keys and zoom controls, then Focus to return home. Combat Focus tracks the party and smoothly widens or tightens its frame as characters spread out or regroup. Manual movement switches to free view.
+- Cached sprites and lighting, lightweight visual snapshots and interpolated movement reduce repeated work. Rendering follows animation frames; combat still uses deterministic fixed steps.
+- The bonfire has a stronger, flickering light with embers. Buildings and equipped residents cast shadows. Heroes have no innate light.
+- Build a four-vendor Camp Market at Camp level 2. Guild, recruiting, clinic, equipment, creation and Quest services now belong to Camp. The tent upgrades into a cabin in place; further upgrades add twenty spaces each.
+- Phone Camp details collapse, navigation has five primary controls with Shop/Codex under More, and Crossroads/party assembly never open character inspectors automatically.
 
-This is the first pixel release, numbered **0.1.0** at the owner's direction after the previous 0.14 implementation. Save version 12 and all existing gameplay systems continue:
-
-
-- Dark screens, carried lights, real terrain shadows and remembered fog of war. Underground races, Vampire/Werewolf Attributes and learned Night vision have meaningful sight advantages.
-- A required three-page opening and an optional navigation guide with Skip and settings. Camp stays clean, with Build below its name.
-- Camp level/XP, four overview metrics, a full resource list, forty starting adventurer spaces and food consumption every twelve hours.
-- Unified retirement returns belongings and pays a reward that grows with level. Bonfire handles classes and world difficulty; the Workshop handles armor/companion transformation.
-- Eight guild booths with lessons, quests, standing and exclusive discounted equipment; separate Commons, Tavern and Arena maps.
-- A dedicated Quest journal with search, filters, sorting and pins. Boss Sigils open a freely chosen region through the Portal Mage.
-- Gold/resource Arena wagers and four changing rules, a monthly Daily Battle calendar, and twelve themed Shop collections.
-- Richer, consolidated Codex entries and talent → subclass → talent → subclass → talent class progression.
+Existing class trees, quests, global difficulty, twelve-hour meals, rewarded retirement, light equipment, guild standing, Arena wagers, monthly collections, Kitchen, Archaeology and the island remain playable.
 
 Existing current-season v12 saves and active expeditions migrate without a reset. The Site keeps its original URL so browser-local progress remains accessible. Personal saves/economy remain browser-local; missed expedition time reconstructs at 1× when the page returns. Cross-device synchronization and an always-running expedition server are future work.
 

@@ -1,87 +1,151 @@
-import { PixelLighting } from "./pixel-lighting.js?v=15";
+import { PixelLighting } from "./pixel-lighting.js?v=16";
+import { revealedCampAreas } from "./camp-world.js?v=16";
+import { campProgress } from "./evernight.js?v=16";
+
+// World-space lighting survives camera transforms. Layout is sampled once, not every frame.
 export class SceneLighting {
-  constructor(element) {
+  constructor(element, game = null) {
     this.element = element;
+    this.game = game;
+    this.width = Number(element.dataset.worldWidth) || 800;
+    this.height = Number(element.dataset.worldHeight) || 700;
     this.canvas = document.createElement("canvas");
     this.canvas.className = "scene-lightfield";
     this.canvas.setAttribute("aria-hidden", "true");
+    this.canvas.width = this.width / 2;
+    this.canvas.height = this.height / 2;
     element.appendChild(this.canvas);
+    this.light = new PixelLighting(this.width, this.height, 8);
     this.at = -Infinity;
-    this.size = "";
+    this.staticLights = [];
+    this.objects = [];
+    for (const el of element.querySelectorAll("[data-scene-key]")) {
+      const key = el.dataset.sceneKey,
+        x = +el.dataset.worldX,
+        y = +el.dataset.worldY;
+      if (key !== "bonfire" && key !== "portal")
+        this.objects.push({
+          type: "house",
+          x: x - 30,
+          y: y - 30,
+          w: 60,
+          h: 42,
+        });
+      if (key === "bonfire")
+        this.staticLights.push({
+          x,
+          y: y + 12,
+          r: 420 + Math.min(100, (game ? campProgress(game).level : 1) * 6),
+          color: "#f4c76a",
+          kind: "fire",
+        });
+      else if (["alchemist", "arcane", "portal"].includes(key))
+        this.staticLights.push({
+          x,
+          y: y + 32,
+          r: 150,
+          color: "#ad83d5",
+          kind: "window",
+        });
+      else if (
+        [
+          "tent",
+          "tavern",
+          "market",
+          "kitchen",
+          "blacksmith",
+          "forge",
+          "night",
+          "menagerie",
+          "guildhall",
+        ].includes(key)
+      )
+        this.staticLights.push({
+          x,
+          y: y + 32,
+          r: key === "market" ? 200 : 140,
+          color: "#d98c43",
+          kind: "window",
+        });
+    }
+    this.objects.push(
+      ...[
+        [474, 400],
+        [460, 508],
+        [476, 836],
+        [548, 960],
+        [1180, 972],
+        [1300, 916],
+        [1200, 216],
+      ].map(([x, y]) => ({ type: "tree", x, y, r: 24 })),
+    );
+    this.residents = [...element.querySelectorAll("[data-world-resident]")];
+    this.scene = { map: { objects: this.objects } };
+    this.fog = document.createElement("canvas");
+    this.fog.width = this.width / 8;
+    this.fog.height = this.height / 8;
+    const fog = this.fog.getContext("2d");
+    if (element.dataset.localMap === "camp" && game) {
+      fog.fillStyle = "#080a16";
+      fog.fillRect(0, 0, this.fog.width, this.fog.height);
+      fog.globalCompositeOperation = "destination-out";
+      for (const area of revealedCampAreas(game))
+        for (const [f, a] of [
+          [1.13, 0.18],
+          [1.07, 0.3],
+          [1, 0.98],
+        ]) {
+          fog.fillStyle = `rgba(0,0,0,${a})`;
+          fog.beginPath();
+          fog.arc(area.x / 8, area.y / 8, (area.r * f) / 8, 0, Math.PI * 2);
+          fog.fill();
+        }
+    }
   }
   draw(time) {
-    if (time - this.at < 0.15) return;
+    if (time - this.at < 1 / 30) return;
     this.at = time;
-    const bounds = this.element.getBoundingClientRect();
-    if (!bounds.width || !bounds.height) return;
-    const width = 600,
-      height = Math.round((width * bounds.height) / bounds.width),
-      size = height + ":" + bounds.width;
-    if (this.size !== size) {
-      this.size = size;
-      this.light = new PixelLighting(width, height, 4);
-      this.canvas.width = width / 2;
-      this.canvas.height = Math.ceil(height / 2);
+    const lights = [...this.staticLights],
+      people = [];
+    for (const el of this.residents) {
+      const x = parseFloat(el.style.left),
+        y = parseFloat(el.style.top);
+      people.push({ type: "tree", x, y: y - 4, r: 9 });
+      const r = Number(el.dataset.lightRadius);
+      if (r > 0)
+        lights.push({ x: x + 10, y: y - 8, r, color: "#f4c76a", kind: "lamp" });
     }
-    const lights = [],
-      objects = [];
-    const elements = this.element.querySelectorAll(
-      ".camp-building,.vendor-map,.market-map-stall,.district-booth,.portal-mage,.camp-resident,.visitor-character,.expansion-service,.dock-service",
-    );
-    for (const element of elements) {
-      const box = element.getBoundingClientRect();
-      if (!box.width || !box.height) continue;
-      const x =
-        ((box.left - bounds.left + box.width / 2) / bounds.width) * width;
-      const y =
-        ((box.top - bounds.top + box.height * 0.65) / bounds.height) * height;
-      const key = element.dataset.building || element.dataset.vendorMap || "";
-      const resident =
-        element.classList.contains("camp-resident") ||
-        element.classList.contains("visitor-character");
-      if (resident) {
-        if (element.querySelector("[data-pixel-light], [data-light-art]"))
-          lights.push({ x, y, r: 72, color: "#f4c76a", kind: "lamp" });
-      } else {
-        const fire = key === "bonfire";
-        const arcane =
-          ["arcane", "alchemist"].includes(key) ||
-          element.classList.contains("portal-mage");
-        lights.push({
-          x,
-          y,
-          r: fire
-            ? 112 + Math.floor(Math.sin(time * 3) * 3)
-            : arcane
-              ? 80
-              : key === "blacksmith" || key === "forge"
-                ? 88
-                : 55,
-          color: arcane ? "#ad83d5" : fire ? "#f4c76a" : "#d98c43",
-          kind: fire ? "fire" : "window",
-        });
-        if (!fire)
-          objects.push({
-            type: "house",
-            x: x - (box.width / bounds.width) * width * 0.3,
-            y: y - (box.height / bounds.height) * height * 0.35,
-            w: (box.width / bounds.width) * width * 0.6,
-            h: (box.height / bounds.height) * height * 0.4,
-          });
-      }
-    }
-    if (!lights.length)
-      lights.push({
-        x: width / 2,
-        y: height / 2,
-        r: 160,
-        color: "#f4c76a",
-        kind: "fire",
-      });
-    this.light.paint({ map: { objects } }, lights, [], [], time, 0.48);
+    // Resident occluders use the same ray geometry as buildings, without an innate aura.
+    this.scene.map.objects = [...this.objects, ...people];
+    this.light.paint(this.scene, lights, [], [], time, 0.88);
     const ctx = this.canvas.getContext("2d");
     ctx.setTransform(0.5, 0, 0, 0.5, 0, 0);
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, this.width, this.height);
     this.light.composite(ctx);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(this.fog, 0, 0, this.width, this.height);
+    const fire = this.staticLights.find((l) => l.kind === "fire");
+    if (fire) {
+      ctx.globalCompositeOperation = "screen";
+      ctx.globalAlpha = 0.06 + 0.015 * Math.sin(time * 13);
+      ctx.fillStyle = "#f4c76a";
+      for (const r of [30, 50, 80]) {
+        ctx.beginPath();
+        ctx.arc(fire.x, fire.y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
+      for (let i = 0; i < 6; i++) {
+        const phase = (time * 0.6 + i * 0.17) % 1;
+        ctx.fillStyle = phase < 0.5 ? "#f7df9b" : "#d98c43";
+        ctx.fillRect(
+          fire.x + Math.round((Math.sin(i * 4 + time) * 16) / 4) * 4,
+          fire.y - 40 - Math.round((phase * 70) / 4) * 4,
+          4,
+          4,
+        );
+      }
+    }
   }
 }
