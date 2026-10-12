@@ -407,14 +407,37 @@
   }
 }
 
-.map-world .world-building::after,
-.map-world .world-plot::after,
-.map-world .world-resident::after {
-  content: "";
+.map-viewport {
+  user-select: none;
+  -webkit-user-select: none;
+  scroll-margin-block: 80px 140px;
+}
+.map-world svg,
+.map-world img {
+  pointer-events: none;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+.map-world .world-building strong {
   position: absolute;
+  top: 84px;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: max(100%, calc(44px / var(--camera-scale, 1)));
-  height: max(100%, calc(44px / var(--camera-scale, 1)));
+  transform: translateX(-50%);
+  font-size: calc(11px / var(--camera-scale, 1));
+  max-width: calc(110px / var(--camera-scale, 1));
+  width: max-content;
+  padding: calc(3px / var(--camera-scale, 1)) calc(5px / var(--camera-scale, 1));
+  pointer-events: auto;
+}
+.map-world.map-overview .world-building strong {
+  display: none;
+}
+.map-world .world-plot {
+  font-size: calc(11px / var(--camera-scale, 1));
+  max-width: calc(130px / var(--camera-scale, 1));
+  padding: calc(8px / var(--camera-scale, 1));
+}
+.party-workspace,
+.crossroads-workspace {
+  grid-template-columns: minmax(0, 1fr);
 }

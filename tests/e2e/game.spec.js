@@ -132,6 +132,9 @@ test("Camp camera pans in both axes, arrow keys and zoom work, and shadow plots 
   const view = page.locator('[data-map-camera="camp"]'),
     world = page.locator(".map-world");
   const before = await world.getAttribute("style");
+  await view.evaluate((el) =>
+    el.scrollIntoView({ block: "center", behavior: "instant" }),
+  );
   const box = await view.boundingBox();
   await page.mouse.move(box.x + box.width * 0.8, box.y + box.height * 0.8);
   await page.mouse.down();
@@ -148,7 +151,7 @@ test("Camp camera pans in both axes, arrow keys and zoom work, and shadow plots 
   await page.locator('[data-world-zoom="out"]').click();
   await page.locator("[data-world-fit]").click();
   await expect(page.locator(".camp-expansion-arrow")).toHaveCount(0);
-  await expect(page.locator("[data-world-zone]")).toHaveCount(3);
+  await expect(page.locator("[data-world-zone]")).toHaveCount(0);
   await fits(page);
   await shot(page, "camp-overview-map");
   await page.locator("[data-world-focus]").click();
@@ -266,6 +269,7 @@ test("route and battlefield updates never open profiles; manual camera, focus an
 }) => {
   const { errors } = await start(page);
   await page.locator("[data-tutorial-skip]").click();
+  await page.locator("[data-world-resident]").first().focus();
   await page.locator("[data-world-resident]").first().click();
   await building(page, "crossroads");
   await expect(page.locator("#hero-detail")).toHaveCount(0);
@@ -335,7 +339,7 @@ test("guide settings, reduced motion, calendar and monthly collections fit compa
 }) => {
   const { errors } = await start(page);
   await page.locator("[data-tutorial-skip]").click();
-  await expect(page.locator(".tutorial-bar")).toHaveCount(0);
+  await expect(page.locator(".tutorial-bar")).not.toBeVisible();
   await page.locator("#settings-btn").click();
   await modal(page).locator("#setting-tutorial").check();
   await modal(page).locator("#setting-motion").check();

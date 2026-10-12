@@ -3208,6 +3208,13 @@ function frame(now) {
     }
     if (!game.settings.reducedMotion)
       document.querySelectorAll("[data-world-resident]").forEach((el) => {
+        if (
+          worldMaps.some((map) => map.input?.isDragging()) ||
+          el.matches?.(":hover") ||
+          document.activeElement === el ||
+          selected === el.dataset.hero
+        )
+          return;
         const i = +el.dataset.worldResident;
         el.style.left =
           +el.dataset.worldX + Math.sin(now / 9000 + i) * 14 + "px";

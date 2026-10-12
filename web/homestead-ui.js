@@ -47,13 +47,17 @@ export function createHomesteadUi(c) {
         );
       })
       .join("");
-    const plots = Object.entries(CAMP_PLOTS)
+    const plotMarkers = {
+      west: [220, 920],
+      east: [1560, 720],
+      south: [1250, 1200],
+    };
+    const plots = Object.entries(plotMarkers)
+      .filter(([key]) => !g.campExpansions.includes(key))
       .map(([key, [x, y]]) =>
         button(
-          g.campExpansions.includes(key)
-            ? `${key === "south" ? "Lakeshore" : key + " grounds"}`
-            : `Clear ${key} plot`,
-          `${g.campExpansions.includes(key) ? "data-world-zone" : "data-expand-camp"}="${key}" style="left:${x}px;top:${y}px"`,
+          `Clear ${key} plot`,
+          `data-expand-camp="${key}" style="left:${x}px;top:${y}px"`,
           "world-plot",
         ),
       )
@@ -149,10 +153,49 @@ export function createHomesteadUi(c) {
         }
         const scale = r.width / camera.width;
         world.style.setProperty?.("--camera-scale", String(scale));
+        world.classList.toggle("map-overview", scale < 0.35);
         world.style.transform = `translate(${-camera.x * scale}px,${-camera.y * scale}px) scale(${scale})`;
         viewport.dataset.cameraMode = camera.manual ? "free" : "focus";
       };
-      attachCameraInput(viewport, camera, apply);
+      const input = attachCameraInput(viewport, camera, apply);
+      let dispatching = false;
+      viewport.addEventListener(
+        "click",
+        (event) => {
+          if (dispatching || !event.isTrusted) return;
+          if (event.target.closest("button")) return;
+          // At an overview scale, choose the nearest anchor rather than extending
+          // overlapping rectangles over neighboring buildings.
+          const candidates = [
+            ...world.querySelectorAll(
+              ".world-building, .world-resident, .world-plot",
+            ),
+          ]
+            .map((el) => {
+              const r = el.getBoundingClientRect();
+              return {
+                el,
+                d: Math.hypot(
+                  event.clientX - r.left - r.width / 2,
+                  event.clientY - r.top - r.height / 2,
+                ),
+              };
+            })
+            .sort((a, b) => a.d - b.d);
+          const hit = candidates[0];
+          if (!hit || hit.d > 24 || event.target.closest("button") === hit.el)
+            return;
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          dispatching = true;
+          try {
+            hit.el.click();
+          } finally {
+            dispatching = false;
+          }
+        },
+        true,
+      );
       const shell = viewport.closest(".world-map-shell");
       shell.querySelectorAll("[data-world-zoom]").forEach((b) =>
         b.addEventListener("click", () => {
@@ -187,7 +230,12 @@ export function createHomesteadUi(c) {
         }),
       );
       apply();
-      maps.push({ camera, apply, dispose: () => observer?.disconnect() });
+      maps.push({
+        camera,
+        apply,
+        input,
+        dispose: () => observer?.disconnect(),
+      });
     }
     return maps;
   }

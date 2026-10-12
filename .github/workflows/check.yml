@@ -45,6 +45,14 @@ jobs:
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
+          name: browser-visuals
+          path: |
+            test-results/**/*.png
+            test-results/**/error-context.md
+          retention-days: 14
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
           name: browser-report
           path: |
             playwright-report/

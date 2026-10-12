@@ -44,6 +44,10 @@ export function revealedCampAreas(g) {
       y: CAMP_PLOTS[key][1],
       r: 270,
     })),
+    ...(!g.campExpansions.includes("west") &&
+    (g.buildings.guildhall || g.buildings.tavern)
+      ? [{ x: 380, y: 650, r: 250 }]
+      : []),
     ...(g.buildings.market ? [{ x: 1410, y: 400, r: 250 }] : []),
   ];
 }

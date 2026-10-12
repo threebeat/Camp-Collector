@@ -115,11 +115,13 @@ export function attachCameraInput(element, camera, changed = () => {}) {
     moved = false,
     suppressUntil = 0;
   const notify = () => changed(camera);
+  element.addEventListener("dragstart", (e) => e.preventDefault());
   element.addEventListener("pointerdown", (e) => {
     if (e.button !== undefined && e.button !== 0) return;
     element.focus?.({ preventScroll: true });
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.size === 1) {
+      suppressUntil = 0;
       last = {
         x: e.clientX,
         y: e.clientY,
