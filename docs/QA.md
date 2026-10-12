@@ -1,5 +1,13 @@
 # Verification record
 
+## Evernight 0.4 menu, Tavern and guided progression
+
+The local suite passes **185 Node tests**, followed by build and Worker artifact validation. New coverage checks the two scripted tutorial outcomes across sixteen seeds and checkpoint resumes, enemy-only HP changes, Tavern rarity/upgrades/free-choice purchases, Guild access at six heroes, persistent movable props and ground-shadow projection. The connected DOM flow completes both tutorial journeys, quest claiming, recruitment and Pantry construction. All thirty PNG assets match the bytes embedded in their shipped SVG envelopes.
+
+The remote suite contains **33 scenarios**, eleven each on desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit. It exercises the empty-fire menu on saved visits, Continue/reload, native or fallback fullscreen, character dragging, prop persistence, the full tutorial, Tavern hiring/bar purchases, construction, retained services and the enlarged expedition view. Browser QA corrected technical-bar overlap, continuously moving recruit targets, Tavern letterboxing and a save assertion that ran before its command completed. A final visual pass moved the Pantry site label away from the heroes and props and added explicit hit-target coverage.
+
+All 33 scenarios passed without retries in [Game checks run 38306707312](https://github.com/threebeat/Evernight/actions/runs/38306707312), GitHub source `55aeeaa2a4e9cca7612371cbdf3025f02962ff78`. Both verification and browser jobs succeeded; browser scenarios took 2.0 minutes. Desktop and phone screenshots were inspected. The final publication adds this verification record without changing tested game code. Physical-device frame rate, touch ergonomics and browser/OS fullscreen restrictions remain separate checks; unsupported browsers use the expanded-viewport fallback.
+
 ## Evernight 0.3 single-window release
 
 The local suite contains **179 Node tests** plus build/artifact validation. New checks cover saved cinematic beats, ordered learning events, enforced first-road choices, genuine journey completion, post-return care/Journal, defeat/retry, existing-Camp migration and persisted resident targets. The connected DOM flow exercises the full tutorial and retained Camp services.
@@ -33,6 +41,6 @@ The 0.13 workflow passed 142 Node tests and 12 browser scenarios: [run 381370433
 
 ## Limits and follow-up
 
-Browser emulation does not establish physical iOS/Android performance, OS suspension behavior, touch dragging ergonomics, hosted multi-account identity or long-term progression balance. The first-road seeded regression still requires at least 90% wins over twenty opening battles. Carried-light shadows should receive a frame-rate pass on an actual modest phone.
+Browser emulation does not establish physical iOS/Android performance, OS suspension behavior, touch dragging ergonomics, hosted multi-account identity or long-term progression balance. Tutorial outcomes are separately guaranteed and checked across seeds and checkpoint resumes; ordinary progression balance still needs playtesting. Carried-light shadows should receive a frame-rate pass on an actual modest phone.
 
 On physical devices, try the opening, settings/tutorial, a full roster, long class/Codex sheets, district navigation, lights in dark/obstructed battles, Quest filters, monthly calendar, long Arena outcomes, tap/drag service access and background/reopen catch-up. Test both orientations and reduced motion. Another browser/device has separate personal state; cross-device synchronization is not implemented.
