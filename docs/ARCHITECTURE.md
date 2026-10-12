@@ -1,6 +1,6 @@
 # Architecture
 
-This describes the implementation at version 0.2.0. It is a map of the present code, not a commitment to keep its boundaries or technology forever.
+This describes the implementation at version 0.4.0. It is a map of the present code, not a commitment to keep its boundaries or technology forever.
 
 ## Runtime boundaries
 
@@ -63,7 +63,7 @@ These guards make the board functional, but do not prove the caller actually ear
 
 ## Build and deployment
 
-`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=17` cache URLs. Generated output is excluded from source control.
+`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=18` cache URLs. Generated output is excluded from source control.
 
 The hosting manifest binds the existing Sites project with `d1: 'DB'` and no R2 bucket. Sites applies committed `drizzle/` migrations before uploading the Worker. The original source origin and owner-private audience must be preserved when publishing unless the owner directs otherwise. A separate GitHub remote can coexist; it is not a replacement deployment ID.
 
@@ -107,10 +107,16 @@ The renderer caches visual sprite identities without XP/timer fields, reuses ter
 
 Scene lighting samples static world anchors once, uses dynamic resident occluders and equipped lamps, and reuses unchanged mask geometry. Progression revelation has its own world-space mask. Bonfire glow/embers animate separately from the expensive darkness/shadow pass. Background Camp ground is generated and compacted once; do not regenerate its large SVG on snapshots. Save schema/key/season and database history remain unchanged.
 
-## Single game window and learning (0.3)
+## Session menu, tutorial and render layers (0.4)
 
-`game-shell.js` and `game-shell.css` own the bounded game window, native fullscreen with viewport fallback, cinematic overlay and in-window learning coach. Browser-page overflow is disabled; content/services scroll within the game. The Camp map is the stage, and its overview moves into a dialog. The native dialog belongs to the fullscreen element.
+`game-shell.js` owns session-only menu state. Every load starts at the empty fire regardless of saved `screen`; Continue navigates to Camp and fades out the menu. The introduction and required learning are separately persisted by `onboarding.js`. New Game is an explicit simulation command behind a replacement confirmation. Native fullscreen uses standard/WebKit APIs with an immersive viewport fallback; dialogs belong to the fullscreen game element.
 
-`onboarding.js` defines validated saved learning stages, opening beats, first-road command restrictions, event advancement and return settlement. `simulation.js` appends this state without changing schema 12/season/key, keeps named/experienced Camps complete, gates the required first journey and resumes saved checkpoints. The model owns every state transition; DOM snapshots do not mutate progress. Legacy Expeditions/Quests screen values become Crossroads/Camp entry points.
+Learning version 2 adds quest explanation, the scripted Fernbridge loss, free Tavern invitation and cheap Pantry construction. Completed version-1 Camps remain complete. Active first-road saves receive the victory tag on both journey and battle checkpoint. The engine serializes `tutorialOutcome`, protects the intended surviving side, then resolves the scripted outcome within 22 combat seconds. Only those two tutorial journeys receive a tag. Ordinary enemy generation scales health by 0.85 without altering player definitions.
 
-`homestead-ui.js` reads saved resident positions, exposes intentional Walk-to-ground handling, checks revealed bounds and interpolates display movement separately from saved targets. Map drag/pinch click suppression runs first. Profile inspection remains explicit, including during battle. The stable questboard key now renders an original book-on-stand sprite and opens the Journal. Journal filters/pins/sort/claims refresh its panel, and Crossroads owns both roads and company/report listings. No SQL migration is introduced.
+`map-interaction.js` captures hero/prop pointers, suppresses camera gestures while held, and delegates drops to simulation commands. `dropResident` checks the hero, availability, building and Guild roster gate before storing a location; the UI then opens the character-specific service. `moveProp` validates finite coordinates against revealed Camp areas; `toggleProp` changes the movable lantern. No manual walking mode remains.
+
+`tavern.js` owns frozen tutorial offers, rotating stock, capacity/payment, two upgrades and consumable purchases. The Tavern is a full map screen. Guild lessons, professions, quests, member purchases and building drops all require six owned heroes. Stable legacy building and vendor keys remain for save compatibility.
+
+`map-assets.js` references checked-in PNGs inside SVG envelopes served by the existing text-asset Worker. `scripts/generate-map-assets.mjs` deterministically creates Camp, Tavern, five expedition biomes and building tiles from original art. Static scenery, contact shadows and fixed light are baked once. `SceneLighting` draws dynamic ground lighting and character/prop projections underneath actors; a separate reveal canvas handles expansion fog. `Renderer` surrounds the 1200×480 combat world with 600 horizontal and 480 vertical units of overscan. Camera zoom is capped to keep that outer boundary offscreen. Dynamic actors, props and spell effects draw over the ground-light pass, so a caster is never darkened by its own projected shadow. See MAP_ASSETS.md for regeneration and provenance.
+
+Save version/key/season, active checkpoint identities and database migrations remain unchanged. Journal claims and every gameplay mutation stay behind the simulation boundary.

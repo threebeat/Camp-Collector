@@ -1,4 +1,5 @@
-// Saved learning state stays separate from combat, ownership and the v12 season.
+import { stats } from "./data.js?v=18";
+// Learning belongs to the saved simulation. The main menu is separate session state.
 export const LEARNING_STAGES = [
   "intro",
   "pan",
@@ -8,6 +9,14 @@ export const LEARNING_STAGES = [
   "route",
   "party",
   "journey",
+  "quests",
+  "fernbridge",
+  "fernroute",
+  "fernparty",
+  "fernjourney",
+  "defeat",
+  "recruit",
+  "build",
   "pantry",
   "journal",
   "complete",
@@ -17,7 +26,7 @@ export function validLearning(s) {
     s === undefined ||
     !!(
       s &&
-      s.version === 1 &&
+      [1, 2].includes(s.version) &&
       LEARNING_STAGES.includes(s.stage) &&
       Number.isInteger(s.beat) &&
       s.beat >= 0 &&
@@ -32,50 +41,69 @@ export function normalizeLearning(g) {
     const existing =
       g.campNamed || g.storyPage >= 3 || g.expeditions.length > 0;
     g.learning = {
-      version: 1,
+      version: 2,
       stage: existing ? "complete" : "intro",
       beat: 0,
       required: false,
       journeyId: null,
     };
   }
-  // Old page locations become internal Crossroads/Journal surfaces.
+  if (g.learning.version === 1) {
+    g.learning.version = 2;
+    if (g.learning.stage === "pantry") g.learning.stage = "quests";
+    if (g.learning.stage === "journey") {
+      const run = g.expeditions.find((r) => r.id === g.learning.journeyId);
+      if (run?.status === "active") {
+        run.tutorialOutcome = "victory";
+        if (run.battleState) run.battleState.tutorialOutcome = "victory";
+      }
+    }
+  }
   if (g.screen === "expeditions") g.screen = "crossroads";
   if (g.screen === "quests") g.screen = "camp";
   return g.learning;
 }
 export const learningLocked = (g) =>
   !!g.learning?.required && g.learning.stage !== "complete";
+export const tutorialTarget = (g) =>
+  ["fernbridge", "fernroute", "fernparty", "fernjourney"].includes(
+    g.learning?.stage,
+  )
+    ? "bridge"
+    : "clearing";
 export function learningActionAllowed(g, type, a) {
-  if (!learningLocked(g)) return true;
+  if (!learningLocked(g) || type === "newGame") return true;
   const s = g.learning;
   if (type === "navigate")
     return (
-      ["camp", "crossroads", "party"].includes(a.screen) &&
-      (a.screen === "camp" ||
+      a.screen === "camp" ||
+      (a.screen === "tavern" && s.stage === "recruit") ||
+      (["crossroads", "party"].includes(a.screen) &&
         [
           "crossroads",
           "route",
           "party",
           "journey",
-          "pantry",
-          "journal",
+          "fernbridge",
+          "fernroute",
+          "fernparty",
+          "fernjourney",
         ].includes(s.stage))
     );
   if (type === "destination")
     return (
-      ["route", "party"].includes(s.stage) &&
+      ["route", "party", "fernroute", "fernparty"].includes(s.stage) &&
       (!a.mode || a.mode === "journey") &&
       (!a.location || a.location === "greenway") &&
-      (!a.target || a.target === "clearing") &&
+      (!a.target || a.target === tutorialTarget(g)) &&
       (!a.routeIndex || a.routeIndex === 0)
     );
-  if (type === "lockRoute") return s.stage === "route";
+  if (type === "lockRoute") return ["route", "fernroute"].includes(s.stage);
   if (type === "launch")
     return (
-      s.stage === "party" &&
+      ["party", "fernparty"].includes(s.stage) &&
       g.lockedJourney?.location === "greenway" &&
-      g.lockedJourney?.target === "clearing" &&
+      g.lockedJourney?.target === tutorialTarget(g) &&
       g.staging.length === 3 &&
       g.roster.slice(0, 3).every((h) => g.staging.includes(h.id))
     );
@@ -88,33 +116,59 @@ export function learningActionAllowed(g, type, a) {
       "worldDifficulty",
       "recall",
       "import",
+      "retire",
+      "release",
+      "sell",
+      "combine",
     ].includes(type)
   )
     return false;
+  if (type === "construct") return s.stage === "build" && a.key === "pantry";
+  if (["tavernHire", "buy", "hireVisitor"].includes(type))
+    return s.stage === "recruit" && type === "tavernHire";
+  if (["tavernUpgrade", "tavernBuy"].includes(type)) return false;
   if (type === "settings" && a.key === "tutorial" && !a.value) return false;
   return true;
 }
 export function learningEvent(g, event, id) {
   const s = g.learning;
   if (!s) return false;
-  const sequence = { pan: "move", move: "profile", profile: "crossroads" };
-  if (s.stage === event && sequence[event]) {
-    if (
-      ["move", "profile"].includes(event) &&
-      !g.roster.some((h) => h.id === id)
-    )
-      return false;
-    s.stage = sequence[event];
+  if (s.stage === "pan" && event === "pan") {
+    s.stage = "move";
     return true;
   }
-  if (s.stage === "journal" && event === "journal") {
+  if (
+    s.stage === "profile" &&
+    event === "profile" &&
+    g.roster.some((h) => h.id === id)
+  ) {
+    s.stage = "crossroads";
+    return true;
+  }
+  if (["quests", "journal"].includes(s.stage) && event === "journal") {
     s.journalSeen = true;
+    return true;
+  }
+  if (
+    s.stage === "quests" &&
+    event === "journal-read" &&
+    s.journalSeen &&
+    g.questClaims.includes("first-road")
+  ) {
+    s.stage = "fernbridge";
+    s.journalSeen = false;
+    g.trackedQuest = "bridge";
+    return true;
+  }
+  if (s.stage === "defeat" && event === "defeat-read") {
+    s.stage = "recruit";
     return true;
   }
   if (s.stage === "journal" && event === "journal-read" && s.journalSeen) {
     s.stage = "complete";
     s.required = false;
     g.tutorialStep = 5;
+    g.trackedQuest = "bridge";
     return true;
   }
   return false;
@@ -133,35 +187,57 @@ export function finishOpening(g, name = "Last Light") {
 export function afterLearningAction(g, type, args, result) {
   if (!result || !learningLocked(g)) return;
   const s = g.learning;
-  if (type === "moveResident") learningEvent(g, "move", args.id);
+  if (type === "dropResident" && s.stage === "move") s.stage = "profile";
   if (
     type === "navigate" &&
     args.screen === "crossroads" &&
-    s.stage === "crossroads"
+    ["crossroads", "fernbridge"].includes(s.stage)
   ) {
+    const second = s.stage === "fernbridge";
     g.destination = {
       mode: "journey",
       location: "greenway",
-      target: "clearing",
+      target: second ? "bridge" : "clearing",
       routeIndex: 0,
       difficulty: "normal",
     };
-    s.stage = "route";
+    s.stage = second ? "fernroute" : "route";
   }
-  if (type === "lockRoute" && s.stage === "route") s.stage = "party";
-  if (type === "launch" && s.stage === "party") {
-    s.stage = "journey";
+  if (type === "lockRoute" && ["route", "fernroute"].includes(s.stage))
+    s.stage = s.stage === "fernroute" ? "fernparty" : "party";
+  if (type === "launch" && ["party", "fernparty"].includes(s.stage)) {
+    const second = s.stage === "fernparty";
+    s.stage = second ? "fernjourney" : "journey";
     s.journeyId = result.id;
     result.auto = true;
+    result.tutorialOutcome = second ? "defeat" : "victory";
   }
-  if (type === "food" && s.stage === "pantry") s.stage = "journal";
+  if (type === "tavernHire" && s.stage === "recruit")
+    s.stage = g.buildings.pantry || g.buildings.kitchen ? "pantry" : "build";
+  if (type === "construct" && args.key === "pantry" && s.stage === "build")
+    s.stage = "pantry";
+  if (type === "food" && s.stage === "pantry") {
+    s.stage = "journal";
+    s.journalSeen = false;
+  }
 }
 export function settleLearning(g) {
   const s = g.learning;
-  if (s?.stage !== "journey") return;
+  if (!["journey", "fernjourney"].includes(s?.stage)) return;
   const r = g.expeditions.find((r) => r.id === s.journeyId);
-  if (r?.status === "returned") {
-    s.stage = r.reason === "complete" ? "pantry" : "crossroads";
+  if (r?.status !== "returned") return;
+  if (s.stage === "journey") {
+    s.stage = r.reason === "complete" ? "quests" : "crossroads";
     if (r.reason !== "complete") s.journeyId = null;
+    else
+      for (const h of g.roster.filter((h) => r.party.includes(h.id))) {
+        h.recoveryUntil = g.lastClock;
+        h.currentHp = stats(h).hp;
+      }
+  } else {
+    s.stage = "defeat";
+    g.buildings.tavern = Math.max(1, g.buildings.tavern || 0);
+    g.buildings.guildhall = Math.max(1, g.buildings.guildhall || 0);
+    g.trackedQuest = "bridge";
   }
 }

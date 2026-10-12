@@ -59,3 +59,7 @@ The owner now wants a smaller starting footprint within a larger explorable Camp
 ## A game in the browser — Evernight 0.3
 
 The owner now wants the experience contained entirely in one retro pixel game window, including fullscreen on supported browsers and a phone viewport fallback. Camp is the place to play; services and information open inside it. A quiet cinematic fire introduces the three arrivals and the curse, then an action-driven first journey teaches controls, care and the Journal. The Crossroads contains expedition organization, and the Journal replaces separate quest navigation. Keep subsequent Camp visits clean and preserve existing players’ progress. These decisions supersede earlier dashboard/navigation and opening-dialogue descriptions.
+
+## A smoother Camp — Evernight 0.4
+
+Every return should feel like approaching an empty fire, then revealing the player's home through Continue. Camp is the primary play space: drag heroes to services, grow the clearing and meet new heroes in a full Tavern interior. Pre-rendered scenery carries static detail while live characters, props and lights occupy separate layers. The first victory and first defeat are authored lessons, followed by free hero choice, Pantry construction and the clear goal of completing Fernbridge. The technical bar and full-window battlefield keep navigation and play controls direct.

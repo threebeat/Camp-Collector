@@ -1,4 +1,4 @@
-import { LOCATIONS, periodKey } from "./data.js?v=17";
+import { LOCATIONS, periodKey } from "./data.js?v=18";
 export const MATERIALS = {
   wood: {
     name: "Wood",
@@ -41,6 +41,7 @@ export const BUILDINGS = {
   },
   pantry: {
     name: "Pantry",
+    cost: { gold: 5 },
     icon: "heart",
     text: "Stock food to halve recovery time after expeditions.",
     x: 47,
@@ -479,6 +480,7 @@ BUILDINGS.market = {
 };
 BUILDINGS.guildhall = {
   name: "Guild lodge",
+  minRoster: 6,
   icon: "shield",
   text: "Eight guilds offer training, quests and member shops here at Camp.",
   x: 21,
@@ -488,12 +490,11 @@ BUILDINGS.guildhall = {
   service: "guildhall",
 };
 BUILDINGS.tavern = {
-  name: "Travelers’ lodge",
+  name: "Last Lantern Tavern",
   icon: "army",
   text: "Hire travelers and meet visiting adventurers at Camp.",
   x: 23,
   y: 51,
-  expansion: "west",
   cost: { gold: 100, wood: 20, stone: 10 },
   service: "tavern",
 };

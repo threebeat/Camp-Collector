@@ -27,13 +27,15 @@ npm run test:e2e
 
 GitHub Actions runs model/artifact checks and desktop Chromium, Android Chromium and iPhone WebKit emulation on main pushes and pull requests. It retains the built Worker, browser reports and scene screenshots. See [DEVELOPMENT.md](docs/DEVELOPMENT.md) for publishing and [QA.md](docs/QA.md) for observed results and limits.
 
-## Evernight 0.3
+## Evernight 0.4
 
-- One retro game window holds the world, combat, services and menus. Desktop has a framed viewport; phones fill their available display. Fullscreen uses the browser API when available, with an expanded viewport fallback.
-- The opening starts black, slowly reveals the bonfire, introduces three arrivals and the curse, then fades into Camp with a small camera pullback. Reduced motion keeps every step readable.
-- A saved tutorial teaches map movement, tap-to-walk residents, character information and the Crossroads. Its first short expedition is required; Pantry and Journal lessons follow the completed journey.
-- The Camp Journal replaces the notice board and separate Quest page. The Crossroads contains roads, party preparation, active companies and returned reports.
-- Camp overview, construction, stock and secondary features open inside the game. Existing Camps enter directly; current saves and active checkpoints are retained.
+- Every visit begins at an empty bonfire main menu. Continue fades into the saved Camp; Start New Game preserves the introduction and asks before replacing existing progress.
+- A contextual technical bar exposes Camp’s Journal, Build, Stock, Codex, Trials and Shop directly. The menu exposes only fullscreen, including an available-viewport fallback.
+- Original pre-rendered pixel environments and building tiles bake static scenery, light and shadows. Live characters, movable Camp props and carried/spell lights render above them; ground shadows stay below their casters.
+- Drag a hero onto a building to open that hero’s service. The old Walk action is removed. The starting Camp has its fire, Crossroads, tent and a cheap Pantry construction site.
+- The Last Lantern Tavern fills the window with wandering recruitable heroes and a consumables bar. Two upgrades unlock Rare then Legendary travelers and more supplies. The neighboring Guild lodge requires six owned heroes.
+- The saved tutorial guarantees a clearing victory, then a Fernbridge defeat, explains quests and loss/recovery, offers any common first recruit free, and teaches Pantry construction for five gold. Completing Fernbridge becomes the next goal.
+- Expedition combat fills the available game area, with play controls below and Camp access above. Overscan scenery extends beyond the camera. Generated enemy HP is 15% lower; player stats are unchanged.
 
 Existing class trees, quests, global difficulty, twelve-hour meals, rewarded retirement, light equipment, guild standing, Arena wagers, monthly collections, Kitchen, Archaeology and the island remain playable.
 

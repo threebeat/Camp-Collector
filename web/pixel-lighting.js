@@ -1,4 +1,4 @@
-import { sightPolygon } from "./lighting.js?v=17";
+import { sightPolygon } from "./lighting.js?v=18";
 
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const bands = [
@@ -66,8 +66,8 @@ export class PixelLighting {
     mask.fillStyle = "rgba(0,0,0,.16)";
     for (const n of remembered || [])
       mask.fillRect(
-        ((n % 30) * 40) / grid,
-        (Math.floor(n / 30) * 40) / grid,
+        ((n % 30) * 40 + (scene.lightOffset?.x || 0)) / grid,
+        (Math.floor(n / 30) * 40 + (scene.lightOffset?.y || 0)) / grid,
         40 / grid,
         40 / grid,
       );

@@ -1,4 +1,4 @@
-import { pixelPropSvg, pixelBuildingSvg } from "./pixel-art.js?v=17";
+import { pixelPropSvg, pixelBuildingSvg } from "./pixel-art.js?v=18";
 const stamp = (key, x, y, w = 100, h = w, building = false) =>
   `<svg x="${x - w / 2}" y="${y - h}" width="${w}" height="${h}">${building ? pixelBuildingSvg(key) : pixelPropSvg(key)}</svg>`;
 function water(points, width = 34, color = "#416479") {

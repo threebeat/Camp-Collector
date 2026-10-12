@@ -6,7 +6,7 @@ import {
   ENCHANTMENTS,
   WEAPON_MODIFIERS,
   weaponModifiers,
-} from "./weapons.js?v=17";
+} from "./weapons.js?v=18";
 export {
   WEAPONS,
   WEAPON_KINDS,
@@ -23,7 +23,7 @@ import {
   modifierFits,
   objectModifiers,
   validModifiers,
-} from "./modifiers.js?v=17";
+} from "./modifiers.js?v=18";
 export {
   ARMOR_MODIFIERS,
   PET_MODIFIERS,
@@ -2370,7 +2370,7 @@ export function enemyCompany(stage = 0, run = null) {
     baseDifficulty = DIFFICULTIES[r.difficulty] || DIFFICULTIES.normal,
     d = {
       ...baseDifficulty,
-      health: baseDifficulty.health * (r.routeDanger || 1),
+      health: baseDifficulty.health * (r.routeDanger || 1) * 0.85,
       damage: baseDifficulty.damage * (r.routeDanger || 1),
     };
   return Array.from({ length: count }, (_, i) => {
@@ -2516,7 +2516,7 @@ export function initialGame(random = Math.random, now = Date.now()) {
       crossroads: 1,
       tent: 1,
       storage: 1,
-      pantry: 1,
+      pantry: 0,
       training: 0,
       blacksmith: 0,
       archaeology: 0,

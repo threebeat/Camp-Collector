@@ -1,0 +1,9 @@
+# Pre-rendered environments
+
+All artwork is original, deterministic Evernight pixel art. No downloaded packs or third-party image licenses are involved. `scripts/generate-map-assets.mjs` combines the existing canonical sprite system with authored roads, stonework, wood grain, foliage, furniture, ambient light and static shadows. Regenerate with `node scripts/generate-map-assets.mjs` under Node 24 after `npm ci`.
+
+Camp is 1800×1400; the Tavern is 1200×900. Forest, jungle, village, volcano and ruins expedition maps are 2400×1440, surrounding a 1200×480 combat area whose image origin is (600,480). River encounters use the forest ground plus the seeded river/bridge overlay, extended through the overscan. Interactive buildings use separate transparent 240×240 tiles so construction can grow without rebaking an entire Camp.
+
+PNG originals are checked in for editing and inspection. Matching SVG envelopes embed those exact bytes; `map-assets.js` supplies their URLs and geometry. The existing Worker embeds text assets, so the envelopes avoid a separate binary transport or runtime image-generation dependency. Never put text, recruitable heroes or movable props into the backgrounds. Static building/tree shadows paint before their owners. Camp dynamic lighting stays below building and actor layers; expansion fog is independent. In combat, seeded collision fixtures are cached into the background, while heroes, props, effects and their dynamic ground projections remain live.
+
+Change the generator and regenerate assets together. Preserve a two-unit pixel grid, safe visual space for interactive anchors, wide overscan and character contrast. Inspect generated PNGs and actual desktop/phone browser captures. Native raster checks alone do not verify responsive layout or physical-device performance.

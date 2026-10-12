@@ -1,4 +1,4 @@
-import { ITEMS, hasAttribute } from "./data.js?v=17";
+import { ITEMS, hasAttribute } from "./data.js?v=18";
 export const NIGHT_SIGHT = {
   Dwarf: 220,
   Gnome: 200,
@@ -38,6 +38,7 @@ export function lightSources(b) {
         x: u.x,
         y: u.y,
         r: vision(u.hero).light,
+        owner: u.uid,
         color: ITEMS[u.hero.light.key].lightColor,
         kind: "lamp",
       })),

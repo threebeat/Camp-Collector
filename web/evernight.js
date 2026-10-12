@@ -7,8 +7,8 @@ import {
   allGear,
   stats,
   migrateClassNodes,
-} from "./data.js?v=17";
-import { spendGems } from "./camp.js?v=17";
+} from "./data.js?v=18";
+import { spendGems } from "./camp.js?v=18";
 export const MEAL_PERIOD = 43200000;
 export const CAMP_XP_TEXT =
   "Character XP contributes 25%; equipment and companion XP contributes 10%. Victories, quests, construction and expansions also grow your Camp. Camps have levels, never rarities.";
@@ -284,7 +284,11 @@ export function guildLesson(g, h, id) {
   if (
     !d ||
     !h ||
-    !((g.screen === "camp" && g.buildings.guildhall) || (g.screen === "market" && g.marketDistrict === "guildhall")) ||
+    g.roster.length < 6 ||
+    !(
+      (g.screen === "camp" && g.buildings.guildhall) ||
+      (g.screen === "market" && g.marketDistrict === "guildhall")
+    ) ||
     g.gold < 35 ||
     h.trainingJob ||
     h.recoveryUntil > g.lastClock ||
@@ -313,7 +317,11 @@ export function guildQuest(g, id) {
     key = "guild-" + id + "-" + epoch;
   if (
     !d ||
-    !((g.screen === "camp" && g.buildings.guildhall) || (g.screen === "market" && g.marketDistrict === "guildhall")) ||
+    g.roster.length < 6 ||
+    !(
+      (g.screen === "camp" && g.buildings.guildhall) ||
+      (g.screen === "market" && g.marketDistrict === "guildhall")
+    ) ||
     g.sideQuests.includes(key) ||
     g.questClaims.includes(key)
   )
@@ -346,7 +354,11 @@ export function guildBuy(g, id) {
   const o = guildOffer(g, id),
     receipt = id + ":" + Math.floor(g.lastClock / 43200000);
   if (
-    !((g.screen === "camp" && g.buildings.guildhall) || (g.screen === "market" && g.marketDistrict === "guildhall")) ||
+    g.roster.length < 6 ||
+    !(
+      (g.screen === "camp" && g.buildings.guildhall) ||
+      (g.screen === "market" && g.marketDistrict === "guildhall")
+    ) ||
     !o ||
     standing(g, id) < 20 ||
     g.gold < o.gold ||

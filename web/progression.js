@@ -1,7 +1,7 @@
-import { validLearning } from "./onboarding.js?v=17";
-import * as Ever from "./evernight.js?v=17";
-import { questById } from "./journeys.js?v=17";
-import * as Night from "./nightfall.js?v=17";
+import { validLearning } from "./onboarding.js?v=18";
+import * as Ever from "./evernight.js?v=18";
+import { questById } from "./journeys.js?v=18";
+import * as Night from "./nightfall.js?v=18";
 import {
   GAME_SEASON,
   MYTHICAL_HEROES,
@@ -64,14 +64,14 @@ import {
   modifierFits,
   validModifiers,
   petInfo,
-} from "./data.js?v=17";
-import * as Camp from "./camp.js?v=17";
+} from "./data.js?v=18";
+import * as Camp from "./camp.js?v=18";
 import {
   BRANCHES,
   calendarDay,
   calendarMonth,
   CALENDAR_BONUSES,
-} from "./world.js?v=17";
+} from "./world.js?v=18";
 import {
   journeyInfo,
   journeyRequirements,
@@ -83,8 +83,8 @@ import {
   trackQuest,
   difficultyAllowed,
   REGION_CHAMPIONS,
-} from "./journeys.js?v=17";
-import { seeded } from "./engine.js?v=17";
+} from "./journeys.js?v=18";
+import { seeded } from "./engine.js?v=18";
 export const SLOT_MILESTONES = [0, 12, 35, 75];
 export const activeExpeditions = (g) =>
   g.expeditions.filter((r) => r.status === "active");
@@ -784,6 +784,7 @@ export function buy(g, input) {
   )
     return false;
   if (["attribute", "talent"].includes(o.kind)) return false;
+  if (o.kind === "hero" && heroRarity(o.hero) > Math.min(3, g.buildings.tavern || 1)) return false;
   if (
     (o.kind === "hero" && g.roster.length >= Camp.campCapacity(g)) ||
     g.gold < o.gold ||
@@ -1823,6 +1824,7 @@ export function validateSave(g) {
       "market",
       "expeditions",
       "expedition",
+      "tavern",
       "arena",
       "quests",
       "codex",

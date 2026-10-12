@@ -1,4 +1,4 @@
-import { vision } from "./lighting.js?v=17";
+import { vision } from "./lighting.js?v=18";
 import {
   CLASSES,
   RACES,
@@ -16,17 +16,17 @@ import {
   RARITIES,
   heroRarity,
   makeItem,
-} from "./data.js?v=17";
-import * as Night from "./nightfall.js?v=17";
-import * as Camp from "./camp.js?v=17";
+} from "./data.js?v=18";
+import * as Night from "./nightfall.js?v=18";
+import * as Camp from "./camp.js?v=18";
 import {
   QUESTS,
   generatedContracts,
   allQuests,
   questState,
   activeQuests,
-} from "./journeys.js?v=17";
-import { portraitSvg, itemSvg, petSvg, icon } from "./art.js?v=17";
+} from "./journeys.js?v=18";
+import { portraitSvg, itemSvg, petSvg, icon } from "./art.js?v=18";
 
 // Screens are separate from the simulation and receive its command boundary.
 export function createNightfallUi(c) {

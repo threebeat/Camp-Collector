@@ -19,8 +19,8 @@ import {
   WEAPON_MODIFIERS,
   ARMOR_MODIFIERS,
   PET_MODIFIERS,
-} from "./data.js?v=17";
-import { CONTEXT, BUILDINGS, MATERIALS } from "./world.js?v=17";
+} from "./data.js?v=18";
+import { CONTEXT, BUILDINGS, MATERIALS } from "./world.js?v=18";
 const mechanics = [
   [
     "Living Camp and Market",
@@ -456,7 +456,7 @@ CODEX.push(
   {
     name: "Eight guilds and Market districts",
     category: "Economy",
-    text: "The Guildhall has eight booths in two rows of four. Each guild offers 35-gold lessons, a four-encounter patrol quest and member goods. Lessons add ten standing; claimed guild quests add twenty. At twenty standing the shop opens. Each additional standing reduces its price, up to 40%; a member item can be bought once per 12-hour restock. Lessons preserve class and can teach professions. The Travelers’ lodge hires adventurers and holds the Arena entrance. The Camp Journal holds quests, and the Workshop adds equipment slots.",
+    text: "The Guild lodge opens after collecting six heroes and has eight booths in two rows of four. Each guild offers 35-gold lessons, a four-encounter patrol quest and member goods. Lessons add ten standing; claimed guild quests add twenty. At twenty standing the shop opens. Each additional standing reduces its price, up to 40%; a member item can be bought once per 12-hour restock. Lessons preserve class and can teach professions. The Last Lantern Tavern has its own interior with wandering heroes, a consumables bar and the Arena entrance. Its first tutorial invitation is a free choice of common hero. Later stock includes Common and Uncommon heroes; the first upgrade adds Rare heroes and the second adds Legendary heroes. Upgrades also expand the bar menu. The technical bar’s Journal holds quests, and the Workshop adds equipment slots.",
   },
   {
     name: "Arena wagers",

@@ -1,4 +1,4 @@
-import { vision, canSee, fogCells } from "./lighting.js?v=17";
+import { vision, canSee, fogCells } from "./lighting.js?v=18";
 import {
   W,
   H,
@@ -27,7 +27,7 @@ import {
   petInfo,
   spellObjects,
   spellObjectInfo,
-} from "./data.js?v=17";
+} from "./data.js?v=18";
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 export function seeded(seed) {
@@ -276,6 +276,7 @@ export function findPath(map, from, to, walls = []) {
 export class Battle {
   constructor(heroes, stage = 0, seed = 1, enemyOverride = null, options = {}) {
     this.mode = options.mode || "campaign";
+    this.tutorialOutcome = options.tutorialOutcome || null;
     this.arenaRule = options.arenaRule || "four";
     this.fogSeen = [];
     this.fogAt = 0;
@@ -405,6 +406,7 @@ export class Battle {
     return structuredClone({
       version: 1,
       arenaRule: this.arenaRule,
+      tutorialOutcome: this.tutorialOutcome,
       fogSeen: this.fogSeen,
       fogAt: this.fogAt,
       mode: this.mode,
@@ -454,6 +456,7 @@ export class Battle {
       copy = structuredClone(state);
     for (const key of [
       "arenaRule",
+      "tutorialOutcome",
       "fogSeen",
       "fogAt",
       "mode",
@@ -1064,6 +1067,12 @@ export class Battle {
       amount -= absorbed;
       this.effect("ring", target.x, target.y, "#accce8", 20);
     }
+    // Script only the first two learning encounters; max HP and owned stats stay intact.
+    if (
+      this.tutorialOutcome &&
+      target.team === (this.tutorialOutcome === "victory" ? 0 : 1)
+    )
+      amount = Math.min(amount, Math.max(0, target.hp - 1));
     target.hp -= amount;
     target.hitUntil = this.time + 0.16;
     if (source && hasAttribute(source.hero, "Vampire") && !source.dead)
@@ -2349,6 +2358,22 @@ export class Battle {
     if (this.time >= this.fogAt) {
       this.fogSeen = [...new Set([...this.fogSeen, ...fogCells(this)])];
       this.fogAt = this.time + 0.5;
+    }
+    if (this.tutorialOutcome && this.time >= 22) {
+      const winningTeam = this.tutorialOutcome === "victory" ? 0 : 1;
+      for (const u of this.units)
+        if (u.team !== winningTeam && !u.dead) {
+          u.hp = 0;
+          u.dead = true;
+          this.effect("burst", u.x, u.y, "#b697d2", 24);
+        }
+      this.event(
+        winningTeam === 0
+          ? "The clearing is safe. The first road is won."
+          : "The darkness overwhelms Fernbridge. Fall back to the flame!",
+        winningTeam,
+        "flag",
+      );
     }
     const living = (this.mode === "arena" ? [0, 1, 2, 3] : [0, 1]).map(
       (t) => this.alive(t, false).filter((u) => !u.summon).length,

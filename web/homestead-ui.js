@@ -1,23 +1,25 @@
+import { mapAssetMarkup, prerenderedBuildingSvg } from "./map-assets.js?v=18";
 import {
   CAMP_WORLD,
   CAMP_ANCHORS,
   CAMP_PLOTS,
   CAMP_VENDORS,
   revealedCampAreas,
-} from "./camp-world.js?v=17";
-import { BUILDINGS } from "./world.js?v=17";
-import { VENDORS } from "./data.js?v=17";
-import { available } from "./progression.js?v=17";
-import { vision } from "./lighting.js?v=17";
+} from "./camp-world.js?v=18";
+import { BUILDINGS } from "./world.js?v=18";
+import { VENDORS } from "./data.js?v=18";
+import { available } from "./progression.js?v=18";
+import { vision } from "./lighting.js?v=18";
 import {
+  pixelPropSvg,
   pixelJournalSvg,
   pixelCampGroundSvg,
   pixelBuildingSvg,
   pixelTerrainSvg,
-} from "./pixel-art.js?v=17";
-import { portraitSvg } from "./art.js?v=17";
-import { pixelMarkup } from "./pixel-markup.js?v=17";
-import { WorldCamera, attachCameraInput } from "./camera.js?v=17";
+} from "./pixel-art.js?v=18";
+import { portraitSvg } from "./art.js?v=18";
+import { pixelMarkup } from "./pixel-markup.js?v=18";
+import { WorldCamera, attachCameraInput } from "./camera.js?v=18";
 const views = new Map();
 let ground = null;
 const residentPositions = new Map();
@@ -25,15 +27,17 @@ let lastActorAt = null;
 export function createHomesteadUi(c) {
   const { getGame, button, esc } = c;
   function viewport(key, content, width, height, center) {
-    return `<section class="world-map-shell"><div class="map-camera-tools"><span>${key === "camp" ? "Your Camp" : "Camp Market"}</span>${button("−", `data-world-zoom="out" aria-label="Zoom out"`, "icon-button")}${button("+", `data-world-zoom="in" aria-label="Zoom in"`, "icon-button")}${button("Focus", `data-world-focus aria-label="Focus map"`, "secondary-button")}${button("Fit", `data-world-fit aria-label="View whole map"`, "secondary-button")}</div><div class="map-viewport" data-map-camera="${key}" tabindex="0" role="region" aria-label="${key} map. Drag to pan, pinch or use plus and minus to zoom. Arrow keys move the map."><div class="map-world ${key}-map local-map" data-local-map="${key}" data-world-width="${width}" data-world-height="${height}" data-home-x="${center.x}" data-home-y="${center.y}" style="width:${width}px;height:${height}px">${content}</div></div></section>`;
+    return `<section class="world-map-shell"><div class="map-camera-tools"><span>${key === "camp" ? "Your Camp" : key === "tavern" ? "Last Lantern Tavern" : "Camp Market"}</span>${button("−", `data-world-zoom="out" aria-label="Zoom out"`, "icon-button")}${button("+", `data-world-zoom="in" aria-label="Zoom in"`, "icon-button")}${button("Focus", `data-world-focus aria-label="Focus map"`, "secondary-button")}${button("Fit", `data-world-fit aria-label="View whole map"`, "secondary-button")}</div><div class="map-viewport" data-map-camera="${key}" tabindex="0" role="region" aria-label="${key} map. Drag to pan, pinch or use plus and minus to zoom. Arrow keys move the map."><div class="map-world ${key}-map local-map" data-local-map="${key}" data-world-width="${width}" data-world-height="${height}" data-home-x="${center.x}" data-home-y="${center.y}" style="width:${width}px;height:${height}px">${content}</div></div></section>`;
   }
   function campMap() {
     const g = getGame();
-    ground ||= pixelMarkup(pixelCampGroundSvg());
+    ground ||= mapAssetMarkup("camp");
     const buildings = Object.entries(CAMP_ANCHORS)
       .filter(
         ([key]) =>
-          g.buildings[key] && !(key === "pantry" && g.buildings.kitchen),
+          !["storage", "questboard"].includes(key) &&
+          g.buildings[key] &&
+          !(key === "pantry" && g.buildings.kitchen),
       )
       .map(([key, [x, y]]) => {
         const name =
@@ -46,9 +50,10 @@ export function createHomesteadUi(c) {
           key === "market" ? "data-market-visit" : `data-building="${key}"`;
         const art = key === "tent" && g.buildings.tent > 1 ? "cabins" : key;
         return button(
-          `${key === "questboard" ? pixelJournalSvg() : pixelBuildingSvg(art, g.buildings[key])}<strong>${name}</strong>`,
-          `${attrs} data-scene-key="${key}" data-world-x="${x}" data-world-y="${y}" style="left:${x}px!important;top:${y}px!important" aria-label="Open ${name}"`,
-          "world-building camp-building built",
+          `${key === "questboard" ? pixelJournalSvg() : prerenderedBuildingSvg(art) || pixelBuildingSvg(art, g.buildings[key])}<strong>${name}</strong>`,
+          `${attrs} data-drop-target="building:${key}" data-scene-key="${key}" data-world-x="${x}" data-world-y="${y}" style="left:${x}px!important;top:${y}px!important" aria-label="Open ${name}"`,
+          "world-building camp-building built" +
+            (key === "guildhall" && g.roster.length < 6 ? " guild-locked" : ""),
         );
       })
       .join("");
@@ -91,6 +96,23 @@ export function createHomesteadUi(c) {
         );
       })
       .join("");
+    const props = (g.campProps || [])
+      .map((p) =>
+        button(
+          pixelPropSvg(p.kind),
+          `data-world-prop="${p.id}" data-prop-kind="${p.kind}" data-light-radius="${p.lit ? 180 : 0}" style="left:${p.x}px;top:${p.y}px" aria-label="${p.kind === "torch" ? (p.lit ? "Extinguish" : "Light") + " movable lantern" : "Move " + p.kind}" title="Drag to move${p.kind === "torch" ? " · Tap to toggle light" : ""}"`,
+          "world-prop",
+        ),
+      )
+      .join("");
+    const pantrySite =
+      !g.buildings.pantry && !g.buildings.kitchen
+        ? button(
+            "Pantry site · 5 gold",
+            'data-building="pantry" style="left:1050px;top:800px"',
+            "world-plot pantry-site",
+          )
+        : "";
     const portal = g.portalUnlocked
       ? button(
           pixelBuildingSvg("portal") + "<strong>Portal mage</strong>",
@@ -107,10 +129,31 @@ export function createHomesteadUi(c) {
       : "";
     return viewport(
       "camp",
-      `<div class="world-ground pixel-ground">${ground}</div>${buildings}${residents}${portal}${plots}${marketSite}${g.buildings.dock ? button("The Bell Beneath · 25 floors", 'data-island-preview style="left:1100px;top:1210px"', "world-plot island-sign") : ""}`,
+      `<div class="world-ground pixel-ground">${ground}</div>${buildings}${residents}${props}${pantrySite}${portal}${plots}${marketSite}${g.buildings.dock ? button("The Bell Beneath · 25 floors", 'data-island-preview style="left:1100px;top:1210px"', "world-plot island-sign") : ""}`,
       CAMP_WORLD.width,
       CAMP_WORLD.height,
       CAMP_WORLD.center,
+    );
+  }
+  function tavernMap() {
+    const g = getGame(),
+      offers = g.tavern?.stock || [];
+    const people = offers
+      .map((o, i) =>
+        button(
+          portraitSvg(o.hero, true) +
+            `<strong>${esc(o.hero.name.split(" ")[0])}</strong>`,
+          `data-tavern-hero="${o.id}" data-tavern-wander="${i}" data-home-x="${410 + (i % 3) * 190}" data-home-y="${430 + Math.floor(i / 3) * 205}" data-light-radius="${vision(o.hero).light}" style="left:${410 + (i % 3) * 190}px;top:${430 + Math.floor(i / 3) * 205}px" aria-label="Meet ${esc(o.hero.name)}"`,
+          "tavern-wanderer",
+        ),
+      )
+      .join("");
+    return viewport(
+      "tavern",
+      `<div class="world-ground">${mapAssetMarkup("tavern")}</div>${people}${button("The bar · Supplies", 'data-tavern-bar style="left:600px;top:238px"', "world-plot tavern-bar")}${button("Return to Camp", 'data-nav="camp" style="left:600px;top:810px"', "world-plot")}`,
+      1200,
+      900,
+      { x: 600, y: 485 },
     );
   }
   function marketMap() {
@@ -176,37 +219,13 @@ export function createHomesteadUi(c) {
         );
         world.style.transform = `translate(${-camera.x * scale}px,${-camera.y * scale}px) scale(${scale})`;
         viewport.dataset.cameraMode = camera.manual ? "free" : "focus";
-        viewport.dataset.moveActive = String(!!c.getMovingHero?.());
+
         if (key === "camp" && camera.manual && !panNotified) {
           panNotified = true;
           c.pan?.();
         }
       };
       const input = attachCameraInput(viewport, camera, apply);
-      viewport.addEventListener(
-        "click",
-        (event) => {
-          const id = c.getMovingHero?.();
-          if (key !== "camp" || !id || event.target.closest(".world-resident"))
-            return;
-          const point = camera.point(r, event.clientX, event.clientY);
-          const building = event.target.closest(".world-building");
-          // A Walk gesture owns service labels as well as ground. Stop at the
-          // front of the fixture instead of opening it through the destination tap.
-          if (building)
-            point.y = Math.max(point.y, +building.dataset.worldY + 110);
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          if (
-            !revealedCampAreas(getGame()).some(
-              (a) => Math.hypot(point.x - a.x, point.y - a.y) < a.r - 12,
-            )
-          )
-            return;
-          c.move?.(id, (point.x / w) * 100, (point.y / h) * 100);
-        },
-        true,
-      );
       let dispatching = false;
       viewport.addEventListener(
         "click",
@@ -329,20 +348,24 @@ export function createHomesteadUi(c) {
       lastActorAt === null ? 1 / 60 : Math.min(0.1, (now - lastActorAt) / 1000);
     lastActorAt = now;
     document.querySelectorAll("[data-world-resident]").forEach((el) => {
+      if (
+        el.classList.contains("picked-up") ||
+        el.classList.contains("pointer-held")
+      )
+        return;
       const id = el.dataset.hero,
         target = { x: +el.dataset.worldX, y: +el.dataset.worldY };
       const pos = residentPositions.get(id) || { ...target };
       const distance = Math.hypot(target.x - pos.x, target.y - pos.y),
         amount = Math.min(1, (85 * dt) / Math.max(1, distance));
-      pos.x += (target.x - pos.x) * amount;
-      pos.y += (target.y - pos.y) * amount;
+      pos.x = target.x;
+      pos.y = target.y;
       residentPositions.set(id, pos);
       const moving = distance > 1;
-      el.classList.toggle("walking", moving);
+
       const idle =
         getGame().settings.reducedMotion ||
         moving ||
-        c.getMovingHero?.() === id ||
         el.matches?.(":hover") ||
         document.activeElement === el;
       const i = +el.dataset.worldResident;
@@ -350,10 +373,27 @@ export function createHomesteadUi(c) {
       el.style.top = pos.y + (idle ? 0 : Math.cos(now / 12000 + i) * 6) + "px";
     });
   }
+  const animateCamp = animate;
+  function animateAll(now) {
+    animateCamp(now);
+    document.querySelectorAll("[data-tavern-wander]").forEach((el) => {
+      if (
+        getGame().settings.reducedMotion ||
+        el.matches?.(":hover") ||
+        document.activeElement === el
+      )
+        return;
+      const i = +el.dataset.tavernWander;
+      el.style.left =
+        +el.dataset.homeX + Math.sin(now / 6500 + i * 2) * 34 + "px";
+      el.style.top = +el.dataset.homeY + Math.cos(now / 8200 + i) * 30 + "px";
+    });
+  }
   return {
     reveal,
     focusTarget,
-    animate,
+    animate: animateAll,
+    tavernMap,
     campMap,
     marketMap,
     bind,

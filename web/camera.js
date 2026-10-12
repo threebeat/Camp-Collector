@@ -36,7 +36,7 @@ export class WorldCamera {
     this.width = clamp(
       this.width,
       this.min,
-      Math.max(this.worldWidth, this.worldHeight * this.ratio),
+      this.maxSpan || Math.max(this.worldWidth, this.worldHeight * this.ratio),
     );
     this.cx = clamp(
       this.cx,
@@ -64,7 +64,7 @@ export class WorldCamera {
     this.width = clamp(
       old * factor,
       this.min,
-      Math.max(this.worldWidth, this.worldHeight * this.ratio),
+      this.maxSpan || Math.max(this.worldWidth, this.worldHeight * this.ratio),
     );
     const f = this.width / old;
     this.cx = point.x + (this.cx - point.x) * f;
@@ -86,7 +86,8 @@ export class WorldCamera {
       width: clamp(
         Math.max(base, right - left + 180, (bottom - top + 90) * this.ratio),
         this.min,
-        Math.max(this.worldWidth, this.worldHeight * this.ratio),
+        this.maxSpan ||
+          Math.max(this.worldWidth, this.worldHeight * this.ratio),
       ),
     };
   }

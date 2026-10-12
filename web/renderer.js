@@ -1,10 +1,12 @@
-import { WorldCamera } from "./camera.js?v=17";
+import { MAP_ASSETS } from "./map-assets.js?v=18";
+import { groundShadow } from "./scene-lighting.js?v=18";
+import { WorldCamera } from "./camera.js?v=18";
 import {
   vision,
   lightSources,
   environmentLights,
   revealed,
-} from "./lighting.js?v=17";
+} from "./lighting.js?v=18";
 import {
   W,
   H,
@@ -14,15 +16,19 @@ import {
   ITEMS,
   allGear,
   itemRarity,
-} from "./data.js?v=17";
-import { portraitSvg, petSvg, creatureSvg } from "./art.js?v=17";
+} from "./data.js?v=18";
+import { portraitSvg, petSvg, creatureSvg } from "./art.js?v=18";
 import {
   pixelTerrainSvg,
   pixelPropSvg,
   pixelCreatureSvg,
-} from "./pixel-art.js?v=17";
-import { PixelLighting } from "./pixel-lighting.js?v=17";
+} from "./pixel-art.js?v=18";
+import { PixelLighting } from "./pixel-lighting.js?v=18";
 
+const PAD_X = 600,
+  PAD_Y = 480,
+  BACK_W = W + PAD_X * 2,
+  BACK_H = H + PAD_Y * 2;
 const GRID = 2,
   images = new Map();
 function sprite(key, svg, ready) {
@@ -124,10 +130,11 @@ export class Renderer {
     this.world = document.createElement("canvas");
     this.background = document.createElement("canvas");
     for (const c of [this.world, this.background]) {
-      c.width = W;
-      c.height = H;
+      c.width = BACK_W;
+      c.height = BACK_H;
     }
-    this.lighting = new PixelLighting(W, H, 4);
+    this.lighting = new PixelLighting(BACK_W, BACK_H, 8);
+    this.terrainImages = new Map();
     this.camera = new WorldCamera(W, H, {
       x: 220,
       y: H / 2,
@@ -162,6 +169,10 @@ export class Renderer {
       this.lastSize = key;
       this.canvas.width = Math.round(width * dpr);
       this.canvas.height = Math.round(height * dpr);
+      this.camera.maxSpan = Math.max(
+        360,
+        Math.min(1800, (1380 * width) / height),
+      );
       this.camera.viewport(width, height);
       this.baseSpan = Math.min(W, Math.max(360, (H * width) / height));
     }
@@ -207,21 +218,31 @@ export class Renderer {
     this.map = map;
     this.mapDirty = false;
     const ctx = this.background.getContext("2d");
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.setTransform(1, 0, 0, 1, PAD_X, PAD_Y);
     ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, W, H);
-    rect(ctx, 0, 0, W, H, "#354d4b");
+    ctx.clearRect(-PAD_X, -PAD_Y, BACK_W, BACK_H);
+    rect(ctx, -PAD_X, -PAD_Y, BACK_W, BACK_H, "#354d4b");
     const ready = () => {
       this.mapDirty = true;
     };
     const ground = sprite(
       `terrain:${map.biome}:${map.seed}`,
-      () => pixelTerrainSvg(map.biome, W, H, map.seed),
+      () => pixelTerrainSvg(map.biome, BACK_W, BACK_H, map.seed),
       ready,
     );
     if (ground.complete && ground.naturalWidth)
-      ctx.drawImage(ground, 0, 0, W, H);
-    for (let x = 0; x < W; x += 12) {
+      ctx.drawImage(ground, -PAD_X, -PAD_Y, BACK_W, BACK_H);
+    const biome = map.biome === "river" ? "forest" : map.biome;
+    if (MAP_ASSETS[biome] && !this.terrainImages.has(biome)) {
+      const im = new Image();
+      im.onload = ready;
+      im.src = MAP_ASSETS[biome].url;
+      this.terrainImages.set(biome, im);
+    }
+    const terrain = this.terrainImages.get(biome);
+    if (terrain?.complete && terrain.naturalWidth)
+      ctx.drawImage(terrain, -PAD_X, -PAD_Y, BACK_W, BACK_H);
+    for (let x = -PAD_X; x < W + PAD_X; x += 12) {
       const y =
         Math.round((H * 0.5 + Math.sin(x / 160 + (map.seed % 5)) * 35) / 4) * 4;
       rect(
@@ -244,12 +265,12 @@ export class Renderer {
     }
     for (const o of map.objects || [])
       if (o.type === "river") {
-        rect(ctx, o.x - 8, 0, o.w + 16, H, "#263f50");
-        rect(ctx, o.x, 0, o.w, H, "#416479");
-        for (let i = 0; i < 36; i++)
+        rect(ctx, o.x - 8, -PAD_Y, o.w + 16, BACK_H, "#263f50");
+        rect(ctx, o.x, -PAD_Y, o.w, BACK_H, "#416479");
+        for (let i = -34; i < 104; i++)
           rect(
             ctx,
-            o.x + ((i * 17) % Math.max(8, o.w - 20)),
+            o.x + ((Math.abs(i) * 17) % Math.max(8, o.w - 20)),
             i * 14,
             14 + (i % 3) * 6,
             2,
@@ -321,13 +342,61 @@ export class Renderer {
     )
       this.bake(battle.map);
     const ctx = this.world.getContext("2d");
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.setTransform(1, 0, 0, 1, PAD_X, PAD_Y);
     ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, W, H);
-    ctx.drawImage(this.background, 0, 0, W, H);
+    ctx.clearRect(-PAD_X, -PAD_Y, BACK_W, BACK_H);
+    ctx.drawImage(this.background, -PAD_X, -PAD_Y, BACK_W, BACK_H);
     const sources = lightSources(battle),
       visible = (u) => u.team === 0 || revealed(battle, u, 0, sources);
     const visibleUnits = battle.units.filter(visible);
+    const lamps = sources.filter((s) => revealed(battle, s, 0, sources));
+    const senses = battle.units
+      .filter(
+        (u) => u.team === 0 && !u.dead && !u.pet && !u.summon && !u.structure,
+      )
+      .map((u) => ({
+        x: u.x,
+        y: u.y,
+        r: vision(u.hero).sight,
+        nightVision: vision(u.hero).nightVision,
+        flying: u.flying,
+        kind: "vision",
+      }));
+    const shifted = (p) => ({ ...p, x: p.x + PAD_X, y: p.y + PAD_Y });
+    this.lighting.paint(
+      {
+        map: { objects: battle.map.objects.map(shifted) },
+        lightOffset: { x: PAD_X, y: PAD_Y },
+      },
+      lamps.map(shifted),
+      senses.map(shifted),
+      battle.fogSeen,
+      wallTime,
+    );
+    ctx.save();
+    ctx.translate(-PAD_X, -PAD_Y);
+    this.lighting.composite(ctx);
+    ctx.restore();
+    for (const unit of [...visibleUnits, ...(battle.props || [])].filter(
+      (u) => !u.dead,
+    ))
+      for (const source of lamps) {
+        const shadow = groundShadow(source, {
+          id: unit.uid,
+          x: unit.x,
+          y: unit.y,
+          r: unit.r || 9,
+        });
+        if (!shadow) continue;
+        ctx.fillStyle = "rgba(4,7,15,.24)";
+        ctx.beginPath();
+        shadow.forEach((p, i) =>
+          i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y),
+        );
+        ctx.closePath();
+        ctx.fill();
+      }
+
     for (const decal of battle.decals || [])
       disk(
         ctx,
@@ -576,21 +645,6 @@ export class Renderer {
         );
       ctx.globalAlpha = 1;
     }
-    const lamps = sources.filter((s) => revealed(battle, s, 0, sources));
-    const senses = battle.units
-      .filter(
-        (u) => u.team === 0 && !u.dead && !u.pet && !u.summon && !u.structure,
-      )
-      .map((u) => ({
-        x: u.x,
-        y: u.y,
-        r: vision(u.hero).sight,
-        nightVision: vision(u.hero).nightVision,
-        flying: u.flying,
-        kind: "vision",
-      }));
-    this.lighting.paint(battle, lamps, senses, battle.fogSeen, wallTime);
-    this.lighting.composite(ctx);
     const marked = visibleUnits.find((u) => u.uid === this.selected && !u.dead);
     if (marked) {
       const size = characterSize(marked.hero),
@@ -623,10 +677,10 @@ export class Renderer {
     display.fillRect(0, 0, canvas.width, canvas.height);
     display.drawImage(
       this.world,
-      -this.camera.x * scale,
-      offsetY,
-      W * scale,
-      H * scale,
+      (-PAD_X - this.camera.x) * scale,
+      offsetY - PAD_Y * scale,
+      BACK_W * scale,
+      BACK_H * scale,
     );
     // Text uses display resolution so HP and names stay readable at phone sizes.
     display.setTransform(scale, 0, 0, scale, -this.camera.x * scale, offsetY);

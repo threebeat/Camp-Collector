@@ -1,6 +1,6 @@
-import { PixelLighting } from "./pixel-lighting.js?v=17";
-import { revealedCampAreas } from "./camp-world.js?v=17";
-import { campProgress } from "./evernight.js?v=17";
+import { PixelLighting } from "./pixel-lighting.js?v=18";
+import { revealedCampAreas } from "./camp-world.js?v=18";
+import { campProgress } from "./evernight.js?v=18";
 
 // World-space lighting survives camera transforms. Layout is sampled once, not every frame.
 export class SceneLighting {
@@ -23,23 +23,6 @@ export class SceneLighting {
       const key = el.dataset.sceneKey,
         x = +el.dataset.worldX,
         y = +el.dataset.worldY;
-      if (key === "questboard") {
-        this.objects.push({ type: "tree", x, y: y + 18, r: 8 });
-        this.staticLights.push({
-          x: x + 28,
-          y: y - 14,
-          r: 90,
-          color: "#efc778",
-          kind: "lamp",
-        });
-      } else if (key !== "bonfire" && key !== "portal")
-        this.objects.push({
-          type: "house",
-          x: x - 30,
-          y: y - 30,
-          w: 60,
-          h: 42,
-        });
       if (key === "bonfire")
         this.staticLights.push({
           x,
@@ -77,22 +60,23 @@ export class SceneLighting {
           kind: "window",
         });
     }
-    this.objects.push(
-      ...[
-        [474, 400],
-        [460, 508],
-        [476, 836],
-        [548, 960],
-        [1180, 972],
-        [1300, 916],
-        [1200, 216],
-      ].map(([x, y]) => ({ type: "tree", x, y, r: 24 })),
-    );
-    this.residents = [...element.querySelectorAll("[data-world-resident]")];
+    this.residents = [
+      ...element.querySelectorAll(
+        "[data-world-resident], [data-world-prop], [data-tavern-wander]",
+      ),
+    ];
+    if (element.dataset.localMap === "tavern")
+      this.staticLights = [
+        { x: 110, y: 305, r: 420, kind: "fire", color: "#e6aa64" },
+        { x: 600, y: 220, r: 480, kind: "window", color: "#eec886" },
+      ];
     this.scene = { map: { objects: this.objects } };
     this.fog = document.createElement("canvas");
     this.fog.width = this.width / 8;
     this.fog.height = this.height / 8;
+    this.fog.className = "scene-reveal";
+    this.fog.setAttribute("aria-hidden", "true");
+    element.appendChild(this.fog);
     const fog = this.fog.getContext("2d");
     if (element.dataset.localMap === "camp" && game) {
       fog.fillStyle = "#080a16";
@@ -112,27 +96,59 @@ export class SceneLighting {
     }
   }
   draw(time) {
-    if (time - this.at < 1 / 30) return;
+    if (time - this.at < 1 / 20) return;
     this.at = time;
     const lights = [...this.staticLights],
       people = [];
     for (const el of this.residents) {
       const x = parseFloat(el.style.left),
         y = parseFloat(el.style.top);
-      people.push({ type: "tree", x, y: y - 4, r: 9 });
+      people.push({
+        type: "tree",
+        id: el.dataset.hero || el.dataset.worldProp,
+        x,
+        y: y - 2,
+        r: el.dataset.worldProp ? 13 : 9,
+      });
       const r = Number(el.dataset.lightRadius);
       if (r > 0)
-        lights.push({ x: x + 10, y: y - 8, r, color: "#f4c76a", kind: "lamp" });
+        lights.push({
+          owner: el.dataset.hero || el.dataset.worldProp,
+          x: x + 10,
+          y: y - 8,
+          r,
+          color: "#f4c76a",
+          kind: "lamp",
+        });
     }
     // Resident occluders use the same ray geometry as buildings, without an innate aura.
     this.scene.map.objects = [...this.objects, ...people];
-    this.light.paint(this.scene, lights, [], [], time, 0.88);
+    this.light.paint(
+      { map: { objects: [] } },
+      lights,
+      [],
+      [],
+      time,
+      this.element.dataset.localMap === "tavern" ? 0.18 : 0.5,
+    );
     const ctx = this.canvas.getContext("2d");
     ctx.setTransform(0.5, 0, 0, 0.5, 0, 0);
     ctx.clearRect(0, 0, this.width, this.height);
     this.light.composite(ctx);
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(this.fog, 0, 0, this.width, this.height);
+    // All cast shadows stay on the ground plane, below their owner sprites.
+    for (const caster of people)
+      for (const source of lights) {
+        const shape = groundShadow(source, caster);
+        if (!shape) continue;
+        ctx.fillStyle = "rgba(4,7,15,0.25)";
+        ctx.beginPath();
+        shape.forEach((p, i) =>
+          i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y),
+        );
+        ctx.closePath();
+        ctx.fill();
+      }
     const fire = this.staticLights.find((l) => l.kind === "fire");
     if (fire) {
       ctx.globalCompositeOperation = "screen";
@@ -157,4 +173,28 @@ export class SceneLighting {
       }
     }
   }
+}
+
+export function groundShadow(source, caster) {
+  const dx = caster.x - source.x,
+    dy = caster.y - source.y,
+    d = Math.hypot(dx, dy);
+  if ((source.owner && source.owner === caster.id) || d < 12 || d > source.r)
+    return null;
+  const ux = dx / d,
+    uy = dy / d,
+    r = caster.r || 9,
+    length = Math.min(100, 18 + d * 0.28);
+  return [
+    { x: caster.x - uy * r, y: caster.y + ux * r },
+    { x: caster.x + uy * r, y: caster.y - ux * r },
+    {
+      x: caster.x + ux * length + uy * r * 0.45,
+      y: caster.y + uy * length - ux * r * 0.45,
+    },
+    {
+      x: caster.x + ux * length - uy * r * 0.45,
+      y: caster.y + uy * length + ux * r * 0.45,
+    },
+  ];
 }

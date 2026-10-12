@@ -12,8 +12,9 @@ import { cleanTeam } from "../worker/api.js";
 import { portraitSvg, itemSvg } from "../web/art.js";
 const NOW = Date.UTC(2026, 9, 11, 12);
 const fresh = () => D.initialGame(seeded(13), NOW);
-function funded() {
+function funded(guild = false) {
   const g = fresh();
+  if (guild) g.roster.push(...Array.from({ length: 3 }, () => D.generateHero()));
   g.gold = 10000;
   Camp.addGems(g, 100);
   g.food = 100;
@@ -30,6 +31,7 @@ test("a fresh company starts with exactly one Main and two Side quests; rewards 
   Camp.nameCamp(g, "Last Light");
   assert.ok(P.claimQuest(g, "settle-in"));
   assert.equal(P.claimQuest(g, "settle-in"), false);
+  if (!g.buildings.pantry) assert.ok(Camp.buildCamp(g, "pantry"));
   assert.ok(Camp.buyFood(g, 1));
   assert.ok(P.claimQuest(g, "stock-pantry"));
   assert.equal(P.claimQuest(g, "bridge"), false);
@@ -60,7 +62,7 @@ test("accepted generated contracts retain objectives across days and pay once", 
   assert.equal(P.claimQuest(loaded, contract.id), false);
 });
 test("Guildhall professions preserve class and gear, grant compatible tools and reach rank III", () => {
-  const g = funded(),
+  const g = funded(true),
     h = g.roster[0],
     old = h.items.map((i) => i.id),
     id = h.id;
@@ -91,7 +93,7 @@ test("Guildhall professions preserve class and gear, grant compatible tools and 
     assert.equal(Night.trainProfession(g, h, key), false);
   }
   h.level = 10;
-  const clean = cleanTeam(g.roster, "profession");
+  const clean = cleanTeam(g.roster.slice(0, 3), "profession");
   assert.equal(clean[0].items.at(-2).key, "pickaxe");
   assert.equal(
     clean[0].attributes.filter((a) => D.ATTRIBUTES[a.key]?.profession).length,
@@ -99,7 +101,7 @@ test("Guildhall professions preserve class and gear, grant compatible tools and 
   );
 });
 test("rank III professions yield bonus stone, ore, wood, ingredients and rare materials deterministically", () => {
-  const g = funded(),
+  const g = funded(true),
     h = g.roster[0];
   g.screen = "market";
   for (const key of Night.PROFESSION_NAMES)
@@ -121,7 +123,7 @@ test("rank III professions yield bonus stone, ore, wood, ingredients and rare ma
   assert.ok(g.gems > gemBefore);
 });
 test("ordinary Attributes cannot be purchased or granted; only the Market clinic lifts them", () => {
-  const g = funded(),
+  const g = funded(true),
     h = g.roster[0];
   h.attributes.push(D.makeFacet("Cursed"));
   g.essences.Angel = 1;
@@ -191,9 +193,11 @@ test("the Kitchen upgrades the Pantry in place, keeps food shopping and makes si
   const g = funded();
   assert.equal(BUILDINGS.kitchen.upgradeFrom, "pantry");
   assert.equal(BUILDINGS.kitchen.x, BUILDINGS.pantry.x);
+  assert.ok(Camp.buildCamp(g, "pantry"));
   assert.ok(Camp.buildCamp(g, "kitchen"));
   assert.equal(Camp.buildCamp(g, "kitchen"), false);
   const before = g.food;
+  if (!g.buildings.pantry) assert.ok(Camp.buildCamp(g, "pantry"));
   assert.ok(Camp.buyFood(g, 1));
   assert.ok(Camp.cook(g, "food"));
   assert.equal(g.food, before + 7);

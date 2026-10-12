@@ -1,4 +1,4 @@
-import { LOCATIONS, DIFFICULTIES, allGear } from "./data.js?v=17";
+import { LOCATIONS, DIFFICULTIES, allGear } from "./data.js?v=18";
 export const REGION_ORDER = [
   "greenway",
   "marsh",

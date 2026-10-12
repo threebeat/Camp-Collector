@@ -202,6 +202,8 @@ class Element {
     this.open = false;
   }
   matches(selector) {
+    if (selector.includes(","))
+      return selector.split(",").some((s) => this.matches(s.trim()));
     if (selector.includes(" ") && !selector.startsWith("[")) {
       const parts = selector.split(" ");
       return (
@@ -415,7 +417,8 @@ test(
       assert.equal(state().roster.length, 3);
       assert.match(document.title, /Your Camp/);
       assert.equal(state().learning.stage, "intro");
-      await new Promise((resolve) => setTimeout(resolve, 3500));
+      assert.equal(get("#game-window").dataset.session, "menu");
+      await click("#new-game");
       await click("#opening-continue");
       assert.equal(state().learning.beat, 1);
       await click("#opening-continue");
@@ -429,15 +432,7 @@ test(
       assert.equal(state().learning.stage, "move");
       const first = state().roster[0].id;
       await click('[data-world-resident="0"]');
-      await click("[data-resident-walk]");
-      await get('[data-map-camera="camp"]').dispatch("click", {
-        clientX: 500,
-        clientY: 200,
-        stopImmediatePropagation() {},
-      });
-      assert.equal(state().learning.stage, "profile");
-      await click('[data-world-resident="0"]');
-      await click("[data-resident-info]");
+      await click('[data-building="tent"]');
       assert.equal(state().learning.stage, "crossroads");
       await click("[data-close]");
       assert.equal(root.querySelector(".company-section"), null);
@@ -464,13 +459,32 @@ test(
       nextFrame(performance.now());
       await click("#game-home");
       worker.advance(600000);
-      assert.equal(state().learning.stage, "pantry");
+      assert.equal(state().learning.stage, "quests");
+      await click("[data-open-journal]");
+      await click('[data-quest="first-road"]');
+      await click("[data-finish-learning]");
+      await click('[data-building="crossroads"]');
+      await click("[data-lock-route]");
+      await click("#launch-btn");
+      await click("#game-home");
+      worker.advance(600000);
+      assert.equal(state().learning.stage, "defeat");
+      await click("[data-lesson-help]");
+      await click('[data-building="tavern"]');
+      assert.equal(state().screen, "tavern");
+      await click("[data-tavern-hero]");
+      await click("[data-tavern-hire]");
+      assert.equal(state().roster.length, 4);
+      await click("#game-home");
+      await click('[data-building="pantry"]');
+      await click('[data-construct="pantry"]');
       await click('[data-building="pantry"]');
       await click('[data-food="1"]');
       await click("[data-close]");
-      await click('[data-building="questboard"]');
+      await click("[data-open-journal]");
       await click("[data-finish-learning]");
       assert.equal(state().learning.stage, "complete");
+      worker.sim.g.roster.push(generateHero(), generateHero());
       worker.sim.g.gold = 10000;
       worker.sim.g.campXp = 300;
       for (const key in worker.sim.g.materials)
@@ -500,7 +514,6 @@ test(
       await click('[data-construct="cabins"]');
       assert.equal(state().buildings.tent, 2);
       assert.equal(state().buildings.cabins, 1);
-      await click("[data-more-menu]");
       await click('[data-nav="codex"]');
       assert.ok(get(".codex-page"));
       await click("#game-home");
@@ -508,8 +521,6 @@ test(
       await click("#confirm-expansion");
       await click("#brand-home");
       await click("[data-build-sites]");
-      await click('[data-building="guildhall"]');
-      await click('[data-construct="guildhall"]');
       await click('[data-building="guildhall"]');
       assert.equal(root.querySelectorAll("[data-guild-booth]").length, 8);
       await click('[data-guild-booth="miners"]');

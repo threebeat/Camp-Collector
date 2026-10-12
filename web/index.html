@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <meta name="theme-color" content="#0a0c1a" />
     <meta
       name="description"
@@ -10,21 +13,22 @@
     />
     <title>Evernight · A Fire in the Night</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=17" />
-    <link rel="stylesheet" href="./nightfall.css?v=17" />
-    <link rel="stylesheet" href="./evernight.css?v=17" />
-    <link rel="stylesheet" href="./pixel.css?v=17" />
-    <link rel="stylesheet" href="/homestead.css?v=17" />
-    <link rel="stylesheet" href="./game-shell.css?v=17" />
+    <link rel="stylesheet" href="./styles.css?v=18" />
+    <link rel="stylesheet" href="./nightfall.css?v=18" />
+    <link rel="stylesheet" href="./evernight.css?v=18" />
+    <link rel="stylesheet" href="./pixel.css?v=18" />
+    <link rel="stylesheet" href="/homestead.css?v=18" />
+    <link rel="stylesheet" href="./game-shell.css?v=18" />
   </head>
   <body>
     <div
       id="game-window"
       data-learning="intro"
+      data-session="menu"
       role="region"
       aria-label="Evernight game window"
     >
-      <header class="site-header game-hud">
+      <header class="site-header game-hud" aria-label="Technical bar">
         <button
           id="game-home"
           class="icon-button"
@@ -37,7 +41,7 @@
           <strong id="brand-name">Evernight</strong
           ><span id="window-context">A fire in the night</span>
         </button>
-        <nav id="main-nav" aria-label="Game menu"></nav>
+        <nav id="main-nav" aria-label="Camp options"></nav>
         <div class="resources">
           <span id="gold-count"></span><span id="gem-count"></span
           ><button
@@ -63,10 +67,11 @@
           </div>
         </div>
         <footer class="app-footer">
-          <span>Evernight · 0.3</span
+          <span>Evernight · 0.4</span
           ><span id="save-status">Saved on this device · background 1×</span>
         </footer>
       </main>
+      <section id="main-menu" aria-label="Main menu"></section>
       <section
         id="opening-scene"
         aria-label="Evernight opening"
@@ -87,6 +92,6 @@
       <dialog id="modal" class="modal"><div id="modal-content"></div></dialog>
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
     </div>
-    <script type="module" src="./app.js?v=17"></script>
+    <script type="module" src="./app.js?v=18"></script>
   </body>
 </html>

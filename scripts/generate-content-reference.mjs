@@ -22,7 +22,7 @@ const stats = (obj) =>
     .map(([key, value]) => `${key} +${value}`)
     .join(", ") || "—";
 let out =
-  "# Current content reference\n\nGenerated with `node scripts/generate-content-reference.mjs` for version 0.2.0. These tables describe current content; all names, counts, balance and progression choices may change. Stable IDs are useful save references, not a requirement to keep every design forever.\n\n";
+  "# Current content reference\n\nGenerated with `node scripts/generate-content-reference.mjs` for version 0.4.0. These tables describe current content; all names, counts, balance and progression choices may change. Stable IDs are useful save references, not a requirement to keep every design forever.\n\n";
 out +=
   "## Races\n\nRace foundation values precede class, levels and equipment. Growth tables are in `web/data.js`.\n\n" +
   table(

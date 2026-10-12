@@ -1,6 +1,6 @@
 # Current content reference
 
-Generated with `node scripts/generate-content-reference.mjs` for version 0.2.0. These tables describe current content; all names, counts, balance and progression choices may change. Stable IDs are useful save references, not a requirement to keep every design forever.
+Generated with `node scripts/generate-content-reference.mjs` for version 0.4.0. These tables describe current content; all names, counts, balance and progression choices may change. Stable IDs are useful save references, not a requirement to keep every design forever.
 
 ## Races
 
@@ -378,7 +378,7 @@ Later region names appear here for developers; the Crossroads picker only reveal
 | --- | --- | --- | --- |
 | tent | Character tent | Meet, equip, teach Talents, or recycle your characters. | Available initially |
 | storage | Storage | Equipment, companions, scrolls, consumables, gems, and materials in one chest. | Available initially |
-| pantry | Pantry | Stock food to halve recovery time after expeditions. | Available initially |
+| pantry | Pantry | Stock food to halve recovery time after expeditions. | 5 gold |
 | training | Training Grounds | Learn a permanent training Talent for one stat. The character stays here until their timed session ends. | 90 gold, 18 wood, 10 stone; roster 4+ |
 | blacksmith | Blacksmith | Improve weapons, choose transformative modifiers, or craft a new Common weapon. | 65 gold, 12 wood, 8 stone |
 | kitchen | Kitchen | Upgrade the Pantry into a Kitchen. Stock food, cook six meals efficiently, and choose ingredients for expedition dishes. | 90 gold, 18 wood, 12 stone |
@@ -392,8 +392,8 @@ Later region names appear here for developers; the Crossroads picker only reveal
 | armory | Equipment Workshop | Buy, craft, sell and transform armor and equipment. Weapon work is also available at the Blacksmith. | 90 gold, 15 wood, 12 stone |
 | dock | Lantern Dock | Meet Legendary travelers, with occasional Mythicals, and sail to the island's 25-floor dungeon. | 400 gold, 50 wood, 25 stone, 10 ore; expansion: south |
 | market | Camp Market | Invite four merchants: equipment, curiosities, supplies and companions. Available at Camp level 2. | 80 gold, 24 wood, 12 stone |
-| guildhall | Guild lodge | Eight guilds offer training, quests and member shops here at Camp. | 120 gold, 24 wood, 18 stone; expansion: west |
-| tavern | Travelers’ lodge | Hire travelers and meet visiting adventurers at Camp. | 100 gold, 20 wood, 10 stone; expansion: west |
+| guildhall | Guild lodge | Eight guilds offer training, quests and member shops here at Camp. | 120 gold, 24 wood, 18 stone; expansion: west; roster 6+ |
+| tavern | Last Lantern Tavern | Hire travelers and meet visiting adventurers at Camp. | 100 gold, 20 wood, 10 stone |
 | clinic | Lantern Clinic | Lift eligible Attributes at Camp. | 90 gold, 12 wood, 12 stone, 8 herbs |
 | questboard | Journal | Take quests and organize the company’s goals. | Available initially |
 

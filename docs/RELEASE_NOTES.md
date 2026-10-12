@@ -1,5 +1,16 @@
 # Release notes
 
+## 0.4.0 — The Last Lantern
+
+- Added an empty-fire main menu on every visit, a seamless Continue-to-Camp fade, explicit new-game replacement confirmation and contextual technical-bar actions.
+- Replaced manual walking with character-to-building drag/drop and added three persistent movable Camp props, including a working lantern.
+- Added original raster map/lighting assets and baked building shadows. Dynamic ground shadows render beneath characters and props. Expedition scenery extends past every camera edge and the combat view fills the game area.
+- Replaced the Travelers’ lodge with the full-window Last Lantern Tavern, wandering recruits, bar purchases and upgrades that unlock Rare then Legendary heroes. The Guild lodge requires six owned heroes.
+- Reworked saved learning around a guaranteed clearing victory and Fernbridge defeat, quest/recovery explanations, any one free Common recruit, five-gold Pantry construction and a final Fernbridge quest goal.
+- Reduced generated enemy HP by 15%, leaving player stats unchanged.
+
+Current-season saves, owned characters, active checkpoints, Site origin/audience and database history are preserved. Browser cache generation is 18; save version remains 12. See QA.md for verification.
+
 ## 0.3.0 — Stay near the flame
 
 - Replaced the browser dashboard with one framed retro game window, phone viewport layout and native fullscreen/expanded-display fallback. Menus, profiles and services stay in the game.

@@ -1,9 +1,11 @@
-import * as Learn from "./onboarding.js?v=17";
-import { normalizeCampWorld } from "./camp-world.js?v=17";
-import * as Ever from "./evernight.js?v=17";
-import { questById } from "./journeys.js?v=17";
-import * as Night from "./nightfall.js?v=17";
-import { Battle } from "./engine.js?v=17";
+import * as Tavern from "./tavern.js?v=18";
+import { CAMP_ANCHORS, revealedCampAreas } from "./camp-world.js?v=18";
+import * as Learn from "./onboarding.js?v=18";
+import { normalizeCampWorld } from "./camp-world.js?v=18";
+import * as Ever from "./evernight.js?v=18";
+import { questById } from "./journeys.js?v=18";
+import * as Night from "./nightfall.js?v=18";
+import { Battle } from "./engine.js?v=18";
 import {
   LOCATIONS,
   initialGame,
@@ -12,9 +14,9 @@ import {
   VENDORS,
   ITEMS,
   uid,
-} from "./data.js?v=17";
-import * as Camp from "./camp.js?v=17";
-import * as P from "./progression.js?v=17";
+} from "./data.js?v=18";
+import * as Camp from "./camp.js?v=18";
+import * as P from "./progression.js?v=18";
 
 // The clock lives outside the view. Every party gets the same fixed simulation steps.
 export const STEP = 1 / 30;
@@ -28,6 +30,12 @@ export class ExpeditionSimulation {
     Ever.normalizeEvernight(this.g);
     normalizeCampWorld(this.g);
     Learn.normalizeLearning(this.g);
+    Tavern.normalizeTavern(this.g);
+    this.g.campProps ||= [
+      { id: "lantern", kind: "torch", x: 990, y: 700, lit: true },
+      { id: "supply-crate", kind: "crate", x: 820, y: 665 },
+      { id: "water-barrel", kind: "barrel", x: 1070, y: 850 },
+    ];
     if (this.g.buildings.tavern) P.marketStock(this.g, "guild");
     Night.refreshVisitors(this.g);
     this.battles = new Map();
@@ -63,6 +71,7 @@ export class ExpeditionSimulation {
         ),
         {
           ...this.callbacks(r),
+          tutorialOutcome: r.tutorialOutcome,
           biome: r.roadItinerary?.[r.stage]?.water
             ? "river"
             : LOCATIONS[r.location].biome,
@@ -126,6 +135,7 @@ export class ExpeditionSimulation {
     Ever.consumeMeals(this.g);
     P.refreshStock(this.g);
     Night.refreshVisitors(this.g);
+    if (this.g.screen === "tavern") Tavern.normalizeTavern(this.g);
     if (this.g.screen === "shop") P.gemShopStock(this.g);
     if (this.g.screen === "market")
       for (const v of VENDORS) P.marketStock(this.g, v.id);
@@ -233,6 +243,14 @@ export class ExpeditionSimulation {
   }
   action(type, args = {}, now = Date.now()) {
     this.advance(now);
+    if (type === "newGame") {
+      const fresh = new ExpeditionSimulation(null, now);
+      this.g = fresh.g;
+      this.battles = fresh.battles;
+      this.observation = fresh.observation;
+      this.cursor = 0;
+      return { ok: true, ...this.snapshot() };
+    }
     if (
       !["navigate", "watch", "favorite", "rename", "dismiss"].includes(type) &&
       P.activeExpeditions(this.g).some((r) => r.pendingSeconds > 2)
@@ -244,6 +262,64 @@ export class ExpeditionSimulation {
       return { ok: false, ...this.snapshot() };
     let result = false;
     switch (type) {
+      case "tavernHire":
+        result = Tavern.hireAtTavern(g, args.id);
+        break;
+      case "tavernUpgrade":
+        result = Tavern.upgradeTavern(g);
+        break;
+      case "tavernBuy":
+        result = Tavern.buyAtBar(g, args.key);
+        break;
+      case "dropResident": {
+        const anchor = CAMP_ANCHORS[args.building];
+        if (
+          g.screen === "camp" &&
+          anchor &&
+          h &&
+          g.buildings[args.building] &&
+          P.available(g, h) &&
+          (args.building !== "guildhall" || g.roster.length >= 6)
+        )
+          result = P.moveResident(
+            g,
+            h.id,
+            anchor[0] / 18,
+            (anchor[1] + 95) / 14,
+          );
+        break;
+      }
+      case "moveProp": {
+        const p = g.campProps.find((p) => p.id === args.id);
+        if (
+          g.screen === "camp" &&
+          p &&
+          Number.isFinite(args.x) &&
+          Number.isFinite(args.y) &&
+          args.x > 20 &&
+          args.x < 1780 &&
+          args.y > 20 &&
+          args.y < 1380 &&
+          revealedCampAreas(g).some(
+            (a) => Math.hypot(a.x - args.x, a.y - args.y) < a.r - 12,
+          )
+        ) {
+          p.x = args.x;
+          p.y = args.y;
+          result = true;
+        }
+        break;
+      }
+      case "toggleProp": {
+        const p = g.campProps.find(
+          (p) => p.id === args.id && p.kind === "torch",
+        );
+        if (g.screen === "camp" && p) {
+          p.lit = !p.lit;
+          result = true;
+        }
+        break;
+      }
       case "openingNext":
         if (g.learning.stage === "intro" && g.learning.beat < 2) {
           g.learning.beat++;
@@ -392,6 +468,7 @@ export class ExpeditionSimulation {
             "crossroads",
             "party",
             "market",
+            "tavern",
             "expeditions",
             "arena",
             "quests",
@@ -409,6 +486,8 @@ export class ExpeditionSimulation {
             !["camp", "party", "crossroads"].includes(g.screen))
         )
           break;
+        if (args.screen === "tavern" && !g.buildings.tavern) break;
+        if (args.screen === "tavern") Tavern.normalizeTavern(g);
         if (args.screen !== "market") g.marketParty = [];
         for (const r of P.activeExpeditions(g)) r.auto = true;
         this.observation.id = null;

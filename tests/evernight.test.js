@@ -263,6 +263,7 @@ test("guild lessons and claimed patrols build standing; member goods are exclusi
     h = g.roster[0];
   g.screen = "market";
   g.marketDistrict = "guildhall";
+  g.roster.push(...Array.from({ length: 3 }, () => D.generateHero()));
   assert.equal(E.guildBuy(g, "scouts"), false);
   assert.ok(E.guildQuest(g, "scouts"));
   const q = g.questContracts.at(-1);

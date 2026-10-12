@@ -18,7 +18,7 @@ function opened() {
 function firstRoad(sim) {
   const id = sim.g.roster[0].id;
   sim.action("learningEvent", { event: "pan" }, now);
-  sim.action("moveResident", { id, x: 50, y: 53 }, now);
+  sim.action("dropResident", { id, building: "tent" }, now);
   sim.action("learningEvent", { event: "profile", id }, now);
   sim.action("navigate", { screen: "crossroads" }, now);
   assert.ok(sim.action("lockRoute", {}, now).ok);
@@ -46,11 +46,11 @@ test("learning requires ordered actions and genuine roster identities", () => {
   );
   assert.ok(sim.action("learningEvent", { event: "pan" }, now).ok);
   assert.equal(
-    sim.action("moveResident", { id: "missing", x: 50, y: 50 }, now).ok,
+    sim.action("dropResident", { id: "missing", building: "tent" }, now).ok,
     false,
   );
   assert.equal(sim.g.learning.stage, "move");
-  assert.ok(sim.action("moveResident", { id, x: 50, y: 53 }, now).ok);
+  assert.ok(sim.action("dropResident", { id, building: "tent" }, now).ok);
   assert.equal(sim.g.learning.stage, "profile");
   assert.equal(
     sim.action("learningEvent", { event: "profile", id: "missing" }, now).ok,
@@ -71,7 +71,7 @@ test("the required first journey cannot be skipped, changed to a trial, unstaged
     false,
   );
   sim.action("learningEvent", { event: "pan" }, now);
-  sim.action("moveResident", { id, x: 50, y: 53 }, now);
+  sim.action("dropResident", { id, building: "tent" }, now);
   sim.action("learningEvent", { event: "profile", id }, now);
   sim.action("navigate", { screen: "crossroads" }, now);
   assert.equal(sim.g.destination.target, "clearing");
@@ -86,33 +86,60 @@ test("the required first journey cannot be skipped, changed to a trial, unstaged
   assert.equal(sim.action("recall", { id: r.id }, now).ok, false);
   assert.equal(sim.action("launch", {}, now).ok, false);
 });
-test("a real first expedition settles into Pantry and Journal lessons without replay rewards", () => {
-  const sim = opened();
+test("a real two-road tutorial gives a win, a loss, free choice, construction and a Fernbridge goal", () => {
+  let sim = opened();
   firstRoad(sim);
-  sim.observe({ id: sim.g.learning.journeyId, visible: false }, now);
   sim.advance(now + 600000, Infinity);
-  const g = sim.snapshot().game;
+  let g = sim.snapshot().game;
   assert.equal(g.expeditions[0].reason, "complete");
-  assert.equal(g.learning.stage, "pantry");
-  const resumed = new ExpeditionSimulation(g, now + 600000);
-  assert.ok(resumed.action("navigate", { screen: "camp" }, now + 600000).ok);
-  assert.ok(resumed.action("food", { count: 1 }, now + 600000).ok);
-  assert.equal(resumed.g.learning.stage, "journal");
+  assert.equal(g.learning.stage, "quests");
+  sim = new ExpeditionSimulation(g, now + 600000);
+  const at = now + 600000;
+  const action = (name, args = {}) => {
+    const r = sim.action(name, args, at);
+    assert.ok(r.ok, name);
+    return r;
+  };
+  action("navigate", { screen: "camp" });
+  action("learningEvent", { event: "journal" });
   assert.equal(
-    resumed.action("learningEvent", { event: "journal-read" }, now + 600000).ok,
+    sim.action("learningEvent", { event: "journal-read" }, at).ok,
     false,
   );
-  resumed.action("learningEvent", { event: "journal" }, now + 600000);
-  const before = resumed.g.gold;
-  assert.ok(
-    resumed.action("learningEvent", { event: "journal-read" }, now + 600000).ok,
-  );
-  assert.equal(resumed.g.learning.stage, "complete");
-  assert.equal(resumed.g.gold, before);
-  assert.equal(
-    resumed.action("learningEvent", { event: "journal-read" }, now + 600000).ok,
-    false,
-  );
+  action("quest", { id: "first-road" });
+  action("learningEvent", { event: "journal-read" });
+  action("navigate", { screen: "crossroads" });
+  assert.equal(sim.g.destination.target, "bridge");
+  action("lockRoute");
+  action("launch");
+  sim.advance(at + 600000, Infinity);
+  g = sim.snapshot().game;
+  assert.equal(g.expeditions[1].reason, "defeat");
+  assert.equal(g.learning.stage, "defeat");
+  assert.equal(g.journeyClears["greenway:bridge"], undefined);
+  assert.equal(g.roster.length, 3);
+  assert.equal(g.buildings.tavern, 1);
+  action("navigate", { screen: "camp" });
+  action("learningEvent", { event: "defeat-read" });
+  action("navigate", { screen: "tavern" });
+  assert.equal(sim.g.tavern.stock.length, 6);
+  assert.ok(sim.g.tavern.stock.every((o) => o.hero.level < 20 && o.gold === 0));
+  const chosen = sim.g.tavern.stock[4],
+    before = sim.g.gold;
+  action("tavernHire", { id: chosen.id });
+  assert.equal(sim.g.roster.at(-1).id, chosen.hero.id);
+  assert.equal(sim.g.gold, before);
+  assert.equal(sim.action("tavernHire", { id: chosen.id }, at).ok, false);
+  assert.equal(sim.g.learning.stage, "build");
+  action("navigate", { screen: "camp" });
+  action("construct", { key: "pantry" });
+  assert.equal(sim.g.gold, before - 5);
+  action("food", { count: 1 });
+  action("learningEvent", { event: "journal" });
+  action("learningEvent", { event: "journal-read" });
+  assert.equal(sim.g.learning.stage, "complete");
+  assert.equal(sim.g.trackedQuest, "bridge");
+  assert.ok(validateSave(sim.snapshot().game));
 });
 test("a defeated tutorial company can recover and retry instead of trapping the save", () => {
   const sim = opened();
@@ -155,7 +182,7 @@ test("existing Camps and active checkpoints enter directly and old page location
   };
   assert.equal(validateSave(bad), null);
 });
-test("the Camp Journal replaces the notice board and residents render saved walk targets", () => {
+test("the camp uses a raster map, three built landmarks and a pantry site; Journal stays in the technical bar", () => {
   const g = fresh(),
     id = g.roster[0].id;
   g.mapPositions.camp[id] = { x: 50, y: 53 };
@@ -164,7 +191,9 @@ test("the Camp Journal replaces the notice board and residents render saved walk
     esc: (s) => s,
     button: (s, a) => `<button ${a}>${s}</button>`,
   }).campMap();
-  assert.match(html, />Journal<\/strong>/);
+  assert.doesNotMatch(html, /data-building="questboard"/);
+  assert.match(html, /data-prerendered-map="camp"/);
+  assert.match(html, /Pantry site/);
   assert.doesNotMatch(html, /Quest Board/);
   assert.match(html, /data-world-x="900" data-world-y="742"/);
 });

@@ -2,20 +2,25 @@
 // the rest of a map remains available for normal scrolling and panning.
 export function attachResidentDragging(
   root,
-  { select, move, drop, dragging = () => {} },
+  { select, move, drop, moveProp = () => {}, dragging = () => {} },
 ) {
   let held = null;
   const clear = () => {
     if (!held) return;
-    held.el.classList.remove("picked-up");
+    held.el.classList.remove("picked-up", "pointer-held");
+    if (!held.committed) {
+      held.el.style.left = held.originalLeft;
+      held.el.style.top = held.originalTop;
+    }
     root
       .querySelectorAll("[data-drop-target]")
       .forEach((el) => el.classList.remove("drop-ready"));
     held = null;
     dragging(false);
   };
-  for (const el of root.querySelectorAll("[data-resident]")) {
-    if (el.closest("[data-map-camera]")) continue;
+  for (const el of root.querySelectorAll(
+    "[data-resident], [data-world-resident], [data-world-prop]",
+  )) {
     el.addEventListener("pointerdown", (event) => {
       if (held || (event.button !== undefined && event.button !== 0)) return;
       const map = el.closest("[data-local-map]");
@@ -26,7 +31,11 @@ export function attachResidentDragging(
         el,
         map,
         rect,
-        id: el.dataset.hero,
+        id: el.dataset.hero || el.dataset.worldProp,
+        prop: !!el.dataset.worldProp,
+        world: !!el.closest("[data-map-camera]"),
+        originalLeft: el.style.left,
+        originalTop: el.style.top,
         pointer: event.pointerId,
         startX: event.clientX,
         startY: event.clientY,
@@ -34,7 +43,8 @@ export function attachResidentDragging(
         offsetY: event.clientY - (pos.top + pos.height * 0.9),
         lifted: false,
       };
-      select(held.id);
+      el.classList.add("pointer-held");
+      event.stopPropagation?.();
       el.setPointerCapture?.(event.pointerId);
       event.preventDefault();
     });
@@ -77,8 +87,12 @@ export function attachResidentDragging(
         );
       held.x = x;
       held.y = y;
-      el.style.left = x + "%";
-      el.style.top = y + "%";
+      el.style.left =
+        (held.world ? (x * Number(held.map.dataset.worldWidth)) / 100 : x) +
+        (held.world ? "px" : "%");
+      el.style.top =
+        (held.world ? (y * Number(held.map.dataset.worldHeight)) / 100 : y) +
+        (held.world ? "px" : "%");
       const hit = document
         .elementFromPoint?.(event.clientX, event.clientY)
         ?.closest("[data-drop-target]");
@@ -97,22 +111,33 @@ export function attachResidentDragging(
           .elementFromPoint?.(event.clientX, event.clientY)
           ?.closest("[data-drop-target]");
       el.releasePointerCapture?.(event.pointerId);
-      el.dataset.ignoreClick = "yes";
+      if (lifted) el.dataset.ignoreClick = "yes";
+      current.committed = lifted;
       clear();
       if (lifted) {
-        await move(current.id, current.x, current.y);
-        if (hit) await drop(current.id, hit.dataset.dropTarget);
+        if (current.prop)
+          await moveProp(
+            current.id,
+            (current.x * Number(current.map.dataset.worldWidth)) / 100,
+            (current.y * Number(current.map.dataset.worldHeight)) / 100,
+          );
+        else if (hit) await drop(current.id, hit.dataset.dropTarget);
+        else await move(current.id, current.x, current.y);
       }
       setTimeout(() => {
         delete el.dataset.ignoreClick;
       }, 350);
-      event.preventDefault();
+      if (lifted) event.preventDefault();
+      event.stopPropagation?.();
     });
     el.addEventListener("pointercancel", (event) => {
       if (held?.pointer === event.pointerId) {
         el.releasePointerCapture?.(event.pointerId);
         clear();
       }
+    });
+    el.addEventListener("lostpointercapture", () => {
+      if (held?.el === el) clear();
     });
   }
   return { isDragging: () => !!held, cancel: clear };

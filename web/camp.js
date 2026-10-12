@@ -1,5 +1,5 @@
-import * as Ever from "./evernight.js?v=17";
-import { gatherProfessions } from "./nightfall.js?v=17";
+import * as Ever from "./evernight.js?v=18";
+import { gatherProfessions } from "./nightfall.js?v=18";
 import {
   gatheringFacets,
   CORE_STATS,
@@ -34,8 +34,8 @@ import {
   PETS,
   makePet,
   EVOLUTIONS,
-} from "./data.js?v=17";
-import { BUILDINGS, COOKING, BREWS } from "./world.js?v=17";
+} from "./data.js?v=18";
+import { BUILDINGS, COOKING, BREWS } from "./world.js?v=18";
 export const gemsTotal = (g) =>
   g.gemstones.reduce((sum, v) => sum + gemValue(v), 0);
 export function addGems(g, value, kind = "ruby") {
@@ -93,7 +93,8 @@ export function idle(g, h) {
     !heroJob(h)
   );
 }
-export const campCapacity = (g) => 40 + 20 * Math.max(g.buildings.cabins || 0, (g.buildings.tent || 1) - 1);
+export const campCapacity = (g) =>
+  40 + 20 * Math.max(g.buildings.cabins || 0, (g.buildings.tent || 1) - 1);
 export const cabinCost = (g) =>
   Object.fromEntries(
     Object.entries(BUILDINGS.cabins.cost).map(([k, v]) => [
@@ -274,6 +275,7 @@ export function beginRecovery(g, h, now, defeat = false) {
 }
 export function buyFood(g, count) {
   if (
+    !(g.buildings.pantry || g.buildings.kitchen) ||
     g.screen !== "camp" ||
     !Number.isInteger(count) ||
     count < 1 ||

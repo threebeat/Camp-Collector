@@ -1,4 +1,4 @@
-import { fed } from "./evernight.js?v=17";
+import { fed } from "./evernight.js?v=18";
 // Evernight's night-world services. Commands own mutations; views only dispatch.
 import {
   ATTRIBUTES,
@@ -21,9 +21,9 @@ import {
   gainFacetXp,
   makeGem,
   heroRarity,
-} from "./data.js?v=17";
-import { idle, campCapacity, payCost, addGems } from "./camp.js?v=17";
-import { seeded } from "./engine.js?v=17";
+} from "./data.js?v=18";
+import { idle, campCapacity, payCost, addGems } from "./camp.js?v=18";
+import { seeded } from "./engine.js?v=18";
 
 export const PROFESSION_NAMES = ["Miner", "Lumberjack", "Hunter"];
 export const professionRank = (a) =>
@@ -89,6 +89,7 @@ export function guildCost(h, key) {
 }
 export function trainProfession(g, h, key) {
   if (
+    g.roster.length < 6 ||
     (g.screen === "camp" && !g.buildings.guildhall) ||
     !["market", "camp"].includes(g.screen) ||
     !g.roster.includes(h) ||

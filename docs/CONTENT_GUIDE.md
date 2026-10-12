@@ -105,3 +105,7 @@ Read [PIXEL_ART.md](PIXEL_ART.md). All canonical bases have original authored pi
 Camp service IDs are stable for migration. New home upgrades increment the tent in place and mirror the legacy cabins counter; do not introduce a second cabin placement. Active Market vendors are `forge`, `arcane`, `night`, `menagerie`; the supply sheet also offers the canonical light stock. Guild/recruiting/Clinic/Quest services live at Camp. `pixelCampGroundSvg` provides large, cached forest/path/lake art; align new services to CAMP_ANCHORS and update their world-space shadow/light definitions.
 
 The Camp Journal uses the stable questboard key and an original pixel book sprite. Keep quest acceptance, tracking, organization and claims together in that in-window surface; company management belongs to the Crossroads.
+
+## Maps and Tavern content
+
+See MAP_ASSETS.md for original raster backgrounds, building tiles and regeneration. Keep dynamic actors/props out of static art and shadows below their casters. Tavern stock and upgrade/bar gates live in `web/tavern.js`; use canonical hero and consumable definitions. The tutorial's first invitation must remain a choice among Common heroes and must not rotate before selection. The six-hero Guild gate belongs in model commands as well as UI.
