@@ -598,7 +598,11 @@ body[data-screen="camp"] #game-window #app-content {
 #game-window[data-learning="intro"] .app {
   visibility: hidden;
 }
-.revealing-world .map-world {
+.revealing-world .world-ground,
+.revealing-world .world-building:not([data-scene-key="bonfire"]),
+.revealing-world .world-resident,
+.revealing-world .world-plot,
+.revealing-world .scene-lightfield {
   animation: world-awakens 2.4s ease both;
 }
 @keyframes fire-awakens {
@@ -749,15 +753,15 @@ body[data-screen="camp"] #game-window #app-content {
     bottom: 9%;
   }
   .cinema-fire {
-    top: 32%;
+    top: 40%;
     width: 96px;
     height: 96px;
   }
   .cinema-glow {
-    top: 32%;
+    top: 40%;
   }
   .cinema-arrivals {
-    top: calc(32% + 32px);
+    top: calc(40% + 32px);
     gap: 10px;
   }
   .cinema-dialogue h1 {
@@ -866,4 +870,12 @@ body[data-screen="camp"] #game-window #app-content {
 
 .map-viewport[data-move-active="true"] {
   cursor: crosshair;
+}
+.body-reduced-motion .revealing-world * {
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .revealing-world * {
+    animation: none !important;
+  }
 }

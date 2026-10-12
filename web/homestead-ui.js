@@ -317,8 +317,8 @@ export function createHomesteadUi(c) {
     if (!camera) return;
     camera.manual = false;
     camera.cx = 900;
-    camera.cy = 650;
     camera.width = 360;
+    camera.cy = 650 + camera.height * (window.innerWidth <= 850 ? 0.14 : 0.08);
     camera.easing = 1.2;
     setTimeout(() => {
       camera.easing = 7;

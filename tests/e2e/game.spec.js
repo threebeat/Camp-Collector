@@ -140,6 +140,7 @@ test("opening, compact Camp, memory and reload preserve the company", async ({
   await expect(page.locator("#main-nav button")).toHaveCount(1);
   await expect(page.locator("#food-count")).toHaveCount(0);
   await fits(page);
+  await page.waitForTimeout(2500);
   await shot(page, "camp");
   await building(page, "tent");
   await modal(page).locator(`[data-profile="${g.roster[0].id}"]`).click();
