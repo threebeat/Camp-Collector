@@ -863,3 +863,7 @@ body[data-screen="camp"] #game-window #app-content {
     line-height: 1.5;
   }
 }
+
+.map-viewport[data-move-active="true"] {
+  cursor: crosshair;
+}

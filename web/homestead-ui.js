@@ -154,6 +154,7 @@ export function createHomesteadUi(c) {
             })
           : null;
       observer?.observe(viewport);
+      let panNotified = false;
       const apply = () => {
         if (!r.width || !r.height) return;
         camera.viewport(r.width, r.height);
@@ -175,21 +176,25 @@ export function createHomesteadUi(c) {
         );
         world.style.transform = `translate(${-camera.x * scale}px,${-camera.y * scale}px) scale(${scale})`;
         viewport.dataset.cameraMode = camera.manual ? "free" : "focus";
-      };
-      let panNotified = false;
-      const input = attachCameraInput(viewport, camera, () => {
-        apply();
+        viewport.dataset.moveActive = String(!!c.getMovingHero?.());
         if (key === "camp" && camera.manual && !panNotified) {
           panNotified = true;
           c.pan?.();
         }
-      });
+      };
+      const input = attachCameraInput(viewport, camera, apply);
       viewport.addEventListener(
         "click",
         (event) => {
           const id = c.getMovingHero?.();
-          if (key !== "camp" || !id || event.target.closest("button")) return;
+          if (key !== "camp" || !id || event.target.closest(".world-resident"))
+            return;
           const point = camera.point(r, event.clientX, event.clientY);
+          const building = event.target.closest(".world-building");
+          // A Walk gesture owns service labels as well as ground. Stop at the
+          // front of the fixture instead of opening it through the destination tap.
+          if (building)
+            point.y = Math.max(point.y, +building.dataset.worldY + 75);
           event.preventDefault();
           event.stopImmediatePropagation();
           if (
@@ -303,6 +308,11 @@ export function createHomesteadUi(c) {
     setTimeout(() => el?.classList.remove("lesson-target"), 3500);
   }
   function reveal() {
+    if (
+      getGame().settings.reducedMotion ||
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+    )
+      return;
     const camera = views.get("camp");
     if (!camera) return;
     camera.manual = false;

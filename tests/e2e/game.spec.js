@@ -306,7 +306,6 @@ test("route and battlefield updates never open profiles; manual camera, focus an
   page,
 }) => {
   const { errors } = await start(page);
-  await page.locator("[data-tutorial-skip]").click();
   await page.locator("[data-world-resident]").first().focus();
   await page.locator("[data-world-resident]").first().click();
   await building(page, "crossroads");

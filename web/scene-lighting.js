@@ -23,7 +23,16 @@ export class SceneLighting {
       const key = el.dataset.sceneKey,
         x = +el.dataset.worldX,
         y = +el.dataset.worldY;
-      if (key !== "bonfire" && key !== "portal")
+      if (key === "questboard") {
+        this.objects.push({ type: "tree", x, y: y + 18, r: 8 });
+        this.staticLights.push({
+          x: x + 28,
+          y: y - 14,
+          r: 90,
+          color: "#efc778",
+          kind: "lamp",
+        });
+      } else if (key !== "bonfire" && key !== "portal")
         this.objects.push({
           type: "house",
           x: x - 30,

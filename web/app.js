@@ -3282,6 +3282,28 @@ window.addEventListener("focus", () => {
   syncObservation({ paused: false });
 });
 document.addEventListener("keydown", (e) => {
+  const directions = {
+    ArrowLeft: [-1, 0],
+    ArrowRight: [1, 0],
+    ArrowUp: [0, -1],
+    ArrowDown: [0, 1],
+  };
+  if (
+    !e.defaultPrevented &&
+    directions[e.key] &&
+    ["camp", "market"].includes(game.screen) &&
+    game.learning?.stage !== "intro" &&
+    !$("modal").open &&
+    !["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement?.tagName)
+  ) {
+    const map = worldMaps[0];
+    if (map) {
+      e.preventDefault();
+      const [x, y] = directions[e.key];
+      map.camera.move(x * map.camera.width * 0.08, y * map.camera.width * 0.08);
+      map.apply();
+    }
+  }
   if (e.key === "Escape" && expanded) {
     expanded = false;
     $("canvas-wrap")?.classList.remove("expanded");
