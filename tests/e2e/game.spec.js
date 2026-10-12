@@ -172,6 +172,20 @@ test("opening, compact Camp, memory and reload preserve the company", async ({
   await expect(page.locator("#food-count")).toHaveCount(0);
   await fits(page);
   await page.waitForTimeout(2500);
+  for (const actor of await page
+    .locator("[data-world-resident], [data-world-prop]")
+    .all()) {
+    expect(
+      await actor.evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        return (
+          document
+            .elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)
+            ?.closest("button") === el
+        );
+      }),
+    ).toBe(true);
+  }
   await shot(page, "camp");
   await building(page, "tent");
   await modal(page).locator(`[data-profile="${g.roster[0].id}"]`).click();
@@ -666,6 +680,13 @@ test("saved Camp opens at an empty main menu and movable props retain their posi
   await expect(page.locator("#main-menu")).toBeVisible();
   await expect(page.locator("#main-menu .cinema-arrivals")).toHaveCount(0);
   await expect(page.locator("#main-nav")).not.toBeVisible();
+  await expect
+    .poll(() =>
+      page
+        .locator("#main-menu .cinema-world")
+        .evaluate((el) => getComputedStyle(el).opacity),
+    )
+    .toBe("1");
   await shot(page, "main-menu");
   await resume(page);
   const saved = await page.evaluate(() =>

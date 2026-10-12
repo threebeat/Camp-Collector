@@ -108,8 +108,8 @@ export function createHomesteadUi(c) {
     const pantrySite =
       !g.buildings.pantry && !g.buildings.kitchen
         ? button(
-            "Pantry site · 5 gold",
-            'data-building="pantry" style="left:1050px;top:800px"',
+            "Pantry site<br><small>Build · 5 gold</small>",
+            'data-building="pantry" style="left:1130px;top:700px"',
             "world-plot pantry-site",
           )
         : "";

@@ -1018,6 +1018,12 @@ body[data-screen="camp"] #game-window #app-content {
   width: 100%;
   height: 100%;
 }
+.map-world .pantry-site {
+  width: calc(96px / var(--camera-scale, 1));
+  max-width: none;
+  padding: calc(6px / var(--camera-scale, 1));
+  line-height: 1.3;
+}
 .guild-locked > svg {
   filter: saturate(0.25) brightness(0.7) !important;
 }
