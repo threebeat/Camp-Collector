@@ -2712,6 +2712,52 @@ function propGrid(key, variant = 0) {
       }
       break;
     }
+    case "mountain":
+      g.poly(
+        [
+          [1, 37],
+          [15, 2],
+          [31, 37],
+        ],
+        C.metal,
+      )
+        .poly(
+          [
+            [15, 2],
+            [31, 37],
+            [15, 37],
+          ],
+          C.dusk,
+        )
+        .poly(
+          [
+            [10, 14],
+            [15, 2],
+            [20, 14],
+            [17, 12],
+            [15, 15],
+            [13, 12],
+          ],
+          C.copper,
+        )
+        .line(15, 13, 12, 23, C.flame, 2)
+        .line(12, 23, 17, 30, C.amber, 2)
+        .rect(1, 37, 31, 2, C.bark);
+      break;
+    case "eggs":
+      g.rect(3, 32, 28, 5, C.wood).rect(5, 30, 24, 3, C.copper);
+      for (const [x, y] of [
+        [5, 19],
+        [13, 12],
+        [21, 21],
+      ]) {
+        g.rect(x + 3, y, 5, 15, C.ivory)
+          .rect(x + 1, y + 3, 9, 10, C.ivory)
+          .rect(x + 2, y + 6, 2, 5, C.copper)
+          .dot(x + 6, y + 3, C.mist)
+          .dot(x + 7, y + 10, C.gold);
+      }
+      break;
     case "rock":
     case "stone":
     case "ore":
@@ -3209,8 +3255,10 @@ function buildingGrid(rawKey, level = 1) {
       menagerie: "menagerie",
       workshop: "armory",
       board: "quest-board",
+      questboard: "quest-board",
+      lights: "lanternwright",
       portalMage: "portal",
-    }[rawKey] || rawKey;
+    }[rawKey] || (rawKey.startsWith("guild-") ? "guild-booth" : rawKey);
   const g = new Grid(48),
     tier = Math.max(1, Math.min(5, Math.floor(finite(level, 1))));
   switch (key) {
@@ -3469,6 +3517,80 @@ function buildingGrid(rawKey, level = 1) {
         .rect(12, 14, 2, 2, C.amber)
         .copy(propGrid("barrel"), 30, 25, 16, 22);
       break;
+    case "castle":
+      g.rect(5, 16, 10, 28, C.metal)
+        .rect(33, 16, 10, 28, C.metal)
+        .rect(14, 25, 20, 19, C.metal)
+        .rect(5, 16, 3, 27, C.mist)
+        .rect(33, 16, 3, 27, C.mist)
+        .rect(4, 13, 12, 4, C.paleMetal)
+        .rect(32, 13, 12, 4, C.paleMetal)
+        .rect(7, 6, 3, 9, C.metal)
+        .rect(12, 6, 3, 9, C.metal)
+        .rect(33, 6, 3, 9, C.metal)
+        .rect(39, 6, 3, 9, C.metal)
+        .rect(14, 21, 5, 5, C.metal)
+        .rect(22, 21, 5, 5, C.metal)
+        .rect(30, 21, 5, 5, C.metal)
+        .rect(20, 31, 9, 13, C.ink)
+        .rect(19, 34, 2, 10, C.copper)
+        .rect(28, 34, 2, 10, C.copper)
+        .rect(3, 43, 42, 3, C.dusk)
+        .rect(24, 4, 2, 18, C.wood)
+        .rect(26, 4, 9, 5, C.flame)
+        .rect(26, 9, 6, 2, C.flame);
+      warmWindow(g, 9, 22, 3, 6);
+      warmWindow(g, 37, 22, 3, 6);
+      break;
+    case "lanternwright":
+      hut(g, C.blue, C.wood);
+      g.copy(lanternGrid({ key: "hooded-lantern" }), 0, 25, 14, 16)
+        .copy(lanternGrid({ key: "witchlight-lantern" }), 33, 23, 14, 17)
+        .rect(3, 22, 3, 4, C.wood)
+        .rect(39, 20, 3, 4, C.wood)
+        .tag("data-light-source", "lantern");
+      break;
+    case "guild-booth": {
+      const id = rawKey.slice(6),
+        colors = {
+          miners: "#8da1bc",
+          foresters: "#78ae91",
+          hunters: "#cf9c73",
+          arcanists: "#ac99dc",
+          guardians: "#dfba7a",
+          scouts: "#80baca",
+          artisans: "#c49888",
+          healers: "#a4c9ae",
+        },
+        color = colors[id] || C.blue;
+      g.rect(7, 18, 3, 25, C.wood)
+        .rect(38, 18, 3, 25, C.wood)
+        .rect(7, 34, 34, 10, C.wood)
+        .rect(5, 33, 38, 3, C.copper)
+        .rect(7, 8, 34, 12, color)
+        .rect(4, 17, 40, 6, color)
+        .rect(8, 9, 3, 12, dark(color))
+        .rect(20, 9, 3, 12, dark(color))
+        .rect(33, 9, 3, 12, dark(color))
+        .rect(16, 25, 16, 10, C.dusk)
+        .rect(17, 26, 14, 8, dark(color));
+      const tools = {
+        miners: "pickaxe",
+        foresters: "axe",
+        hunters: "oakbow",
+        arcanists: "staff",
+        guardians: "ironblade",
+        scouts: "dagger",
+        artisans: "hammer",
+        healers: "talisman",
+      };
+      if (ITEMS[tools[id]])
+        g.copy(weaponGrid({ key: tools[id] }), 14, 19, 19, 19);
+      if (id === "healers")
+        g.rect(21, 25, 5, 10, C.ivory).rect(18, 28, 11, 4, C.ivory);
+      g.tag("data-guild-art", id);
+      break;
+    }
     case "guildhall":
       g.rect(4, 23, 40, 20, C.metal).rect(4, 42, 40, 3, C.dusk);
       roof(g, C.blue, 2, 7, 44);

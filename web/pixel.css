@@ -207,11 +207,15 @@ canvas {
   border-radius: 4px;
   z-index: 12;
 }
-.camp-building strong,
 .resident-name,
 .market-map-sign {
-  position: relative;
   z-index: 10;
+}
+.market-map-sign {
+  pointer-events: none;
+}
+.camp-map .camp-residents {
+  z-index: 3;
 }
 .camp-resident .resident-name {
   background: #101525e0;
@@ -246,7 +250,7 @@ canvas {
   margin: 0;
 }
 .camp-build {
-  width: 100%;
+  width: 100% !important;
   min-height: 44px;
   margin: 10px 0 !important;
 }

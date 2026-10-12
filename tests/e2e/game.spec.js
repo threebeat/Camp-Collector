@@ -210,6 +210,7 @@ test("storage equips compatible gear, Pantry upgrades, workshop crafts and lakes
   ).toBeVisible();
   await close(page);
   await page.locator('[data-building="storage"]').click();
+  await expect(modal(page).locator(".modal-header h2")).toHaveText("Storage");
   await modal(page)
     .locator('[data-storage-equip="' + boots.id + '"]')
     .click();

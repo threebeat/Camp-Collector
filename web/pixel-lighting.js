@@ -23,7 +23,7 @@ export class PixelLighting {
   paint(scene, lights, senses, remembered, time, darkness = 0.98) {
     if (time - this.updatedAt < 0.1 && time >= this.updatedAt) return;
     this.updatedAt = time;
-    const mask = this.mask.getContext("2d"),
+    const mask = this.mask.getContext("2d", { willReadFrequently: true }),
       tint = this.tint.getContext("2d"),
       grid = this.grid;
     for (const ctx of [mask, tint]) {

@@ -2674,6 +2674,7 @@ function vendorArt(v) {
       menagerie: "menagerie",
       atelier: "atelier",
       guild: "tavern",
+      lights: "lanternwright",
     }[v.id] || v.id,
   );
 }
