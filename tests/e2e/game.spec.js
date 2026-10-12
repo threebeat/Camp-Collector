@@ -293,6 +293,14 @@ test("guild, quest, clinic, recruiting and Arena services work at Camp", async (
   await close(page);
   await building(page, "tavern");
   await expect(page.locator('[data-map-camera="tavern"]')).toBeVisible();
+  const room = await page.locator(".tavern-map .world-ground").boundingBox();
+  const viewport = await page
+    .locator('[data-map-camera="tavern"]')
+    .boundingBox();
+  expect(room.y).toBeLessThanOrEqual(viewport.y + 1);
+  expect(room.y + room.height).toBeGreaterThanOrEqual(
+    viewport.y + viewport.height - 1,
+  );
   await expect(page.locator("[data-tavern-hero]")).toHaveCount(6);
   await shot(page, "tavern");
   await page.locator("[data-tavern-hero]").first().click();
@@ -625,6 +633,11 @@ test("saved Camp opens at an empty main menu and movable props retain their posi
     ),
   );
   const old = await prop.getAttribute("style");
+  const oldPosition = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("camp-collector-v12")).campProps.find(
+      (p) => p.id === "supply-crate",
+    ),
+  );
   const box = await prop.boundingBox();
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down();
@@ -635,6 +648,15 @@ test("saved Camp opens at an empty main menu and movable props retain their posi
   );
   await page.mouse.up();
   await expect.poll(() => prop.getAttribute("style")).not.toBe(old);
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        JSON.parse(localStorage.getItem("camp-collector-v12")).campProps.find(
+          (p) => p.id === "supply-crate",
+        ),
+      ),
+    )
+    .not.toEqual(oldPosition);
   const position = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("camp-collector-v12")).campProps.find(
       (p) => p.id === "supply-crate",

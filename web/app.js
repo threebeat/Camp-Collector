@@ -1482,7 +1482,8 @@ async function navigate(screen) {
   }
 }
 function chooseHero(id) {
-  if (["camp", "market"].includes(game.screen) && $("modal").open) closeModal();
+  if (["camp", "market", "tavern"].includes(game.screen) && $("modal").open)
+    closeModal();
   if (game.screen === "expedition") {
     const unit = battleSelection.select(
       battle,
@@ -2264,7 +2265,7 @@ function render(force = false) {
     "body-reduced-motion",
     !!game.settings.reducedMotion,
   );
-  document.title = `${game.screen === "camp" ? "The Camp" : game.screen === "crossroads" ? "Local map" : game.screen === "party" ? "Assemble your party" : game.screen === "market" ? "The Market" : game.screen === "arena" ? "The Arena" : game.screen === "shop" ? "The Gem Shop" : game.screen === "calendar" ? "Challenges" : game.screen === "challenges" ? "Challenges" : game.screen === "codex" ? "The Codex" : game.screen === "expedition" ? currentExpedition()?.name || "Expedition" : "Expeditions"} · ${game.campName || "Your Camp"} · Evernight`;
+  document.title = `${game.screen === "camp" ? "The Camp" : game.screen === "crossroads" ? "Local map" : game.screen === "party" ? "Assemble your party" : game.screen === "market" ? "The Market" : game.screen === "tavern" ? "The Tavern" : game.screen === "arena" ? "The Arena" : game.screen === "shop" ? "The Gem Shop" : game.screen === "calendar" ? "Challenges" : game.screen === "challenges" ? "Challenges" : game.screen === "codex" ? "The Codex" : game.screen === "expedition" ? currentExpedition()?.name || "Expedition" : "Expeditions"} · ${game.campName || "Your Camp"} · Evernight`;
 }
 let lastHudAt = -Infinity;
 function updateHud(force = false) {
@@ -3366,7 +3367,7 @@ document.addEventListener("keydown", (e) => {
   if (
     !e.defaultPrevented &&
     directions[e.key] &&
-    ["camp", "market"].includes(game.screen) &&
+    ["camp", "market", "tavern"].includes(game.screen) &&
     gameShell.isPlaying() &&
     game.learning?.stage !== "intro" &&
     !$("modal").open &&

@@ -143,7 +143,7 @@ export function createHomesteadUi(c) {
         button(
           portraitSvg(o.hero, true) +
             `<strong>${esc(o.hero.name.split(" ")[0])}</strong>`,
-          `data-tavern-hero="${o.id}" data-tavern-wander="${i}" data-home-x="${410 + (i % 3) * 190}" data-home-y="${430 + Math.floor(i / 3) * 205}" data-light-radius="${vision(o.hero).light}" style="left:${410 + (i % 3) * 190}px;top:${430 + Math.floor(i / 3) * 205}px" aria-label="Meet ${esc(o.hero.name)}"`,
+          `data-tavern-hero="${o.id}" data-tavern-wander="${i}" data-home-x="${440 + (i % 3) * 160}" data-home-y="${430 + Math.floor(i / 3) * 205}" data-light-radius="${vision(o.hero).light}" style="left:${440 + (i % 3) * 160}px;top:${430 + Math.floor(i / 3) * 205}px" aria-label="Meet ${esc(o.hero.name)}"`,
           "tavern-wanderer",
         ),
       )
@@ -201,9 +201,17 @@ export function createHomesteadUi(c) {
       const apply = () => {
         if (!r.width || !r.height) return;
         camera.viewport(r.width, r.height);
-        const base = Math.max(
-          key === "camp" ? 720 : 760,
-          (key === "camp" ? 560 : 660) * camera.ratio,
+        if (key === "tavern") {
+          camera.maxSpan = Math.min(w, h * camera.ratio);
+          camera.min = Math.min(360, camera.maxSpan);
+          camera.constrain();
+        }
+        const base = Math.min(
+          camera.maxSpan || Infinity,
+          Math.max(
+            key === "camp" ? 720 : 760,
+            (key === "camp" ? 560 : 660) * camera.ratio,
+          ),
         );
         if (!camera.manual) camera.target = { ...home, width: base };
         if (firstSize) {
@@ -383,10 +391,18 @@ export function createHomesteadUi(c) {
         document.activeElement === el
       )
         return;
-      const i = +el.dataset.tavernWander;
-      el.style.left =
-        +el.dataset.homeX + Math.sin(now / 6500 + i * 2) * 34 + "px";
-      el.style.top = +el.dataset.homeY + Math.cos(now / 8200 + i) * 30 + "px";
+      // Walk to a nearby spot, then linger so a hero is easy to select.
+      // The next walk starts where the previous walk ended.
+      const i = +el.dataset.tavernWander,
+        clock = now + i * 1730,
+        leg = Math.floor(clock / 6000),
+        progress = Math.min(1, (clock % 6000) / 2600),
+        blend = progress * progress * (3 - 2 * progress),
+        phase = leg * 1.4 + i * 2,
+        x = Math.sin(phase) * (1 - blend) + Math.sin(phase + 1.4) * blend,
+        y = Math.cos(phase) * (1 - blend) + Math.cos(phase + 1.4) * blend;
+      el.style.left = +el.dataset.homeX + x * 26 + "px";
+      el.style.top = +el.dataset.homeY + y * 26 + "px";
     });
   }
   return {

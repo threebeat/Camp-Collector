@@ -78,6 +78,8 @@ body {
   position: relative;
   inset: auto;
   display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
   min-height: 0;
   padding: 5px 10px;
   gap: 10px;
@@ -131,6 +133,8 @@ body {
 }
 #main-nav {
   position: static !important;
+  order: 0;
+  justify-content: flex-start;
   display: flex !important;
   background: transparent;
   border: 0;
@@ -1205,5 +1209,37 @@ body[data-screen="expedition"] .expedition-workspace > .main-column {
 @media (prefers-reduced-motion: reduce) {
   #main-menu {
     transition: none;
+  }
+}
+
+/* Give every Camp command a visible touch target on narrow screens. */
+@media (max-width: 600px) {
+  #game-window {
+    grid-template-rows: calc(94px + env(safe-area-inset-top)) minmax(0, 1fr);
+  }
+  #game-window .game-hud {
+    flex-wrap: wrap;
+    align-content: center;
+    gap: 4px;
+  }
+  #game-window .game-hud .resources {
+    margin-left: auto;
+  }
+  #game-window #main-nav {
+    order: 3;
+    flex: 1 0 100%;
+    width: 100%;
+    overflow: visible;
+    height: 40px;
+  }
+  #main-nav .technical-option {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 5px;
+    justify-content: center;
+  }
+  #game-window[data-session="menu"],
+  #game-window[data-learning="intro"] {
+    grid-template-rows: calc(50px + env(safe-area-inset-top)) minmax(0, 1fr);
   }
 }
