@@ -1,11 +1,13 @@
-import { createHomesteadUi } from "./homestead-ui.js?v=16";
-import { CAMP_VENDORS } from "./camp-world.js?v=16";
-import * as Ever from "./evernight.js?v=16";
-import { createEvernightUi } from "./evernight-ui.js?v=16";
-import { vision, revealed } from "./lighting.js?v=16";
-import * as Night from "./nightfall.js?v=16";
-import { createNightfallUi } from "./nightfall-ui.js?v=16";
-import { regionLandmarks } from "./landmarks.js?v=16";
+import { createGameShell } from "./game-shell.js?v=17";
+import { learningLocked } from "./onboarding.js?v=17";
+import { createHomesteadUi } from "./homestead-ui.js?v=17";
+import { CAMP_VENDORS } from "./camp-world.js?v=17";
+import * as Ever from "./evernight.js?v=17";
+import { createEvernightUi } from "./evernight-ui.js?v=17";
+import { vision, revealed } from "./lighting.js?v=17";
+import * as Night from "./nightfall.js?v=17";
+import { createNightfallUi } from "./nightfall-ui.js?v=17";
+import { regionLandmarks } from "./landmarks.js?v=17";
 import {
   GAME_SEASON,
   MYTHICAL_HEROES,
@@ -73,10 +75,10 @@ import {
   objectModifiers,
   modifierPool,
   petInfo,
-} from "./data.js?v=16";
-import { Battle, distance } from "./engine.js?v=16";
-import { Renderer } from "./renderer.js?v=16";
-import { icon, portraitSvg, petSvg, itemSvg, cosmeticSvg } from "./art.js?v=16";
+} from "./data.js?v=17";
+import { Battle, distance } from "./engine.js?v=17";
+import { Renderer } from "./renderer.js?v=17";
+import { icon, portraitSvg, petSvg, itemSvg, cosmeticSvg } from "./art.js?v=17";
 import {
   activeExpeditions,
   expeditionSlots,
@@ -90,8 +92,8 @@ import {
   stockResetAt,
   trialInfo,
   trialClaimKey,
-} from "./progression.js?v=16";
-import * as Camp from "./camp.js?v=16";
+} from "./progression.js?v=17";
+import * as Camp from "./camp.js?v=17";
 import {
   BUILDINGS,
   BRANCHES,
@@ -102,8 +104,8 @@ import {
   CALENDAR_BONUSES,
   COOKING,
   BREWS,
-} from "./world.js?v=16";
-import { CODEX } from "./codex.js?v=16";
+} from "./world.js?v=17";
+import { CODEX } from "./codex.js?v=17";
 import {
   REGIONS,
   REGION_ORDER,
@@ -117,22 +119,22 @@ import {
   questState,
   activeQuests,
   bossDefeated,
-} from "./journeys.js?v=16";
-import { attachResidentDragging } from "./map-interaction.js?v=16";
-import { createClient } from "./client.js?v=16";
-import { CampChatter } from "./chatter.js?v=16";
-import { exportCamp, readCampBackup } from "./saves.js?v=16";
+} from "./journeys.js?v=17";
+import { attachResidentDragging } from "./map-interaction.js?v=17";
+import { createClient } from "./client.js?v=17";
+import { CampChatter } from "./chatter.js?v=17";
+import { exportCamp, readCampBackup } from "./saves.js?v=17";
 import {
   BattleSelection,
   attachBattleGestures,
-} from "./battle-interaction.js?v=16";
+} from "./battle-interaction.js?v=17";
 import {
   pixelBuildingSvg,
   pixelTerrainSvg,
   pixelPropSvg,
-} from "./pixel-art.js?v=16";
-import { pixelMarkup } from "./pixel-markup.js?v=16";
-import { SceneLighting } from "./scene-lighting.js?v=16";
+} from "./pixel-art.js?v=17";
+import { pixelMarkup } from "./pixel-markup.js?v=17";
+import { SceneLighting } from "./scene-lighting.js?v=17";
 let sceneLights = [];
 const battleSelection = new BattleSelection();
 const campChatter = new CampChatter();
@@ -162,6 +164,8 @@ let game = null,
   renderer = null,
   observation = { id: null, visible: true, speed: 1, paused: false },
   catchingUp = false;
+let movingHero = null,
+  crossroadsTab = "roads";
 let worldMaps = [],
   renderedExpeditionId = null;
 let focused =
@@ -266,12 +270,13 @@ async function act(type, args = {}, message = "") {
   }
 }
 function closeModal() {
-  if (game?.storyPage < 3) return;
+  if (game?.learning?.stage === "intro") return;
   modalRefresh = null;
   $("modal").close();
 }
 function openModal(name, subtitle, body, footer = "", refresh = null) {
   modalRefresh = refresh;
+  $("modal").dataset.sheet = "service";
   $("modal-content").innerHTML = pixelMarkup(
     `<div class="modal-header"><div><span class="eyebrow">${esc(game.campName || "Your Camp")} · ${title(game.screen)}</span><h2>${name}</h2><p>${subtitle}</p></div><button class="icon-button" data-close aria-label="Close dialog">${icon("close")}</button></div><div class="modal-body">${body}</div>${footer ? `<div class="modal-footer">${footer}</div>` : ""}`,
   );
@@ -523,7 +528,21 @@ function difficultyControls() {
   return `<p class="modal-note">World difficulty: ${d.name} · ${d.reward}× rewards. Change it at the Bonfire.</p>`;
 }
 function crossroadsView() {
-  return crossroadsV7View();
+  const count = activeExpeditions(game).length;
+  const tabs = `<div class="crossroads-tabs" role="group" aria-label="Crossroads views">${button("Roads", 'data-crossroads-tab="roads"', crossroadsTab === "roads" ? "primary-button" : "secondary-button")}${button("Companies · " + count, 'data-crossroads-tab="companies"', crossroadsTab === "companies" ? "primary-button" : "secondary-button")}</div>`;
+  return (
+    tabs +
+    (crossroadsTab === "companies"
+      ? `<section class="crossroads-companies"><div class="section-heading"><h1>The Crossroads</h1></div>${slotMeter()}<h2>On the road</h2><div class="expedition-grid">${activeExpeditions(game).map(expeditionCard).join("") || "<p>No companies are traveling.</p>"}</div><h2>Returned</h2><div class="expedition-grid">${
+          game.expeditions
+            .filter((r) => r.status === "returned")
+            .slice()
+            .reverse()
+            .map(expeditionCard)
+            .join("") || "<p>Your companies will return here.</p>"
+        }</div></section>`
+      : crossroadsV7View())
+  );
 }
 function arenaView() {
   return everUi.arenaView();
@@ -1289,7 +1308,7 @@ function useService(service, id) {
     guildhall: showCampGuilds,
     tavern: showCampTravelers,
     clinic: () => nightUi.showClinic(),
-    questboard: () => nightUi.showQuestBoard(),
+    questboard: showJournal,
     archaeology: showArchaeology,
     farm: () => showCampPlot("farm"),
     garden: () => showCampPlot("garden"),
@@ -1327,7 +1346,7 @@ function useService(service, id) {
     sell: showSell,
     guildhall: () => nightUi.showGuild(),
     clinic: () => nightUi.showClinic(),
-    questboard: () => nightUi.showQuestBoard(),
+    questboard: showJournal,
     slots: () => showSlots(chooseAvailable(selected) || game.roster[0]),
   };
   if (marketServices[service]) {
@@ -1424,6 +1443,23 @@ function help() {
   };
 }
 async function navigate(screen) {
+  if (screen === "quests") {
+    if (game.screen !== "camp") await navigate("camp");
+    showJournal();
+    return;
+  }
+  if (screen === "expeditions") {
+    screen = "crossroads";
+    crossroadsTab = "companies";
+  } else if (screen === "crossroads") crossroadsTab = "roads";
+  if (
+    screen === "crossroads" &&
+    !["camp", "party", "crossroads"].includes(game.screen)
+  ) {
+    if (!(await act("navigate", { screen: "camp" }))) return;
+  }
+  movingHero = null;
+  if ($("resident-actions")) $("resident-actions").hidden = true;
   if (screen === "crossroads") {
     mapZoom = 1;
     mapViews.clear();
@@ -1524,7 +1560,11 @@ function bindActions(root = document) {
   bind("[data-nav]", (b) => navigate(b.dataset.nav));
   bind("[data-close]", closeModal);
   bind("[data-hero]", (b) => {
-    if (b.dataset.ignoreClick !== "yes") chooseHero(b.dataset.hero);
+    if (b.dataset.ignoreClick !== "yes") {
+      chooseHero(b.dataset.hero);
+      if (b.hasAttribute("data-world-resident"))
+        showResidentActions(b.dataset.hero);
+    }
   });
   bind("[data-stage]", async (b) => {
     await act("stage", { id: b.dataset.stage });
@@ -1793,6 +1833,13 @@ function bindActions(root = document) {
   });
   bind("[data-rename-camp]", () => onboarding(true));
   bind("[data-building]", (b) => showBuilding(b.dataset.building));
+  bind("[data-crossroads-tab]", (b) => {
+    crossroadsTab = b.dataset.crossroadsTab;
+    render(true);
+  });
+  bind("[data-open-journal]", showJournal);
+  bind("[data-journal-board]", () => nightUi.showQuestBoard());
+  bind("[data-overview]", showCampOverview);
   bind("[data-construct]", (b) =>
     apply("construct", { key: b.dataset.construct }, "A new building at home."),
   );
@@ -2104,18 +2151,8 @@ function render(force = false) {
   }
   if (!force && now - lastRender < 1000) return;
   lastRender = now;
-  $("main-nav").innerHTML = [
-    ["camp", "Camp", "camp"],
-    ["expeditions", "Expeditions", "flag"],
-    ["challenges", "Challenges", "shield"],
-    ["quests", "Quests", "book"],
-    ["more", "More", "settings"],
-  ]
-    .map(
-      ([id, name, glyph]) =>
-        `<button ${id === "more" ? "data-more-menu" : `data-nav="${id}"`} class="${game.screen === id || (id === "expeditions" && game.screen === "expedition") ? "nav-active" : ""}">${icon(glyph, 16)}<span class="nav-label">${name}</span>${id === "expeditions" && activeExpeditions(game).length ? '<span class="nav-count">' + activeExpeditions(game).length + "</span>" : ""}</button>`,
-    )
-    .join("");
+  $("main-nav").innerHTML =
+    `<button data-more-menu aria-label="Game menu" ${learningLocked(game) ? "disabled" : ""}>${icon("book", 16)}<span class="nav-label">Menu</span></button>`;
   const retainedCamera =
     game.screen === "expedition" &&
     renderedExpeditionId === game.selectedExpedition
@@ -2163,7 +2200,7 @@ function render(force = false) {
     (element) => new SceneLighting(element, game),
   );
   updateHud();
-  everUi.tutorial();
+  gameShell.update();
   document.body.classList.toggle(
     "body-reduced-motion",
     !!game.settings.reducedMotion,
@@ -2438,6 +2475,7 @@ function onUpdate(data) {
     renderDetail();
   const next = [
     game.screen,
+    JSON.stringify(game.learning),
     game.selectedExpedition,
     JSON.stringify(game.destination),
     game.staging.join(),
@@ -2676,7 +2714,7 @@ function showSockets(h, index = 0) {
 }
 function onboarding(force = false) {
   if (!force) {
-    everUi.story();
+    gameShell.update();
     return;
   }
   openModal(
@@ -2694,7 +2732,7 @@ function showSettings() {
   openModal(
     "Settings",
     "Evernight · saved on this device",
-    `<div class="settings-options"><label><input id="setting-tutorial" type="checkbox" ${game.settings.tutorial ? "checked" : ""}> Background tutorial</label><label><input id="setting-motion" type="checkbox" ${game.settings.reducedMotion ? "checked" : ""}> Reduce motion</label><p>The game follows your device's motion preference as well. Personal saves are local to this browser.</p></div>`,
+    `<div class="settings-options"><label><input id="setting-tutorial" type="checkbox" ${learningLocked(game) ? "disabled" : ""} ${game.settings.tutorial ? "checked" : ""}> In-game control hints</label><label><input id="setting-motion" type="checkbox" ${game.settings.reducedMotion ? "checked" : ""}> Reduce motion</label><p>The game follows your device's motion preference as well. Personal saves are local to this browser.</p></div>`,
     button("Backups & game guide", 'id="settings-guide"', "secondary-button") +
       button("Codex", 'data-nav="codex"', "secondary-button"),
   );
@@ -3071,7 +3109,59 @@ function updateDetailLive() {
     $("detail-xp-fill").style.width = (h.xp / xpNeeded(h.level)) * 100 + "%";
 }
 
-const homeUi = createHomesteadUi({ getGame: () => game, button, esc });
+const homeUi = createHomesteadUi({
+  getGame: () => game,
+  button,
+  esc,
+  getMovingHero: () => movingHero,
+  move: async (id, x, y) => {
+    if (await act("moveResident", { id, x, y })) {
+      movingHero = null;
+      selected = null;
+      $("resident-actions").hidden = true;
+    }
+  },
+  pan: () => {
+    if (game.learning?.stage === "pan") act("learningEvent", { event: "pan" });
+  },
+});
+const gameShell = createGameShell({
+  getGame: () => game,
+  esc,
+  act,
+  toast,
+  home: () => navigate("camp"),
+  reveal: () => homeUi.reveal(),
+  help: async (key) => {
+    if (key === "journey") {
+      if (game.learning.journeyId) {
+        await act("watch", { id: game.learning.journeyId });
+        await syncObservation();
+      }
+      return;
+    }
+    if (["route", "party"].includes(key)) {
+      document
+        .querySelector(key === "route" ? "[data-lock-route]" : "#launch-btn")
+        ?.focus();
+      return;
+    }
+    if (game.screen !== "camp") await navigate("camp");
+    if (key === "crossroads") {
+      await navigate("crossroads");
+      return;
+    }
+    if (key === "pantry") {
+      showPantry();
+      return;
+    }
+    if (key === "questboard") {
+      showJournal();
+      return;
+    }
+    homeUi.focusTarget(key === "resident" ? "resident" : "bonfire");
+  },
+});
 const everUi = createEvernightUi({
   getGame: () => game,
   button,
@@ -3083,6 +3173,10 @@ const everUi = createEvernightUi({
   collection,
   navigate,
   render,
+  refreshJournal: () => {
+    if ($("modal").open && $("modal").dataset.sheet === "journal")
+      showJournal();
+  },
   capacity: Camp.campCapacity,
   monthlyOffers: Ever.monthlyOffers,
   renameCamp: () => onboarding(true),
@@ -3150,7 +3244,8 @@ $("settings-btn").innerHTML = icon("settings", 19);
 $("settings-btn").onclick = showSettings;
 $("brand-home").onclick = (e) => {
   e.preventDefault();
-  navigate("camp");
+  if (game.screen === "camp") showCampOverview();
+  else navigate("camp");
 };
 $("modal").addEventListener("click", (e) => {
   if (e.target === $("modal") && game.storyPage >= 3) closeModal();
@@ -3206,21 +3301,7 @@ function frame(now) {
       map.camera.update(now / 1000);
       map.apply();
     }
-    if (!game.settings.reducedMotion)
-      document.querySelectorAll("[data-world-resident]").forEach((el) => {
-        if (
-          worldMaps.some((map) => map.input?.isDragging()) ||
-          el.matches?.(":hover") ||
-          document.activeElement === el ||
-          selected === el.dataset.hero
-        )
-          return;
-        const i = +el.dataset.worldResident;
-        el.style.left =
-          +el.dataset.worldX + Math.sin(now / 9000 + i) * 14 + "px";
-        el.style.top =
-          +el.dataset.worldY + Math.cos(now / 12000 + i) * 10 + "px";
-      });
+    homeUi.animate(now);
   }
   if (
     !document.hidden &&
@@ -3268,9 +3349,7 @@ function frame(now) {
 }
 requestAnimationFrame(frame);
 function campV7View() {
-  return workspace(
-    `${everUi.resourceStrip()}${campScene()}${campActivity()}${everUi.questSummary()}`,
-  );
+  return campScene();
 }
 function campWalkers() {
   return residentsView(
@@ -3359,7 +3438,7 @@ function crossroadsV7View() {
   return (
     heading(
       "STEP 1 OF 2 · CHOOSE THE ROAD",
-      "Local map",
+      "The Crossroads",
       "Select a location, compare the highlighted roads, then lock your route.",
       button("Back to Camp", 'data-nav="camp"', "secondary-button"),
     ) +
@@ -3377,7 +3456,7 @@ function crossroadsV7View() {
             )
             .join("")}</div>`
         : ""
-    }${q ? `<div class="tracked-banner"><span>${icon("flag", 18)}<strong>${q.name}</strong> · ${q.text}</span>${button("Quest Board", 'data-nav="camp"', "text-button")}</div>` : ""}<div class="travel-layout">${regionMap()}<section class="route-planner" id="route-planner"><span class="eyebrow">${d?.destinationBoss ? "REGION BOSS" : "SELECTED DESTINATION"}</span><h2>${esc(d?.name || "Choose a location")}</h2><p>${d?.milestone ? rewardName(d.milestone) : "Gold, XP, materials, and discoveries along the road."}</p>${button("Review highlighted roads", "data-review-roads", "text-button")}<p class="route-level">Suggested level ${d?.level + 3 || 4} · ${LOCATIONS[loc].name}</p><div class="route-options">${
+    }${q ? `<div class="tracked-banner"><span>${icon("flag", 18)}<strong>${q.name}</strong> · ${q.text}</span>${button("Journal", 'data-nav="quests"', "text-button")}</div>` : ""}<div class="travel-layout">${regionMap()}<section class="route-planner" id="route-planner"><span class="eyebrow">${d?.destinationBoss ? "REGION BOSS" : "SELECTED DESTINATION"}</span><h2>${esc(d?.name || "Choose a location")}</h2><p>${d?.milestone ? rewardName(d.milestone) : "Gold, XP, materials, and discoveries along the road."}</p>${button("Review highlighted roads", "data-review-roads", "text-button")}<p class="route-level">Suggested level ${d?.level + 3 || 4} · ${LOCATIONS[loc].name}</p><div class="route-options">${
       routes
         .map((r) =>
           button(
@@ -4401,9 +4480,11 @@ function lakeshoreScene() {
 
 function showMoreMenu() {
   openModal(
-    "More",
+    "Game menu",
     "Evernight",
-    button("Shop", 'data-nav="shop"', "secondary-button") +
+    button("Camp overview", "data-overview", "secondary-button") +
+      button("Challenges", 'data-nav="challenges"', "secondary-button") +
+      button("Shop", 'data-nav="shop"', "secondary-button") +
       button("Codex", 'data-nav="codex"', "secondary-button") +
       button("Settings", "data-open-settings", "secondary-button"),
   );
@@ -4456,4 +4537,54 @@ function showCampTravelers() {
         .join("")}</div>` +
       button("Arena wagers", "data-camp-arena", "secondary-button"),
   );
+}
+
+function showCampOverview() {
+  openModal(
+    "Camp overview",
+    "A home in the dark",
+    everUi.campBar() + campActivity(),
+  );
+}
+function showJournal() {
+  if (game.learning?.stage === "journal" && !game.learning.journalSeen)
+    act("learningEvent", { event: "journal" });
+  openModal(
+    "Journal",
+    "Quests, progress and rewards",
+    `<div class="journal-tabs">${button("Available quests", "data-journal-board", "secondary-button")}</div>` +
+      everUi.questsView(),
+    "",
+    showJournal,
+  );
+  $("modal").dataset.sheet = "journal";
+}
+function showResidentActions(id) {
+  const h = heroById(id);
+  if (!h) return;
+  movingHero = null;
+  const popup = $("resident-actions");
+  popup.hidden = false;
+  popup.innerHTML = `<strong>${esc(h.name)}</strong>${button("Walk", "data-resident-walk", "secondary-button")}${button("Info", "data-resident-info", "secondary-button")}${button("×", 'data-resident-close aria-label="Close adventurer actions"', "icon-button")}`;
+  document
+    .querySelectorAll(".world-resident")
+    .forEach((el) => el.classList.toggle("chosen", el.dataset.hero === id));
+  popup.querySelector("[data-resident-walk]").onclick = () => {
+    movingHero = id;
+    popup.hidden = true;
+    toast("Tap the firelit ground to walk there.");
+  };
+  popup.querySelector("[data-resident-info]").onclick = () => {
+    popup.hidden = true;
+    nightUi.showProfile(h);
+    if (game.learning?.stage === "profile")
+      act("learningEvent", { event: "profile", id });
+  };
+  popup.querySelector("[data-resident-close]").onclick = () => {
+    popup.hidden = true;
+    selected = null;
+    document
+      .querySelectorAll(".chosen")
+      .forEach((el) => el.classList.remove("chosen"));
+  };
 }

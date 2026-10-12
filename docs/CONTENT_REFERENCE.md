@@ -395,7 +395,7 @@ Later region names appear here for developers; the Crossroads picker only reveal
 | guildhall | Guild lodge | Eight guilds offer training, quests and member shops here at Camp. | 120 gold, 24 wood, 18 stone; expansion: west |
 | tavern | Travelers’ lodge | Hire travelers and meet visiting adventurers at Camp. | 100 gold, 20 wood, 10 stone; expansion: west |
 | clinic | Lantern Clinic | Lift eligible Attributes at Camp. | 90 gold, 12 wood, 12 stone, 8 herbs |
-| questboard | Quest Board | Take quests and organize the company’s goals. | Available initially |
+| questboard | Journal | Take quests and organize the company’s goals. | Available initially |
 
 ## Weapon modifiers
 

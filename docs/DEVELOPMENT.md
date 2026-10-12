@@ -22,9 +22,9 @@ The `Game checks` workflow runs on main pushes, pull requests and manual dispatc
 
 | Check | Evidence |
 | --- | --- |
-| 172 Node tests | Combat, service costs/restrictions, worker transport, save/checkpoint migration, UI command flows and challenge transactions |
+| 179 Node tests | Combat, service costs/restrictions, worker transport, save/checkpoint migration, UI command flows and challenge transactions |
 | Build + validation | The actual bundled ESM Worker serves embedded assets, routes and the expected auth/storage contract |
-| Playwright | Desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit emulation; live Worker transport, eight flows per project: opening/naming, tutorial/settings, light equipment, class/world-tier/portal persistence, guild/Tavern/Quest/Arena flows, calendar/monthly collections and retained profiles/services; horizontal fit and reduced motion |
+| Playwright | Desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit emulation; live Worker transport, ten flows per project: opening/naming, tutorial/settings, light equipment, class/world-tier/portal persistence, guild/Tavern/Quest/Arena flows, calendar/monthly collections and retained profiles/services; horizontal fit and reduced motion |
 | Screenshots/report | Every browser project saves scene snapshots; failures retain screenshots, DOM context and traces in `browser-report` |
 | Native art sheets | SVG validity and consistent shared equipment/race/map artwork; these do not prove browser layout |
 
@@ -36,7 +36,7 @@ Dispatch changes through `web/simulation.js`; do not mutate view snapshots. Nigh
 
 `scripts/build.mjs` uses esbuild to resolve the Worker module graph and embeds native browser modules/CSS into the asset map. `dist/` is generated and ignored. The `evernight-worker` CI artifact contains the built Worker, manifest and append-only database migration files. CI does not itself change the production Site.
 
-Asset queries use `?v=16`; save version/key remain 12. Changing asset cache URLs never authorizes deleting progress. The current version-12 season is `camp-fresh-2026-10-11` and the key is `camp-collector-v12`. Version 0.14 adds Camp XP, meals, lights, guild standing, wagers, settings and expanded class branches; 0.13 added an empty Boots slot. Existing paid Outfitter construction becomes the Equipment Workshop.
+Asset queries use `?v=17`; save version/key remain 12. Changing asset cache URLs never authorizes deleting progress. The current version-12 season is `camp-fresh-2026-10-11` and the key is `camp-collector-v12`. Version 0.14 adds Camp XP, meals, lights, guild standing, wagers, settings and expanded class branches; 0.13 added an empty Boots slot. Existing paid Outfitter construction becomes the Equipment Workshop.
 
 ## Production deployment
 
@@ -56,4 +56,4 @@ The old v12 reset was explicitly authorized at that time. `drizzle/0001_fresh_ca
 
 Preserve IDs, names, favorites, journals, bonds, belongings, claims and active-party checkpoints. Use focused tests for genuine behavior changes. Record observed browser results separately from assumed physical-device behavior. Before release, update current-game rules, release notes, generated reference and the next-agent handoff.
 
-The current public/package release is 0.2.0, the first retro pixel release following legacy 0.14. Browser cache URLs are v16; this does not change save version 12. For sprite grids, palette, provenance and new-content maintenance, read PIXEL_ART.md. Keep dense sprites compacted through pixelMarkup at HTML boundaries and retain inline currentColor icons. Native canvas checks validate sprites and light geometry; use the supported remote browser pipeline for actual viewport/layout checks.
+The current public/package release is 0.3.0, the single-window release following the 0.2 growing-Camp release. Browser cache URLs are v17; this does not change save version 12. For sprite grids, palette, provenance and new-content maintenance, read PIXEL_ART.md. Keep dense sprites compacted through pixelMarkup at HTML boundaries and retain inline currentColor icons. Native canvas checks validate sprites and light geometry; use the supported remote browser pipeline for actual viewport/layout checks.

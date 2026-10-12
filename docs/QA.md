@@ -1,5 +1,11 @@
 # Verification record
 
+## Evernight 0.3 single-window release
+
+The local suite contains **179 Node tests** plus build/artifact validation. New checks cover saved cinematic beats, ordered learning events, enforced first-road choices, genuine journey completion, post-return care/Journal, defeat/retry, existing-Camp migration and persisted resident targets. The connected DOM flow exercises the full tutorial and retained Camp services.
+
+The remote suite contains **30 scenarios**, ten per desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit project. It adds full first-journey/reload progression, Crossroads companies/reports, one-window vertical fit, orientation changes and fullscreen services. Browser verification is pending for this source. Physical-device performance and browser/OS fullscreen behavior remain separate follow-up; the fallback cannot remove unsupported browser controls.
+
 ## Evernight 0.2 growing-Camp release
 
 The local suite passes **172 Node tests**, followed by build and Worker artifact validation. New checks cover gated Market construction, four vendors, in-place home capacity, idempotent migration, progressive revelation, camera easing/coordinate inversion, gesture click suppression, keyboard/wheel input actual Camp light/occluder behavior and Camp recruiting-stock refresh. The updated connected DOM flow exercises these services in their new locations. Native Camp ground art was rasterized and inspected.

@@ -1,4 +1,4 @@
-import { vision } from "./lighting.js?v=16";
+import { vision } from "./lighting.js?v=17";
 import {
   CLASSES,
   RACES,
@@ -16,17 +16,17 @@ import {
   RARITIES,
   heroRarity,
   makeItem,
-} from "./data.js?v=16";
-import * as Night from "./nightfall.js?v=16";
-import * as Camp from "./camp.js?v=16";
+} from "./data.js?v=17";
+import * as Night from "./nightfall.js?v=17";
+import * as Camp from "./camp.js?v=17";
 import {
   QUESTS,
   generatedContracts,
   allQuests,
   questState,
   activeQuests,
-} from "./journeys.js?v=16";
-import { portraitSvg, itemSvg, petSvg, icon } from "./art.js?v=16";
+} from "./journeys.js?v=17";
+import { portraitSvg, itemSvg, petSvg, icon } from "./art.js?v=17";
 
 // Screens are separate from the simulation and receive its command boundary.
 export function createNightfallUi(c) {
@@ -206,7 +206,7 @@ export function createNightfallUi(c) {
         (q) => !g.sideQuests.includes(q.id) && !g.questClaims.includes(q.id),
       );
     openModal(
-      "Market Quest Board",
+      "Journal · available quests",
       "Side quests · choose what your company does next",
       `<p>Carry up to eight side quests. Generated patrols renew each UTC day; accepted contracts keep their exact objectives.</p><div class="quest-grid">${offers
         .map(

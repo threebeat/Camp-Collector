@@ -63,7 +63,7 @@ These guards make the board functional, but do not prove the caller actually ear
 
 ## Build and deployment
 
-`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=16` cache URLs. Generated output is excluded from source control.
+`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=17` cache URLs. Generated output is excluded from source control.
 
 The hosting manifest binds the existing Sites project with `d1: 'DB'` and no R2 bucket. Sites applies committed `drizzle/` migrations before uploading the Worker. The original source origin and owner-private audience must be preserved when publishing unless the owner directs otherwise. A separate GitHub remote can coexist; it is not a replacement deployment ID.
 
@@ -106,3 +106,11 @@ The challenge sanitizer accepts canonical light equipment and new class nodes; i
 The renderer caches visual sprite identities without XP/timer fields, reuses terrain and draws finer movement onto a 1200×480 world raster. App snapshots retain the Battle prototype/terrain but shallow-copy visual entities rather than reconstructing the model each update; units and projectiles interpolate from the previous displayed position. The simulation continues owning combat/checkpoints. Camera state survives ordinary expedition rerenders and observation-only responses do not rebuild the DOM. HUD writes are throttled. ResizeObserver caches viewport measurements; observers disconnect when their view is replaced.
 
 Scene lighting samples static world anchors once, uses dynamic resident occluders and equipped lamps, and reuses unchanged mask geometry. Progression revelation has its own world-space mask. Bonfire glow/embers animate separately from the expensive darkness/shadow pass. Background Camp ground is generated and compacted once; do not regenerate its large SVG on snapshots. Save schema/key/season and database history remain unchanged.
+
+## Single game window and learning (0.3)
+
+`game-shell.js` and `game-shell.css` own the bounded game window, native fullscreen with viewport fallback, cinematic overlay and in-window learning coach. Browser-page overflow is disabled; content/services scroll within the game. The Camp map is the stage, and its overview moves into a dialog. The native dialog belongs to the fullscreen element.
+
+`onboarding.js` defines validated saved learning stages, opening beats, first-road command restrictions, event advancement and return settlement. `simulation.js` appends this state without changing schema 12/season/key, keeps named/experienced Camps complete, gates the required first journey and resumes saved checkpoints. The model owns every state transition; DOM snapshots do not mutate progress. Legacy Expeditions/Quests screen values become Crossroads/Camp entry points.
+
+`homestead-ui.js` reads saved resident positions, exposes intentional Walk-to-ground handling, checks revealed bounds and interpolates display movement separately from saved targets. Map drag/pinch click suppression runs first. Profile inspection remains explicit, including during battle. The stable questboard key now renders an original book-on-stand sprite and opens the Journal. Journal filters/pins/sort/claims refresh its panel, and Crossroads owns both roads and company/report listings. No SQL migration is introduced.

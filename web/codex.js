@@ -19,8 +19,8 @@ import {
   WEAPON_MODIFIERS,
   ARMOR_MODIFIERS,
   PET_MODIFIERS,
-} from "./data.js?v=16";
-import { CONTEXT, BUILDINGS, MATERIALS } from "./world.js?v=16";
+} from "./data.js?v=17";
+import { CONTEXT, BUILDINGS, MATERIALS } from "./world.js?v=17";
 const mechanics = [
   [
     "Living Camp and Market",
@@ -83,7 +83,7 @@ const mechanics = [
     "Your Camp is the only buildable location. Choose among five regions: Mosslight Wood, Hollow March, Emberpeak Mountains, Briarfall Country, and Amberwild Jungle. Camp is marked with a star on the forest map. Visiting destinations reveals connected roads through the fog. Click a discovered place to calculate up to three routes. The forest has 18 irregularly placed destinations and 26 roads; later regions have 24 locations with distinct routes. The map opens fully zoomed out. Terrain stays visible; only inaccessible nodes are blacked out. Compare up to three routes; only the selected route is bright blue: combat count, non-combat count, enemy health, rewards and food per adventurer are shown before selection. Lock the route to open a separate party screen; selecting characters does not change the locked road. Each road has a combat count and a rest, chest or cache at its end, except that the final road ends at your destination. The shortest journeys need no food. Each adventurer needs floor((combat count − 2) / 4) food, with a minimum of zero; the journey consumes those provisions on departure. Each adventurer must have their primary equipment. The forest ends at Thornwatch Castle. Its boss unlocks Eldrin and a portal beside the Crossroads at Camp. Every final regional boss drops one Boss Sigil per completed journey. Spend one with the portal mage to select any unopened region. World difficulty is controlled at the Bonfire: one regional boss unlocks Veteran and three different bosses unlock Nightmare. Active journeys keep their departure tier. Route danger multiplies enemy HP and damage as well as reward value. Pack up to three additional consumables or journey tools.",
   ],
   [
-    "Quest Board",
+    "Journal",
     "Camp",
     "Quests guide the first journeys, recruitment, Camp construction, gathering, specialization, regional bosses and dinosaur hatching. Track a quest to highlight its destination on the map. Start with one Main and two Side quests. Accept additional Side quests and daily patrol contracts at the Market Board or a scripted story from a question-mark NPC. Claim finished quest rewards at Camp or the Market. A quest reward can be claimed only once. Revisit resource locations for repeatable materials; special companions and equipment rewards are normally awarded on the first arrival.",
   ],
@@ -284,7 +284,24 @@ export const CODEX = [
     category: "Rules & formulas",
     text,
   })),
-  {name:'Camp buildings & services', category:'Camp buildings', text:'Your Camp expands through construction and home upgrades. Pan to the shadowed plots; build a four-vendor Market after Camp level 2.', details:Object.values(BUILDINGS).filter(b=>!b.legacy).map(b=>({name:b.name,text:b.text+(b.cost?' Cost: '+Object.entries(b.cost).map(([k,n])=>n+' '+k).join(', '):' Available from the beginning.')}))},
+  {
+    name: "Camp buildings & services",
+    category: "Camp buildings",
+    text: "Your Camp expands through construction and home upgrades. Pan to the shadowed plots; build a four-vendor Market after Camp level 2.",
+    details: Object.values(BUILDINGS)
+      .filter((b) => !b.legacy)
+      .map((b) => ({
+        name: b.name,
+        text:
+          b.text +
+          (b.cost
+            ? " Cost: " +
+              Object.entries(b.cost)
+                .map(([k, n]) => n + " " + k)
+                .join(", ")
+            : " Available from the beginning."),
+      })),
+  },
   ...Object.values(MATERIALS).map((m) => ({
     name: m.name,
     category: "Materials",
@@ -439,7 +456,7 @@ CODEX.push(
   {
     name: "Eight guilds and Market districts",
     category: "Economy",
-    text: "The Guildhall has eight booths in two rows of four. Each guild offers 35-gold lessons, a four-encounter patrol quest and member goods. Lessons add ten standing; claimed guild quests add twenty. At twenty standing the shop opens. Each additional standing reduces its price, up to 40%; a member item can be bought once per 12-hour restock. Lessons preserve class and can teach professions. The Tavern hires travelers, the Outfitter shares a court with the Quest Board, and the Arena has its own grounds.",
+    text: "The Guildhall has eight booths in two rows of four. Each guild offers 35-gold lessons, a four-encounter patrol quest and member goods. Lessons add ten standing; claimed guild quests add twenty. At twenty standing the shop opens. Each additional standing reduces its price, up to 40%; a member item can be bought once per 12-hour restock. Lessons preserve class and can teach professions. The Travelers’ lodge hires adventurers and holds the Arena entrance. The Camp Journal holds quests, and the Workshop adds equipment slots.",
   },
   {
     name: "Arena wagers",

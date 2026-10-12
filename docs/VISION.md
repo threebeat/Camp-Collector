@@ -55,3 +55,7 @@ The owner accepted the retro fantasy mock-up and prioritized complete pixel artw
 ## Growing home — Evernight 0.2
 
 The owner now wants a smaller starting footprint within a larger explorable Camp, smooth camera control, a strong welcoming bonfire and less phone clutter. The neighboring Market is replaced by a constructed four-vendor Camp Market; services gradually occupy the Camp grounds. Home upgrades replace separate cabin placement. Treat animation-frame rendering as a performance target, not evidence of physical-device frame rate.
+
+## A game in the browser — Evernight 0.3
+
+The owner now wants the experience contained entirely in one retro pixel game window, including fullscreen on supported browsers and a phone viewport fallback. Camp is the place to play; services and information open inside it. A quiet cinematic fire introduces the three arrivals and the curse, then an action-driven first journey teaches controls, care and the Journal. The Crossroads contains expedition organization, and the Journal replaces separate quest navigation. Keep subsequent Camp visits clean and preserve existing players’ progress. These decisions supersede earlier dashboard/navigation and opening-dialogue descriptions.

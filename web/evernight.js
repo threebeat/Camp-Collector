@@ -7,8 +7,8 @@ import {
   allGear,
   stats,
   migrateClassNodes,
-} from "./data.js?v=16";
-import { spendGems } from "./camp.js?v=16";
+} from "./data.js?v=17";
+import { spendGems } from "./camp.js?v=17";
 export const MEAL_PERIOD = 43200000;
 export const CAMP_XP_TEXT =
   "Character XP contributes 25%; equipment and companion XP contributes 10%. Victories, quests, construction and expansions also grow your Camp. Camps have levels, never rarities.";

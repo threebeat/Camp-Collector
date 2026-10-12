@@ -1,10 +1,10 @@
-import { WorldCamera } from "./camera.js?v=16";
+import { WorldCamera } from "./camera.js?v=17";
 import {
   vision,
   lightSources,
   environmentLights,
   revealed,
-} from "./lighting.js?v=16";
+} from "./lighting.js?v=17";
 import {
   W,
   H,
@@ -14,14 +14,14 @@ import {
   ITEMS,
   allGear,
   itemRarity,
-} from "./data.js?v=16";
-import { portraitSvg, petSvg, creatureSvg } from "./art.js?v=16";
+} from "./data.js?v=17";
+import { portraitSvg, petSvg, creatureSvg } from "./art.js?v=17";
 import {
   pixelTerrainSvg,
   pixelPropSvg,
   pixelCreatureSvg,
-} from "./pixel-art.js?v=16";
-import { PixelLighting } from "./pixel-lighting.js?v=16";
+} from "./pixel-art.js?v=17";
+import { PixelLighting } from "./pixel-lighting.js?v=17";
 
 const GRID = 2,
   images = new Map();

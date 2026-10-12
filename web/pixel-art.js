@@ -16,7 +16,7 @@ import {
   flightType,
   objectModifiers,
   GUILD_EQUIPMENT,
-} from "./data.js?v=16";
+} from "./data.js?v=17";
 
 export const PIXEL_PALETTE = Object.freeze({
   ink: "#0a0c1a",
@@ -4771,4 +4771,9 @@ export function pixelBonfireEmbersSvg(time = 0) {
     if (n < 2 && phase < 8) g.dot(x, y + 1, C.ivory);
   }
   return svg(g, "bonfire-embers", `data-ember-frame="${frame}"`);
+}
+
+// The Camp journal is a book on a low wooden stand, not a notice board.
+export function pixelJournalSvg() {
+  return `<svg viewBox="0 0 32 34" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="28" width="24" height="3" fill="#070d17"/><rect x="14" y="17" width="4" height="12" fill="#735235"/><rect x="9" y="27" width="14" height="3" fill="#97754b"/><rect x="5" y="11" width="22" height="9" fill="#533d37"/><rect x="6" y="9" width="20" height="9" fill="#beac7b"/><rect x="7" y="7" width="8" height="10" fill="#e8d49b"/><rect x="17" y="7" width="8" height="10" fill="#d8c087"/><rect x="15" y="8" width="2" height="10" fill="#99754b"/><rect x="8" y="10" width="5" height="1" fill="#9c956f"/><rect x="8" y="13" width="5" height="1" fill="#9c956f"/><rect x="19" y="10" width="4" height="1" fill="#9c956f"/><rect x="19" y="13" width="4" height="1" fill="#9c956f"/><rect x="22" y="7" width="2" height="5" fill="#b06767"/></svg>`;
 }

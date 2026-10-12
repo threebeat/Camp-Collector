@@ -100,6 +100,8 @@ The Codex groups all subclass detail into class entries and modifier definitions
 
 ## Pixel sprite coverage
 
-Read [PIXEL_ART.md](PIXEL_ART.md). All canonical bases have original authored pixel artwork. `art.js` forwards to `pixel-art.js` for every visual surface; adding content requires a corresponding grid silhouette/layer and a native rendering check. Preserve race anatomy, visible equipment, modifiers, mounts and authored Mythicals. Asset cache URLs are v16. Free asset packs were considered during exploration; this release bundles original sprites and has no external art attribution dependency.
+Read [PIXEL_ART.md](PIXEL_ART.md). All canonical bases have original authored pixel artwork. `art.js` forwards to `pixel-art.js` for every visual surface; adding content requires a corresponding grid silhouette/layer and a native rendering check. Preserve race anatomy, visible equipment, modifiers, mounts and authored Mythicals. Asset cache URLs are v17. Free asset packs were considered during exploration; this release bundles original sprites and has no external art attribution dependency.
 
 Camp service IDs are stable for migration. New home upgrades increment the tent in place and mirror the legacy cabins counter; do not introduce a second cabin placement. Active Market vendors are `forge`, `arcane`, `night`, `menagerie`; the supply sheet also offers the canonical light stock. Guild/recruiting/Clinic/Quest services live at Camp. `pixelCampGroundSvg` provides large, cached forest/path/lake art; align new services to CAMP_ANCHORS and update their world-space shadow/light definitions.
+
+The Camp Journal uses the stable questboard key and an original pixel book sprite. Keep quest acceptance, tracking, organization and claims together in that in-window surface; company management belongs to the Crossroads.

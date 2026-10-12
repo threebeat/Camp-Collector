@@ -55,3 +55,5 @@ sheets. Node art checks establish valid, coherent sprites; browser/device
 checks remain necessary for viewport layout, touch interaction and frame rate.
 
 The 0.2 Camp uses `pixelCampGroundSvg(1800,1400,seed)`: merged/grouped four-unit cells, irregular forest clearing, connected service paths and a south lake. Cache its compacted image. `pixelBonfireEmbersSvg(timeSeconds)` supplies a pure small ember layer; the live scene currently draws equivalent sparks directly on the lighting canvas to avoid DOM replacement.
+
+Version 0.3 uses the same art in a bounded retro game window. The cinematic glow is a code-authored grid of light blocks around the original bonfire; the Journal is an original book on a stand. No external bitmap pack or new art license is introduced.

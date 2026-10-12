@@ -1,6 +1,7 @@
-import * as Ever from "./evernight.js?v=16";
-import { questById } from "./journeys.js?v=16";
-import * as Night from "./nightfall.js?v=16";
+import { validLearning } from "./onboarding.js?v=17";
+import * as Ever from "./evernight.js?v=17";
+import { questById } from "./journeys.js?v=17";
+import * as Night from "./nightfall.js?v=17";
 import {
   GAME_SEASON,
   MYTHICAL_HEROES,
@@ -63,14 +64,14 @@ import {
   modifierFits,
   validModifiers,
   petInfo,
-} from "./data.js?v=16";
-import * as Camp from "./camp.js?v=16";
+} from "./data.js?v=17";
+import * as Camp from "./camp.js?v=17";
 import {
   BRANCHES,
   calendarDay,
   calendarMonth,
   CALENDAR_BONUSES,
-} from "./world.js?v=16";
+} from "./world.js?v=17";
 import {
   journeyInfo,
   journeyRequirements,
@@ -82,8 +83,8 @@ import {
   trackQuest,
   difficultyAllowed,
   REGION_CHAMPIONS,
-} from "./journeys.js?v=16";
-import { seeded } from "./engine.js?v=16";
+} from "./journeys.js?v=17";
+import { seeded } from "./engine.js?v=17";
 export const SLOT_MILESTONES = [0, 12, 35, 75];
 export const activeExpeditions = (g) =>
   g.expeditions.filter((r) => r.status === "active");
@@ -370,7 +371,10 @@ function canManage(g, h) {
 }
 function marketManage(g, h) {
   return (
-    !!h && ["market", "camp"].includes(g.screen) && g.roster.includes(h) && available(g, h)
+    !!h &&
+    ["market", "camp"].includes(g.screen) &&
+    g.roster.includes(h) &&
+    available(g, h)
   );
 }
 export function equip(g, h, itemId, slot) {
@@ -774,7 +778,11 @@ export function buy(g, input) {
   }
   if (!list) return false;
   const o = list[index];
-  if ((g.screen === "market" && !g.buildings.market) || (g.screen === "camp" && !(o.kind === "hero" && g.buildings.tavern))) return false;
+  if (
+    (g.screen === "market" && !g.buildings.market) ||
+    (g.screen === "camp" && !(o.kind === "hero" && g.buildings.tavern))
+  )
+    return false;
   if (["attribute", "talent"].includes(o.kind)) return false;
   if (
     (o.kind === "hero" && g.roster.length >= Camp.campCapacity(g)) ||
@@ -1007,7 +1015,12 @@ export function stageTrial(g, choice) {
   return true;
 }
 export function analyze(g, id) {
-  if (!["market", "camp"].includes(g.screen) || (g.screen === "camp" && !g.buildings.alchemist) || g.gold < 25) return false;
+  if (
+    !["market", "camp"].includes(g.screen) ||
+    (g.screen === "camp" && !g.buildings.alchemist) ||
+    g.gold < 25
+  )
+    return false;
   const s = g.scrolls.find((s) => s.id === id && !s.analyzed),
     i = g.inventory.find((i) => i.id === id && i.unidentified);
   if (!s && !i) return false;
@@ -1798,6 +1811,7 @@ export function claimQuest(g, id) {
 export { trackQuest };
 
 export function validateSave(g) {
+  if (g && !validLearning(g.learning)) return null;
   if (
     !g ||
     g.version !== 12 ||

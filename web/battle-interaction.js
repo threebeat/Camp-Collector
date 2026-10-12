@@ -1,4 +1,4 @@
-import { revealed } from "./lighting.js?v=16";
+import { revealed } from "./lighting.js?v=17";
 
 // Inspection is player intent, never a default derived from the party roster.
 export class BattleSelection {

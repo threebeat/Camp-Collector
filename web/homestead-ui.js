@@ -4,21 +4,24 @@ import {
   CAMP_PLOTS,
   CAMP_VENDORS,
   revealedCampAreas,
-} from "./camp-world.js?v=16";
-import { BUILDINGS } from "./world.js?v=16";
-import { VENDORS } from "./data.js?v=16";
-import { available } from "./progression.js?v=16";
-import { vision } from "./lighting.js?v=16";
+} from "./camp-world.js?v=17";
+import { BUILDINGS } from "./world.js?v=17";
+import { VENDORS } from "./data.js?v=17";
+import { available } from "./progression.js?v=17";
+import { vision } from "./lighting.js?v=17";
 import {
+  pixelJournalSvg,
   pixelCampGroundSvg,
   pixelBuildingSvg,
   pixelTerrainSvg,
-} from "./pixel-art.js?v=16";
-import { portraitSvg } from "./art.js?v=16";
-import { pixelMarkup } from "./pixel-markup.js?v=16";
-import { WorldCamera, attachCameraInput } from "./camera.js?v=16";
+} from "./pixel-art.js?v=17";
+import { portraitSvg } from "./art.js?v=17";
+import { pixelMarkup } from "./pixel-markup.js?v=17";
+import { WorldCamera, attachCameraInput } from "./camera.js?v=17";
 const views = new Map();
 let ground = null;
+const residentPositions = new Map();
+let lastActorAt = null;
 export function createHomesteadUi(c) {
   const { getGame, button, esc } = c;
   function viewport(key, content, width, height, center) {
@@ -36,12 +39,14 @@ export function createHomesteadUi(c) {
         const name =
           key === "tent" && g.buildings.tent > 1
             ? "Character cabin"
-            : BUILDINGS[key]?.name || key;
+            : key === "questboard"
+              ? "Journal"
+              : BUILDINGS[key]?.name || key;
         const attrs =
           key === "market" ? "data-market-visit" : `data-building="${key}"`;
         const art = key === "tent" && g.buildings.tent > 1 ? "cabins" : key;
         return button(
-          `${pixelBuildingSvg(art, g.buildings[key])}<strong>${name}</strong>`,
+          `${key === "questboard" ? pixelJournalSvg() : pixelBuildingSvg(art, g.buildings[key])}<strong>${name}</strong>`,
           `${attrs} data-scene-key="${key}" data-world-x="${x}" data-world-y="${y}" style="left:${x}px!important;top:${y}px!important" aria-label="Open ${name}"`,
           "world-building camp-building built",
         );
@@ -66,11 +71,22 @@ export function createHomesteadUi(c) {
       .filter((h) => available(g, h))
       .slice(0, 6)
       .map((h, i) => {
-        const x = 820 + (i % 3) * 70,
+        const saved = g.mapPositions.camp[h.id];
+        let x = saved ? (saved.x * CAMP_WORLD.width) / 100 : 820 + (i % 3) * 70,
+          y = saved
+            ? (saved.y * CAMP_WORLD.height) / 100
+            : 780 + Math.floor(i / 3) * 72;
+        if (
+          !revealedCampAreas(g).some((a) => Math.hypot(x - a.x, y - a.y) < a.r)
+        ) {
+          x = 820 + (i % 3) * 70;
           y = 780 + Math.floor(i / 3) * 72;
+        }
+        const position = residentPositions.get(h.id) || { x, y };
+        residentPositions.set(h.id, position);
         return button(
           portraitSvg(h, true),
-          `data-hero="${h.id}" data-world-resident="${i}" data-world-x="${x}" data-world-y="${y}" data-light-radius="${vision(h).light}" style="left:${x}px;top:${y}px" aria-label="Inspect ${esc(h.name)}"`,
+          `data-hero="${h.id}" data-world-resident="${i}" data-world-x="${x}" data-world-y="${y}" data-light-radius="${vision(h).light}" style="left:${position.x}px;top:${position.y}px" aria-label="Adventurer ${esc(h.name)}"`,
           "world-resident",
         );
       })
@@ -160,7 +176,32 @@ export function createHomesteadUi(c) {
         world.style.transform = `translate(${-camera.x * scale}px,${-camera.y * scale}px) scale(${scale})`;
         viewport.dataset.cameraMode = camera.manual ? "free" : "focus";
       };
-      const input = attachCameraInput(viewport, camera, apply);
+      let panNotified = false;
+      const input = attachCameraInput(viewport, camera, () => {
+        apply();
+        if (key === "camp" && camera.manual && !panNotified) {
+          panNotified = true;
+          c.pan?.();
+        }
+      });
+      viewport.addEventListener(
+        "click",
+        (event) => {
+          const id = c.getMovingHero?.();
+          if (key !== "camp" || !id || event.target.closest("button")) return;
+          const point = camera.point(r, event.clientX, event.clientY);
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          if (
+            !revealedCampAreas(getGame()).some(
+              (a) => Math.hypot(point.x - a.x, point.y - a.y) < a.r - 12,
+            )
+          )
+            return;
+          c.move?.(id, (point.x / w) * 100, (point.y / h) * 100);
+        },
+        true,
+      );
       let dispatching = false;
       viewport.addEventListener(
         "click",
@@ -242,7 +283,67 @@ export function createHomesteadUi(c) {
     }
     return maps;
   }
+  function focusTarget(key) {
+    const camera = views.get("camp");
+    if (!camera) return;
+    const [x, y] =
+      key === "resident"
+        ? [880, 780]
+        : CAMP_ANCHORS[key] || CAMP_ANCHORS.bonfire;
+    camera.manual = false;
+    camera.cx = x;
+    camera.cy = y;
+    camera.width = 720;
+    camera.target = { x, y, width: 720 };
+    const el =
+      key === "resident"
+        ? document.querySelector(".world-resident")
+        : document.querySelector(`[data-building="${key}"]`);
+    el?.classList.add("lesson-target");
+    setTimeout(() => el?.classList.remove("lesson-target"), 3500);
+  }
+  function reveal() {
+    const camera = views.get("camp");
+    if (!camera) return;
+    camera.manual = false;
+    camera.cx = 900;
+    camera.cy = 650;
+    camera.width = 360;
+    camera.easing = 1.2;
+    setTimeout(() => {
+      camera.easing = 7;
+    }, 3500);
+  }
+  function animate(now) {
+    const dt =
+      lastActorAt === null ? 1 / 60 : Math.min(0.1, (now - lastActorAt) / 1000);
+    lastActorAt = now;
+    document.querySelectorAll("[data-world-resident]").forEach((el) => {
+      const id = el.dataset.hero,
+        target = { x: +el.dataset.worldX, y: +el.dataset.worldY };
+      const pos = residentPositions.get(id) || { ...target };
+      const distance = Math.hypot(target.x - pos.x, target.y - pos.y),
+        amount = Math.min(1, (85 * dt) / Math.max(1, distance));
+      pos.x += (target.x - pos.x) * amount;
+      pos.y += (target.y - pos.y) * amount;
+      residentPositions.set(id, pos);
+      const moving = distance > 1;
+      el.classList.toggle("walking", moving);
+      const idle =
+        getGame().settings.reducedMotion ||
+        moving ||
+        c.getMovingHero?.() === id ||
+        el.matches?.(":hover") ||
+        document.activeElement === el;
+      const i = +el.dataset.worldResident;
+      el.style.left = pos.x + (idle ? 0 : Math.sin(now / 9000 + i) * 8) + "px";
+      el.style.top = pos.y + (idle ? 0 : Math.cos(now / 12000 + i) * 6) + "px";
+    });
+  }
   return {
+    reveal,
+    focusTarget,
+    animate,
     campMap,
     marketMap,
     bind,

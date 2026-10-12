@@ -45,7 +45,9 @@ async function start(page, funded = true, prepare = () => {}) {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
-  await expect(page.locator(".map-viewport")).toBeVisible();
+  await expect(
+    page.locator(g.campNamed ? ".map-viewport" : "#opening-scene"),
+  ).toBeVisible();
   return { g, errors };
 }
 async function close(page) {
@@ -62,10 +64,25 @@ async function close(page) {
   await expect(modal(page)).not.toBeVisible();
 }
 async function nav(page, key) {
-  if (["shop", "codex"].includes(key)) {
-    await page.locator("[data-more-menu]").click();
-    await modal(page).locator(`[data-nav="${key}"]`).click();
-  } else await page.locator(`#main-nav [data-nav="${key}"]`).click();
+  await close(page);
+  if (key === "camp") {
+    if (await page.locator("#game-home").isVisible())
+      await page.locator("#game-home").click();
+    return;
+  }
+  if (key === "quests") {
+    await nav(page, "camp");
+    await building(page, "questboard");
+    return;
+  }
+  if (key === "expeditions") {
+    await nav(page, "camp");
+    await building(page, "crossroads");
+    await page.locator('[data-crossroads-tab="companies"]').click();
+    return;
+  }
+  await page.locator("[data-more-menu]").click();
+  await modal(page).locator(`[data-nav="${key}"]`).click();
 }
 async function building(page, key) {
   await close(page);
@@ -103,15 +120,24 @@ test("opening, compact Camp, memory and reload preserve the company", async ({
   page,
 }) => {
   const { g, errors } = await start(page, false);
-  for (const n of [1, 2]) {
-    await expect(modal(page)).toContainText(`${n} / 3`);
-    await modal(page).locator("[data-story-next]").click();
-  }
-  await expect(modal(page)).toContainText("3 / 3");
-  await modal(page).locator("#camp-name-input").fill("Ember House");
-  await modal(page).locator("#confirm-camp-name").click();
-  await expect(page.locator(".camp-metrics > *")).toHaveCount(4);
-  await expect(page.locator("#main-nav button")).toHaveCount(5);
+  await expect(page.locator("#opening-scene")).toBeVisible();
+  await expect(page.locator("#opening-continue")).toBeEnabled();
+  await expect(page.locator("#opening-scene")).toContainText(
+    "Stay near the flame",
+  );
+  await page.locator("#opening-continue").click();
+  await expect(page.locator("#opening-scene")).toContainText(
+    "Three adventurers",
+  );
+  await page.locator("#opening-continue").click();
+  await page.locator("#opening-camp-name").fill("Ember House");
+  await page.locator("#opening-continue").click();
+  await expect(page.locator("#game-window")).toHaveAttribute(
+    "data-learning",
+    "pan",
+  );
+  await expect(page.locator("#opening-scene")).not.toBeVisible();
+  await expect(page.locator("#main-nav button")).toHaveCount(1);
   await expect(page.locator("#food-count")).toHaveCount(0);
   await fits(page);
   await shot(page, "camp");
@@ -175,14 +201,16 @@ test("unbuilt Market is gated and the tent upgrades into a cabin without a separ
     g.buildings.cabins = 0;
   });
   await expect(page.locator("[data-market-visit]")).toHaveCount(0);
-  await page.locator("[data-build-sites]").click();
+  await page.locator("#brand-home").click();
+  await modal(page).locator("[data-build-sites]").click();
   await modal(page).locator("[data-upgrade-home]").click();
   await modal(page).locator('[data-construct="cabins"]').click();
   await expect(page.locator('[data-building="tent"]')).toContainText(
     "Character cabin",
   );
   await expect(page.locator('[data-building="cabins"]')).toHaveCount(0);
-  await page.locator("[data-build-sites]").click();
+  await page.locator("#brand-home").click();
+  await modal(page).locator("[data-build-sites]").click();
   await modal(page).locator('[data-building="market"]').click();
   await modal(page).locator('[data-construct="market"]').click();
   await market(page);
@@ -216,6 +244,7 @@ test("guild, quest, clinic, recruiting and Arena services work at Camp", async (
   await expect(modal(page)).toContainText("20");
   await close(page);
   await building(page, "questboard");
+  await modal(page).locator("[data-journal-board]").click();
   await modal(page).locator('[data-accept-quest="guild-initiate"]').click();
   await close(page);
   await nav(page, "quests");
@@ -259,7 +288,8 @@ test("storage, equipment slots, Kitchen, crafting and the lake remain usable", a
   await building(page, "armory");
   await modal(page).locator('[data-craft-armor="heavy-head"]').click();
   await close(page);
-  await page.locator("[data-build-sites]").click();
+  await page.locator("#brand-home").click();
+  await modal(page).locator("[data-build-sites]").click();
   await modal(page).locator('[data-building="dock"]').click();
   await modal(page).locator('[data-construct="dock"]').click();
   await building(page, "dock");
@@ -346,8 +376,7 @@ test("guide settings, reduced motion, calendar and monthly collections fit compa
   page,
 }) => {
   const { errors } = await start(page);
-  await page.locator("[data-tutorial-skip]").click();
-  await expect(page.locator(".tutorial-bar")).not.toBeVisible();
+  await expect(page.locator("#learning-coach")).not.toBeVisible();
   await page.locator("#settings-btn").click();
   await modal(page).locator("#setting-tutorial").check();
   await modal(page).locator("#setting-motion").check();
@@ -396,5 +425,154 @@ test("lights, class choices, global difficulty, chosen portals and Codex retain 
     "Class tree & subclasses",
   );
   await fits(page);
+  expect(errors).toEqual([]);
+});
+
+test("the cinematic tutorial resumes, moves a resident, finishes its required road and opens the Journal", async ({
+  page,
+}) => {
+  test.setTimeout(120000);
+  const { g, errors } = await start(page, false, (save) => {
+    save.settings.reducedMotion = true;
+  });
+  for (let i = 0; i < 3; i++) await page.locator("#opening-continue").click();
+  await expect(page.locator("#game-window")).toHaveAttribute(
+    "data-learning",
+    "pan",
+  );
+  const view = page.locator('[data-map-camera="camp"]');
+  await view.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.locator("#game-window")).toHaveAttribute(
+    "data-learning",
+    "move",
+  );
+  await page.locator('[data-world-resident="0"]').click();
+  await page.locator("[data-resident-walk]").click();
+  const spot = await page.locator(".map-world").evaluate((el) => {
+    const r = el.getBoundingClientRect(),
+      scale = Number(el.style.getPropertyValue("--camera-scale"));
+    return { x: r.left + 920 * scale, y: r.top + 710 * scale };
+  });
+  await page.mouse.click(spot.x, spot.y);
+  await expect(page.locator("#game-window")).toHaveAttribute(
+    "data-learning",
+    "profile",
+  );
+  await page.reload();
+  await expect(page.locator("#opening-scene")).not.toBeVisible();
+  await expect(page.locator("#game-window")).toHaveAttribute(
+    "data-learning",
+    "profile",
+  );
+  await page.locator('[data-world-resident="0"]').click();
+  await page.locator("[data-resident-info]").click();
+  await expect(modal(page)).toContainText(g.roster[0].name);
+  await close(page);
+  await expect(page.locator("#game-window")).toHaveAttribute(
+    "data-learning",
+    "crossroads",
+  );
+  await building(page, "crossroads");
+  await expect(page.locator("#game-window")).toHaveAttribute(
+    "data-learning",
+    "route",
+  );
+  await page.locator("[data-lock-route]").click();
+  await expect(page.locator("#game-window")).toHaveAttribute(
+    "data-learning",
+    "party",
+  );
+  await page.locator("#launch-btn").click();
+  await expect(page.locator("#game-window")).toHaveAttribute(
+    "data-learning",
+    "journey",
+  );
+  await expect(page.locator("#hero-detail")).toBeEmpty();
+  // Advance the saved clock through browser suspension; the real simulation resolves
+  // both encounters and once-only rewards from its checkpoint on return.
+  await page.addInitScript(() => {
+    if (sessionStorage.getItem("qa-fast-forward")) {
+      const save = JSON.parse(localStorage.getItem("camp-collector-v12"));
+      save.lastClock -= 600000;
+      localStorage.setItem("camp-collector-v12", JSON.stringify(save));
+      sessionStorage.removeItem("qa-fast-forward");
+    }
+  });
+  await page.evaluate(() => sessionStorage.setItem("qa-fast-forward", "yes"));
+  await page.reload();
+  await expect(page.locator("#game-window")).toHaveAttribute(
+    "data-learning",
+    "pantry",
+    { timeout: 45000 },
+  );
+  await page.locator("#game-home").click();
+  await building(page, "pantry");
+  await modal(page).locator('[data-food="1"]').click();
+  await close(page);
+  await expect(page.locator("#game-window")).toHaveAttribute(
+    "data-learning",
+    "journal",
+  );
+  await building(page, "questboard");
+  await expect(modal(page)).toContainText("Journal");
+  await page.locator("[data-lesson-help]").click();
+  await expect(page.locator("#game-window")).toHaveAttribute(
+    "data-learning",
+    "complete",
+  );
+  await close(page);
+  await expect(page.locator("#learning-coach")).not.toBeVisible();
+  await building(page, "crossroads");
+  await page.locator('[data-crossroads-tab="companies"]').click();
+  await expect(page.locator(".crossroads-companies")).toContainText(
+    "The first clearing",
+  );
+  await page.locator("[data-watch]").click();
+  await expect(page.locator(".report-panel")).toContainText("Expedition won");
+  await fits(page);
+  await shot(page, "first-road-report");
+  expect(errors).toEqual([]);
+});
+
+test("one retro window fits both orientations and fullscreen keeps services inside the game", async ({
+  page,
+}) => {
+  const { errors } = await start(page);
+  const size = page.viewportSize();
+  const bounds = await page.locator("#game-window").boundingBox();
+  expect(bounds.height).toBeLessThanOrEqual(size.height);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => document.documentElement.scrollHeight <= innerHeight + 2,
+      ),
+    )
+    .toBe(true);
+  await page.locator("#fullscreen-btn").click();
+  await expect(page.locator("#fullscreen-btn")).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await building(page, "tent");
+  await expect(modal(page)).toBeVisible();
+  await fits(page);
+  await shot(page, "fullscreen-service");
+  await close(page);
+  await page.locator("#fullscreen-btn").click();
+  await expect(page.locator("#fullscreen-btn")).toHaveAttribute(
+    "aria-pressed",
+    "false",
+  );
+  await page.setViewportSize({ width: size.height, height: size.width });
+  await fits(page);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => document.documentElement.scrollHeight <= innerHeight + 2,
+      ),
+    )
+    .toBe(true);
+  await shot(page, "landscape-window");
   expect(errors).toEqual([]);
 });

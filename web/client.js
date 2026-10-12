@@ -1,4 +1,4 @@
-import { ExpeditionSimulation } from "./simulation.js?v=16";
+import { ExpeditionSimulation } from "./simulation.js?v=17";
 export const SAVE_KEY = "camp-collector-v12";
 export function loadGame(storage = localStorage) {
   try {
@@ -53,7 +53,7 @@ export function createClient(onUpdate, saved = loadGame()) {
   };
   if (typeof Worker !== "undefined") {
     worker = new Worker(
-      new URL("./expedition-worker.js?v=16", import.meta.url),
+      new URL("./expedition-worker.js?v=17", import.meta.url),
       { type: "module" },
     );
     worker.onmessage = receive;

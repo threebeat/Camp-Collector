@@ -1,6 +1,6 @@
-import { pixelTerrainSvg, pixelBuildingSvg } from "./pixel-art.js?v=16";
-import * as E from "./evernight.js?v=16";
-import { vision } from "./lighting.js?v=16";
+import { pixelTerrainSvg, pixelBuildingSvg } from "./pixel-art.js?v=17";
+import * as E from "./evernight.js?v=17";
+import { vision } from "./lighting.js?v=17";
 import {
   CLASSES,
   ITEMS,
@@ -11,12 +11,12 @@ import {
   classNodeState,
   classPoints,
   itemInfo,
-} from "./data.js?v=16";
+} from "./data.js?v=17";
 import {
   activeExpeditions,
   available,
   expeditionSlots,
-} from "./progression.js?v=16";
+} from "./progression.js?v=17";
 import {
   allQuests,
   questState,
@@ -24,9 +24,9 @@ import {
   activeQuests,
   REGION_ORDER,
   REGIONS,
-} from "./journeys.js?v=16";
-import { MATERIALS, calendarMonth, MONTH_THEMES } from "./world.js?v=16";
-import { portraitSvg, itemSvg, icon } from "./art.js?v=16";
+} from "./journeys.js?v=17";
+import { MATERIALS, calendarMonth, MONTH_THEMES } from "./world.js?v=17";
+import { portraitSvg, itemSvg, icon } from "./art.js?v=17";
 export function createEvernightUi(c) {
   const {
       getGame,
@@ -109,7 +109,7 @@ export function createEvernightUi(c) {
           : Number(questState(g(), b).complete) -
             Number(questState(g(), a).complete),
     );
-    return `<section class="quest-journal"><div class="section-heading"><div><span class="eyebrow">YOUR COMPANY'S JOURNAL</span><h1>Quests</h1><p>${g().questClaims.length} completed · ${activeQuests(g()).length} active</p></div>${button("← Camp", 'data-nav="camp"', "secondary-button")}</div><div class="quest-controls"><input id="quest-search" aria-label="Search quests" placeholder="Search quests" value="${esc(questSearch)}"><select id="quest-filter" aria-label="Quest status">${["active", "pinned", "completed", "all"].map((k) => `<option value="${k}" ${questFilter === k ? "selected" : ""}>${k[0].toUpperCase() + k.slice(1)}</option>`).join("")}</select><select id="quest-sort" aria-label="Sort quests">${["progress", "category", "name"].map((k) => `<option value="${k}" ${g().questSort === k ? "selected" : ""}>${k}</option>`).join("")}</select></div><div class="quest-grid">${
+    return `<section class="quest-journal"><div class="section-heading"><div><span class="eyebrow">YOUR COMPANY'S JOURNAL</span><h1>Your quests</h1><p>${g().questClaims.length} completed · ${activeQuests(g()).length} active</p></div>${button("← Camp", 'data-nav="camp"', "secondary-button")}</div><div class="quest-controls"><input id="quest-search" aria-label="Search quests" placeholder="Search quests" value="${esc(questSearch)}"><select id="quest-filter" aria-label="Quest status">${["active", "pinned", "completed", "all"].map((k) => `<option value="${k}" ${questFilter === k ? "selected" : ""}>${k[0].toUpperCase() + k.slice(1)}</option>`).join("")}</select><select id="quest-sort" aria-label="Sort quests">${["progress", "category", "name"].map((k) => `<option value="${k}" ${g().questSort === k ? "selected" : ""}>${k}</option>`).join("")}</select></div><div class="quest-grid">${
       list
         .map((q) => {
           const s = questState(g(), q),
@@ -124,7 +124,7 @@ export function createEvernightUi(c) {
             )}</p><div class="card-actions">${button(g().questPins.includes(q.id) ? "Unpin" : "Pin", `data-pin-quest="${q.id}"`, "text-button")}${!s.claimed && s.unlocked ? button(g().trackedQuest === q.id ? "Tracking" : "Track", `data-track-quest="${q.id}"`, "secondary-button") : ""}${button(s.claimed ? "Claimed" : "Claim reward", `data-quest="${q.id}" ${!s.unlocked || !s.complete || s.claimed ? "disabled" : ""}`)}</div></article>`;
         })
         .join("") ||
-      "<p>No quests match. Find quests at the Market Board or Guildhall.</p>"
+      "<p>No quests match. Find more stories in the Journal or at the Guild lodge.</p>"
     }</div></section>`;
   }
   function tree(h, readOnly = false) {
@@ -412,7 +412,10 @@ export function createEvernightUi(c) {
     const on = (selector, fn) =>
       root.querySelectorAll(selector).forEach((b) => (b.onclick = () => fn(b)));
     on("[data-camp-progress]", progress);
-    on("[data-pin-quest]", (b) => act("pinQuest", { id: b.dataset.pinQuest }));
+    on("[data-pin-quest]", async (b) => {
+      await act("pinQuest", { id: b.dataset.pinQuest });
+      c.refreshJournal?.();
+    });
     on("[data-world-difficulty]", async (b) => {
       if (await act("worldDifficulty", { key: b.dataset.worldDifficulty }))
         bonfire();
@@ -497,7 +500,8 @@ export function createEvernightUi(c) {
     if (qs)
       qs.oninput = () => {
         questSearch = qs.value;
-        render(true);
+        if (c.refreshJournal) c.refreshJournal();
+        else render(true);
         const n = document.getElementById("quest-search");
         n.focus();
         n.setSelectionRange(questSearch.length, questSearch.length);
@@ -506,10 +510,15 @@ export function createEvernightUi(c) {
     if (qf)
       qf.onchange = () => {
         questFilter = qf.value;
-        render(true);
+        if (c.refreshJournal) c.refreshJournal();
+        else render(true);
       };
     const sort = root.querySelector("#quest-sort");
-    if (sort) sort.onchange = () => act("questSort", { key: sort.value });
+    if (sort)
+      sort.onchange = async () => {
+        await act("questSort", { key: sort.value });
+        c.refreshJournal?.();
+      };
     const theme = root.querySelector("#shop-theme");
     if (theme)
       theme.onchange = () => {

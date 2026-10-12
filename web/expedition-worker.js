@@ -1,4 +1,4 @@
-import { ExpeditionSimulation } from "./simulation.js?v=16";
+import { ExpeditionSimulation } from "./simulation.js?v=17";
 let simulation = null,
   lastEmission = 0;
 function send(requestId = null, result = null) {

@@ -1,6 +1,6 @@
-import { PixelLighting } from "./pixel-lighting.js?v=16";
-import { revealedCampAreas } from "./camp-world.js?v=16";
-import { campProgress } from "./evernight.js?v=16";
+import { PixelLighting } from "./pixel-lighting.js?v=17";
+import { revealedCampAreas } from "./camp-world.js?v=17";
+import { campProgress } from "./evernight.js?v=17";
 
 // World-space lighting survives camera transforms. Layout is sampled once, not every frame.
 export class SceneLighting {

@@ -1,8 +1,9 @@
-import { normalizeCampWorld } from "./camp-world.js?v=16";
-import * as Ever from "./evernight.js?v=16";
-import { questById } from "./journeys.js?v=16";
-import * as Night from "./nightfall.js?v=16";
-import { Battle } from "./engine.js?v=16";
+import * as Learn from "./onboarding.js?v=17";
+import { normalizeCampWorld } from "./camp-world.js?v=17";
+import * as Ever from "./evernight.js?v=17";
+import { questById } from "./journeys.js?v=17";
+import * as Night from "./nightfall.js?v=17";
+import { Battle } from "./engine.js?v=17";
 import {
   LOCATIONS,
   initialGame,
@@ -11,9 +12,9 @@ import {
   VENDORS,
   ITEMS,
   uid,
-} from "./data.js?v=16";
-import * as Camp from "./camp.js?v=16";
-import * as P from "./progression.js?v=16";
+} from "./data.js?v=17";
+import * as Camp from "./camp.js?v=17";
+import * as P from "./progression.js?v=17";
 
 // The clock lives outside the view. Every party gets the same fixed simulation steps.
 export const STEP = 1 / 30;
@@ -26,6 +27,7 @@ export class ExpeditionSimulation {
     Night.normalizeNightfall(this.g);
     Ever.normalizeEvernight(this.g);
     normalizeCampWorld(this.g);
+    Learn.normalizeLearning(this.g);
     if (this.g.buildings.tavern) P.marketStock(this.g, "guild");
     Night.refreshVisitors(this.g);
     this.battles = new Map();
@@ -216,6 +218,7 @@ export class ExpeditionSimulation {
         r.battleState = b.toState();
       }
     Ever.collectCampXp(this.g);
+    Learn.settleLearning(this.g);
     // Finished reports are small and bounded; active parties and their checkpoints are never pruned.
     const reports = this.g.expeditions.filter((r) => r.status === "returned");
     if (reports.length > 30) {
@@ -237,8 +240,22 @@ export class ExpeditionSimulation {
       return { ok: false, ...this.snapshot() };
     const g = this.g,
       h = g.roster.find((h) => h.id === args.id);
+    if (!Learn.learningActionAllowed(g, type, args))
+      return { ok: false, ...this.snapshot() };
     let result = false;
     switch (type) {
+      case "openingNext":
+        if (g.learning.stage === "intro" && g.learning.beat < 2) {
+          g.learning.beat++;
+          result = true;
+        }
+        break;
+      case "finishOpening":
+        result = Learn.finishOpening(g, args.name);
+        break;
+      case "learningEvent":
+        result = Learn.learningEvent(g, args.event, args.id);
+        break;
       case "light":
         result = Ever.equipLight(g, h, args.itemId);
         break;
@@ -737,6 +754,7 @@ export class ExpeditionSimulation {
         result = true;
         break;
     }
+    Learn.afterLearningAction(g, type, args, result);
     return {
       ok: !!result,
       value: result && typeof result === "object" ? result.id || true : result,

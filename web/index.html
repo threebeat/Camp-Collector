@@ -10,64 +10,83 @@
     />
     <title>Evernight · A Fire in the Night</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=16" />
-    <link rel="stylesheet" href="./nightfall.css?v=16" />
-    <link rel="stylesheet" href="./evernight.css?v=16" />
-    <link rel="stylesheet" href="./pixel.css?v=16" />
-    <link rel="stylesheet" href="/homestead.css?v=16">
-</head>
+    <link rel="stylesheet" href="./styles.css?v=17" />
+    <link rel="stylesheet" href="./nightfall.css?v=17" />
+    <link rel="stylesheet" href="./evernight.css?v=17" />
+    <link rel="stylesheet" href="./pixel.css?v=17" />
+    <link rel="stylesheet" href="/homestead.css?v=17" />
+    <link rel="stylesheet" href="./game-shell.css?v=17" />
+  </head>
   <body>
-    <header class="site-header">
-      <a class="brand" id="brand-home" href="./" aria-label="Your Camp home"
-        ><span class="brand-mark"
-          ><svg
-            viewBox="0 0 20 20"
-            shape-rendering="crispEdges"
-            aria-hidden="true"
-          >
-            <path
-              d="M7 2h7v2h-4v2H8v6h2v2h4v2H7v-2H5v-2H3V6h2V4h2Z"
-              fill="currentColor"
-            />
-            <rect x="14" y="5" width="2" height="2" fill="#92c9d0" />
-            <rect
-              x="16"
-              y="10"
-              width="2"
-              height="2"
-              fill="#f7df9b"
-            /></svg></span
-        ><span
-          ><strong id="brand-name">Evernight</strong
-          ><small>A WORLD WITHOUT DAWN</small></span
-        ></a
-      >
-      <nav id="main-nav" aria-label="Main navigation"></nav>
-      <div class="resources">
-        <span id="gold-count"></span><span id="gem-count"></span
-        ><button
+    <div
+      id="game-window"
+      data-learning="intro"
+      role="region"
+      aria-label="Evernight game window"
+    >
+      <header class="site-header game-hud">
+        <button
+          id="game-home"
           class="icon-button"
-          id="settings-btn"
-          aria-label="Settings"
-        ></button>
-      </div>
-      <div id="tutorial-bar" class="tutorial-bar" hidden></div>
-    </header>
-    <main class="app">
-      <div class="clock-status" id="clock-status" role="status" hidden></div>
-      <div id="app-content">
-        <div class="empty-collection">
-          <h1>The Camp</h1>
-          <p>Gathering your company…</p>
+          aria-label="Return to Camp"
+          hidden
+        >
+          ⌂
+        </button>
+        <button class="brand" id="brand-home" aria-label="Camp overview">
+          <strong id="brand-name">Evernight</strong
+          ><span id="window-context">A fire in the night</span>
+        </button>
+        <nav id="main-nav" aria-label="Game menu"></nav>
+        <div class="resources">
+          <span id="gold-count"></span><span id="gem-count"></span
+          ><button
+            class="icon-button"
+            id="settings-btn"
+            aria-label="Settings"
+          ></button
+          ><button
+            class="icon-button"
+            id="fullscreen-btn"
+            aria-label="Enter fullscreen"
+            aria-pressed="false"
+          ></button>
         </div>
-      </div>
-      <footer class="app-footer">
-        <span>Evernight · 0.2</span
-        ><span id="save-status">Saved on this device · background 1×</span>
-      </footer>
-    </main>
-    <dialog id="modal" class="modal"><div id="modal-content"></div></dialog>
-    <div id="toast" class="toast" role="status" aria-live="polite"></div>
-    <script type="module" src="./app.js?v=16"></script>
+        <div id="tutorial-bar" class="tutorial-bar" hidden></div>
+      </header>
+      <main class="app">
+        <div class="clock-status" id="clock-status" role="status" hidden></div>
+        <div id="app-content">
+          <div class="empty-collection">
+            <h1>The Camp</h1>
+            <p>Gathering your company…</p>
+          </div>
+        </div>
+        <footer class="app-footer">
+          <span>Evernight · 0.3</span
+          ><span id="save-status">Saved on this device · background 1×</span>
+        </footer>
+      </main>
+      <section
+        id="opening-scene"
+        aria-label="Evernight opening"
+        aria-live="polite"
+        hidden
+      ></section>
+      <aside
+        id="learning-coach"
+        aria-label="First journey tutorial"
+        hidden
+      ></aside>
+      <p id="game-control-hint" aria-live="off" hidden></p>
+      <aside
+        id="resident-actions"
+        aria-label="Adventurer actions"
+        hidden
+      ></aside>
+      <dialog id="modal" class="modal"><div id="modal-content"></div></dialog>
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    </div>
+    <script type="module" src="./app.js?v=17"></script>
   </body>
 </html>

@@ -95,7 +95,7 @@ export class WorldCamera {
       this.lastAt === null ? 1 / 60 : clamp(time - this.lastAt, 0, 0.1);
     this.lastAt = time;
     if (!this.manual) {
-      const a = 1 - Math.exp(-dt * 7);
+      const a = 1 - Math.exp(-dt * (this.easing || 7));
       this.cx += (this.target.x - this.cx) * a;
       this.cy += (this.target.y - this.cy) * a;
       this.width += (this.target.width - this.width) * a;

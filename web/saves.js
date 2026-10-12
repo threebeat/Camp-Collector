@@ -1,5 +1,5 @@
-import { Battle } from "./engine.js?v=16";
-import { validateSave, migrateSave } from "./progression.js?v=16";
+import { Battle } from "./engine.js?v=17";
+import { validateSave, migrateSave } from "./progression.js?v=17";
 export function exportCamp(game) {
   return JSON.stringify({ format: "camp-backup", version: 1, game }, null, 2);
 }

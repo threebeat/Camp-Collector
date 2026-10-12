@@ -1,4 +1,4 @@
-import { LOCATIONS, periodKey } from "./data.js?v=16";
+import { LOCATIONS, periodKey } from "./data.js?v=17";
 export const MATERIALS = {
   wood: {
     name: "Wood",
@@ -467,13 +467,57 @@ CONTEXT.classPoints =
   "Levels 10, 20, 40, 60 and 80 grant class points: talent, subclass, talent, subclass, talent.";
 
 // Services now belong to the growing Camp, not a neighboring town.
-BUILDINGS.market = {name:'Camp Market',icon:'coin',text:'Invite four merchants: equipment, curiosities, supplies and companions. Available at Camp level 2.',x:78,y:29,cost:{gold:80,wood:24,stone:12},minCampLevel:2,service:'market'};
-BUILDINGS.guildhall = {name:'Guild lodge',icon:'shield',text:'Eight guilds offer training, quests and member shops here at Camp.',x:21,y:34,expansion:'west',cost:{gold:120,wood:24,stone:18},service:'guildhall'};
-BUILDINGS.tavern = {name:'Travelers’ lodge',icon:'army',text:'Hire travelers and meet visiting adventurers at Camp.',x:23,y:51,expansion:'west',cost:{gold:100,wood:20,stone:10},service:'tavern'};
-BUILDINGS.clinic = {name:'Lantern Clinic',icon:'heart',text:'Lift eligible Attributes at Camp.',x:66,y:64,cost:{gold:90,wood:12,stone:12,herbs:8},service:'clinic'};
-BUILDINGS.questboard = {name:'Quest Board',icon:'book',text:'Take quests and organize the company’s goals.',x:58,y:34,service:'questboard'};
+BUILDINGS.market = {
+  name: "Camp Market",
+  icon: "coin",
+  text: "Invite four merchants: equipment, curiosities, supplies and companions. Available at Camp level 2.",
+  x: 78,
+  y: 29,
+  cost: { gold: 80, wood: 24, stone: 12 },
+  minCampLevel: 2,
+  service: "market",
+};
+BUILDINGS.guildhall = {
+  name: "Guild lodge",
+  icon: "shield",
+  text: "Eight guilds offer training, quests and member shops here at Camp.",
+  x: 21,
+  y: 34,
+  expansion: "west",
+  cost: { gold: 120, wood: 24, stone: 18 },
+  service: "guildhall",
+};
+BUILDINGS.tavern = {
+  name: "Travelers’ lodge",
+  icon: "army",
+  text: "Hire travelers and meet visiting adventurers at Camp.",
+  x: 23,
+  y: 51,
+  expansion: "west",
+  cost: { gold: 100, wood: 20, stone: 10 },
+  service: "tavern",
+};
+BUILDINGS.clinic = {
+  name: "Lantern Clinic",
+  icon: "heart",
+  text: "Lift eligible Attributes at Camp.",
+  x: 66,
+  y: 64,
+  cost: { gold: 90, wood: 12, stone: 12, herbs: 8 },
+  service: "clinic",
+};
+BUILDINGS.questboard = {
+  name: "Journal",
+  icon: "book",
+  text: "Take quests and organize the company’s goals.",
+  x: 58,
+  y: 34,
+  service: "questboard",
+};
 BUILDINGS.cabins.expansion = null;
-BUILDINGS.cabins.name = 'Upgrade home';
-BUILDINGS.cabins.text = 'Upgrade the Character tent to a Cabin in place. Each further home upgrade adds twenty spaces.';
+BUILDINGS.cabins.name = "Upgrade home";
+BUILDINGS.cabins.text =
+  "Upgrade the Character tent to a Cabin in place. Each further home upgrade adds twenty spaces.";
 BUILDINGS.cabins.legacy = true;
-CONTEXT.expansions = 'Pan or zoom out to see shadowed land. Clear a plot to make room; buildings and Camp levels reveal more of the surrounding night.';
+CONTEXT.expansions =
+  "Pan or zoom out to see shadowed land. Clear a plot to make room; buildings and Camp levels reveal more of the surrounding night.";

@@ -27,14 +27,13 @@ npm run test:e2e
 
 GitHub Actions runs model/artifact checks and desktop Chromium, Android Chromium and iPhone WebKit emulation on main pushes and pull requests. It retains the built Worker, browser reports and scene screenshots. See [DEVELOPMENT.md](docs/DEVELOPMENT.md) for publishing and [QA.md](docs/QA.md) for observed results and limits.
 
-## Evernight 0.2
+## Evernight 0.3
 
-- A larger, camera-controlled Camp opens gradually from a small firelit clearing. Paths, textured forest and a southern lake connect the grounds; clear shadowed plots instead of navigating expansion arrows.
-- Drag or pinch maps, use arrow keys and zoom controls, then Focus to return home. Combat Focus tracks the party and smoothly widens or tightens its frame as characters spread out or regroup. Manual movement switches to free view.
-- Cached sprites and lighting, lightweight visual snapshots and interpolated movement reduce repeated work. Rendering follows animation frames; combat still uses deterministic fixed steps.
-- The bonfire has a stronger, flickering light with embers. Buildings and equipped residents cast shadows. Heroes have no innate light.
-- Build a four-vendor Camp Market at Camp level 2. Guild, recruiting, clinic, equipment, creation and Quest services now belong to Camp. The tent upgrades into a cabin in place; further upgrades add twenty spaces each.
-- Phone Camp details collapse, navigation has five primary controls with Shop/Codex under More, and Crossroads/party assembly never open character inspectors automatically.
+- One retro game window holds the world, combat, services and menus. Desktop has a framed viewport; phones fill their available display. Fullscreen uses the browser API when available, with an expanded viewport fallback.
+- The opening starts black, slowly reveals the bonfire, introduces three arrivals and the curse, then fades into Camp with a small camera pullback. Reduced motion keeps every step readable.
+- A saved tutorial teaches map movement, tap-to-walk residents, character information and the Crossroads. Its first short expedition is required; Pantry and Journal lessons follow the completed journey.
+- The Camp Journal replaces the notice board and separate Quest page. The Crossroads contains roads, party preparation, active companies and returned reports.
+- Camp overview, construction, stock and secondary features open inside the game. Existing Camps enter directly; current saves and active checkpoints are retained.
 
 Existing class trees, quests, global difficulty, twelve-hour meals, rewarded retirement, light equipment, guild standing, Arena wagers, monthly collections, Kitchen, Archaeology and the island remain playable.
 

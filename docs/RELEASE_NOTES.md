@@ -1,5 +1,15 @@
 # Release notes
 
+## 0.3.0 — Stay near the flame
+
+- Replaced the browser dashboard with one framed retro game window, phone viewport layout and native fullscreen/expanded-display fallback. Menus, profiles and services stay in the game.
+- Added a black-to-bonfire cinematic, three narrative beats, Camp reveal/camera pullback and reduced-motion handling.
+- Added saved action-driven lessons and a required first road; automatic combat, retry after defeat, Pantry food and Journal guidance complete the sequence. Existing Camps skip it.
+- Added deliberate resident Walk/Info controls and visible movement toward saved Camp destinations. Map gestures cannot inspect or move characters accidentally.
+- Replaced the notice board/Quest page with a Camp Journal. Roads, party preparation, active companies and returned reports belong to the Crossroads.
+
+Save schema/key/season, owned records, active checkpoints, Site URL/audience and database history are preserved. Verification evidence is recorded in QA.md.
+
 ## 0.2.0 — A growing home
 
 - Reused terrain and stable sprite/light caches, interpolated units/projectiles, cached viewport measurements and updated observation controls without replacing the screen.

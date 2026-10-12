@@ -9,7 +9,7 @@ import {
   pixelModifiersArt,
   pixelWingArt,
   pixelWeaponPresentation,
-} from "./pixel-art.js?v=16";
+} from "./pixel-art.js?v=17";
 export const icon = pixelIcon;
 export const portraitSvg = pixelPortraitSvg;
 export const petSvg = pixelPetSvg;

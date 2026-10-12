@@ -1,4 +1,4 @@
-import { vision, canSee, fogCells } from "./lighting.js?v=16";
+import { vision, canSee, fogCells } from "./lighting.js?v=17";
 import {
   W,
   H,
@@ -27,7 +27,7 @@ import {
   petInfo,
   spellObjects,
   spellObjectInfo,
-} from "./data.js?v=16";
+} from "./data.js?v=17";
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 export function seeded(seed) {

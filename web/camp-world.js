@@ -1,4 +1,4 @@
-import { campProgress } from "./evernight.js?v=16";
+import { campProgress } from "./evernight.js?v=17";
 export const CAMP_WORLD = {
   width: 1800,
   height: 1400,
