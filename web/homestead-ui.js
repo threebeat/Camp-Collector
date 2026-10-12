@@ -194,7 +194,7 @@ export function createHomesteadUi(c) {
           // A Walk gesture owns service labels as well as ground. Stop at the
           // front of the fixture instead of opening it through the destination tap.
           if (building)
-            point.y = Math.max(point.y, +building.dataset.worldY + 75);
+            point.y = Math.max(point.y, +building.dataset.worldY + 110);
           event.preventDefault();
           event.stopImmediatePropagation();
           if (

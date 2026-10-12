@@ -464,7 +464,7 @@ body[data-screen="camp"] #game-window #app-content {
 }
 @keyframes walking-step {
   50% {
-    transform: translate(-50%, -50%) translateY(-3px);
+    transform: translate(-50%, -90%) translateY(-3px);
   }
 }
 .lesson-target {
@@ -878,4 +878,8 @@ body[data-screen="camp"] #game-window #app-content {
   .revealing-world * {
     animation: none !important;
   }
+}
+
+.map-world .world-resident {
+  z-index: 7;
 }
