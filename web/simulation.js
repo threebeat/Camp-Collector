@@ -26,6 +26,7 @@ export class ExpeditionSimulation {
     Night.normalizeNightfall(this.g);
     Ever.normalizeEvernight(this.g);
     normalizeCampWorld(this.g);
+    if (this.g.buildings.tavern) P.marketStock(this.g, "guild");
     Night.refreshVisitors(this.g);
     this.battles = new Map();
     this.observation = { id: null, visible: false, speed: 1, paused: false };
@@ -126,6 +127,8 @@ export class ExpeditionSimulation {
     if (this.g.screen === "shop") P.gemShopStock(this.g);
     if (this.g.screen === "market")
       for (const v of VENDORS) P.marketStock(this.g, v.id);
+    else if (this.g.screen === "camp" && this.g.buildings.tavern)
+      P.marketStock(this.g, "guild");
     // A long timer gap means the browser suspended this worker. That unseen time is 1×,
     // even if the player had left a fast or paused battle open before suspension.
     this.backgroundAuto();
@@ -320,7 +323,7 @@ export class ExpeditionSimulation {
       case "acceptQuest": {
         const q = questById(g, args.id);
         if (
-          ["camp","market"].includes(g.screen) &&
+          ["camp", "market"].includes(g.screen) &&
           q &&
           q.category !== "Main" &&
           !g.sideQuests.includes(q.id) &&
@@ -414,7 +417,11 @@ export class ExpeditionSimulation {
             difficulty: "normal",
           };
         if (args.screen === "shop") P.gemShopStock(g);
-        if (args.screen === "market" && !g.buildings.market) { g.screen = "camp"; result = false; break; }
+        if (args.screen === "market" && !g.buildings.market) {
+          g.screen = "camp";
+          result = false;
+          break;
+        }
         if (args.screen === "market")
           for (const v of VENDORS) P.marketStock(g, v.id);
         result = true;
@@ -485,6 +492,7 @@ export class ExpeditionSimulation {
         break;
       case "construct":
         result = Camp.buildCamp(g, args.key);
+        if (result && args.key === "tavern") P.marketStock(g, "guild");
         break;
       case "food":
         result = Camp.buyFood(g, args.count);

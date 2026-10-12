@@ -49,8 +49,16 @@ async function start(page, funded = true, prepare = () => {}) {
   return { g, errors };
 }
 async function close(page) {
-  if (await modal(page).isVisible())
-    await modal(page).locator("[data-close]:visible").first().click();
+  if (await modal(page).isVisible()) {
+    try {
+      await modal(page)
+        .locator("[data-close]:visible")
+        .first()
+        .click({ timeout: 1500 });
+    } catch (error) {
+      if (await modal(page).isVisible()) throw error;
+    }
+  }
   await expect(modal(page)).not.toBeVisible();
 }
 async function nav(page, key) {

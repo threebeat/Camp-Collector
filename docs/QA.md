@@ -2,7 +2,7 @@
 
 ## Evernight 0.2 growing-Camp release
 
-The local suite passes **171 Node tests**, followed by build and Worker artifact validation. New checks cover gated Market construction, four vendors, in-place home capacity, idempotent migration, progressive revelation, camera easing/coordinate inversion, gesture click suppression, keyboard/wheel input and actual Camp light/occluder behavior. The updated connected DOM flow exercises these services in their new locations. Native Camp ground art was rasterized and inspected.
+The local suite passes **172 Node tests**, followed by build and Worker artifact validation. New checks cover gated Market construction, four vendors, in-place home capacity, idempotent migration, progressive revelation, camera easing/coordinate inversion, gesture click suppression, keyboard/wheel input and actual Camp light/occluder behavior. The updated connected DOM flow exercises these services in their new locations. Native Camp ground art was rasterized and inspected.
 
 The remote browser suite contains **24 scenarios**, eight each on desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit. It now covers Camp/map gestures, construction and upgrades, all relocated services, persistent saves, route/profile regression, free/focused battle camera and zoom, and retained calendar/light/class/portal content. Browser verification is pending for this source. Paused battlefield animation-frame samples are diagnostic only; they do not establish physical-device performance under heavy combat.
 
@@ -19,7 +19,7 @@ The local suite passes **157 Node tests**, followed by build and bundled Worker 
 
 The browser pipeline now contains **21 scenarios**: seven flows across desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit emulation. It exercises the three-page opening, naming, four Camp metrics, tutorial placement/Skip/settings, saved profiles, all new district maps, eight guild booths, lessons/standing/shops, Tavern hiring, Quest organization, compatible light equipping, alternating class choices, global difficulty, chosen portals, calendar state, monthly collections, Arena stake deduction, reduced motion and horizontal fit. Screenshots and failure traces are retained in `browser-report`.
 
-All 21 browser scenarios passed without retries in [Game checks run 38171105838](https://github.com/threebeat/Evernight/actions/runs/38171105838), source commit `e144cd8a3317b54c469d05e1374d773b3964245f`. Both jobs succeeded: the 157-test model/artifact job and browser job. The browser run took 1.2 minutes; its reports include scene screenshots. Local DOM/native canvas tests provide additional model/command/render evidence.
+All 21 browser scenarios passed without retries in [Game checks run 38172105838](https://github.com/threebeat/Evernight/actions/runs/38172105838), source commit `e144cd8a3317b54c469d05e1374d773b3964245f`. Both jobs succeeded: the 157-test model/artifact job and browser job. The browser run took 1.2 minutes; its reports include scene screenshots. Local DOM/native canvas tests provide additional model/command/render evidence.
 
 ## Prior release evidence
 

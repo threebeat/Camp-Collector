@@ -208,3 +208,18 @@ test("Camp residents cast shadows and emit light only with a light item; the bon
     globalThis.document = original;
   }
 });
+
+test("a constructed Travelers lodge offers recruits immediately and refreshes without a town visit", () => {
+  const g = fresh();
+  g.buildings.tavern = 1;
+  const sim = new ExpeditionSimulation(g, now);
+  assert.ok(sim.g.market.guild.some((o) => o.kind === "hero"));
+  const ids = sim.g.market.guild.map((o) => o.id);
+  sim.advance(now + 43200000, Infinity);
+  assert.ok(sim.g.market.guild.length);
+  assert.notDeepEqual(
+    sim.g.market.guild.map((o) => o.id),
+    ids,
+  );
+  assert.equal(sim.g.screen, "camp");
+});

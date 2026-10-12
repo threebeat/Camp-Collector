@@ -10,7 +10,7 @@
 - Upgraded the tent into a cabin in place, preserving legacy capacity and adding twenty spaces per further upgrade.
 - Collapsed phone Camp details, simplified primary navigation, and prevented inspectors on Crossroads/party assembly. Explicit combat inspection remains a small inline card.
 
-Save schema/key/season, owned records, checkpoints, Site URL/audience and database history are preserved. Local model/build validation passes 171 tests; remote browser results are recorded in QA.md.
+Save schema/key/season, owned records, checkpoints, Site URL/audience and database history are preserved. Local model/build validation passes 172 tests; remote browser results are recorded in QA.md.
 
 ## 0.1.0 — First pixel release
 

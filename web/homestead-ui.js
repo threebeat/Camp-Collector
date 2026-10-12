@@ -153,7 +153,10 @@ export function createHomesteadUi(c) {
         }
         const scale = r.width / camera.width;
         world.style.setProperty?.("--camera-scale", String(scale));
-        world.classList.toggle("map-overview", scale < 0.35);
+        world.classList.toggle(
+          "map-overview",
+          scale < 0.35 || (key === "camp" && camera.height > 1000),
+        );
         world.style.transform = `translate(${-camera.x * scale}px,${-camera.y * scale}px) scale(${scale})`;
         viewport.dataset.cameraMode = camera.manual ? "free" : "focus";
       };
