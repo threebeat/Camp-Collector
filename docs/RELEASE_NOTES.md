@@ -9,6 +9,8 @@
 - Fixed automatic character profiles: no launch/watch/snapshot fallback selects the first adventurer. Selection clears across encounters, death and lost visibility; pointer drags/cancellation never inspect. Explicit inspection is a small inline card with a deliberate Details action.
 - Kept save schema/key/season, current characters, active checkpoints, economy and the existing Site binding. Package/public version 0.1.0 follows legacy 0.14 at the owner's direction; browser cache generation is 15.
 
+Verification: 164 Node tests, build/artifact validation and all 24 remote browser scenarios pass. Desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit passed without retries in run 38187834961; see QA.md. Actual phone frame rate and touch ergonomics remain a physical-device follow-up.
+
 
 ## 0.14.0 — Evernight
 
