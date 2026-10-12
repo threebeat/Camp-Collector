@@ -516,7 +516,7 @@ test("the cinematic tutorial resumes, moves a resident, finishes its required ro
   );
   await building(page, "questboard");
   await expect(modal(page)).toContainText("Journal");
-  await page.locator("[data-lesson-help]").click();
+  await modal(page).locator("[data-finish-learning]").click();
   await expect(page.locator("#game-window")).toHaveAttribute(
     "data-learning",
     "complete",

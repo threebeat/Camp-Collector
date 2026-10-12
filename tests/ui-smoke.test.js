@@ -469,8 +469,7 @@ test(
       await click('[data-food="1"]');
       await click("[data-close]");
       await click('[data-building="questboard"]');
-      await click("[data-lesson-help]");
-      await click("[data-close]");
+      await click("[data-finish-learning]");
       assert.equal(state().learning.stage, "complete");
       worker.sim.g.gold = 10000;
       worker.sim.g.campXp = 300;

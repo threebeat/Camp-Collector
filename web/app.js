@@ -1838,6 +1838,9 @@ function bindActions(root = document) {
     render(true);
   });
   bind("[data-open-journal]", showJournal);
+  bind("[data-finish-learning]", async () => {
+    if (await act("learningEvent", { event: "journal-read" })) closeModal();
+  });
   bind("[data-journal-board]", () => nightUi.showQuestBoard());
   bind("[data-overview]", showCampOverview);
   bind("[data-construct]", (b) =>
@@ -4554,7 +4557,12 @@ function showJournal() {
     "Quests, progress and rewards",
     `<div class="journal-tabs">${button("Available quests", "data-journal-board", "secondary-button")}</div>` +
       everUi.questsView(),
-    "",
+    game.learning?.stage === "journal"
+      ? button(
+          "Begin your story",
+          `data-finish-learning ${!game.learning.journalSeen ? "disabled" : ""}`,
+        )
+      : "",
     showJournal,
   );
   $("modal").dataset.sheet = "journal";
