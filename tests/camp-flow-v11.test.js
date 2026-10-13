@@ -177,9 +177,9 @@ test("Camp has baked building hotspots, construction sites and distant shadowed 
   assert.match(html, /data-map-camera="camp"/);
   assert.match(html, /data-building="tent"/);
   assert.match(html, /data-build-site="pantry"/);
-  assert.doesNotMatch(html, /data-market-visit/);
+  assert.match(html, /data-market-visit hidden/);
   assert.doesNotMatch(html, /camp-expansion-arrow/);
-  assert.doesNotMatch(html, /data-scene-key="blacksmith"/);
+  assert.match(html, /data-building="blacksmith" hidden/);
   for (const key of ["west", "east", "south"])
     assert.ok(html.includes('data-expand-camp="' + key + '"'));
 });

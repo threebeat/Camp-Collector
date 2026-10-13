@@ -1,7 +1,7 @@
-import { validLearning } from "./onboarding.js?v=19";
-import * as Ever from "./evernight.js?v=19";
-import { questById } from "./journeys.js?v=19";
-import * as Night from "./nightfall.js?v=19";
+import { validLearning } from "./onboarding.js?v=20";
+import * as Ever from "./evernight.js?v=20";
+import { questById } from "./journeys.js?v=20";
+import * as Night from "./nightfall.js?v=20";
 import {
   GAME_SEASON,
   MYTHICAL_HEROES,
@@ -24,7 +24,6 @@ import {
   stats,
   gainXp,
   equipmentSlots,
-  note,
   uid,
   makeFacet,
   hasAttribute,
@@ -64,14 +63,14 @@ import {
   modifierFits,
   validModifiers,
   petInfo,
-} from "./data.js?v=19";
-import * as Camp from "./camp.js?v=19";
+} from "./data.js?v=20";
+import * as Camp from "./camp.js?v=20";
 import {
   BRANCHES,
   calendarDay,
   calendarMonth,
   CALENDAR_BONUSES,
-} from "./world.js?v=19";
+} from "./world.js?v=20";
 import {
   journeyInfo,
   journeyRequirements,
@@ -83,8 +82,8 @@ import {
   trackQuest,
   difficultyAllowed,
   REGION_CHAMPIONS,
-} from "./journeys.js?v=19";
-import { seeded } from "./engine.js?v=19";
+} from "./journeys.js?v=20";
+import { seeded } from "./engine.js?v=20";
 export const SLOT_MILESTONES = [0, 12, 35, 75];
 export const activeExpeditions = (g) =>
   g.expeditions.filter((r) => r.status === "active");
@@ -417,7 +416,7 @@ export function equipPet(g, h, id) {
   g.companions.splice(index, 1);
   if (h.companion) g.companions.push(h.companion);
   h.companion = pet;
-  note(h, "Made a small friend: " + PETS[pet.key].name + ".");
+
   return true;
 }
 export function removePet(g, h) {
@@ -459,7 +458,7 @@ export function unlockEquipment(g, h, type) {
     types: [type],
   });
   h.items.splice(at, 0, null);
-  note(h, "Made room for a new " + type + ".");
+
   return true;
 }
 export const transformRequirement = () => null;
@@ -489,14 +488,7 @@ export function combine(g, h, donor) {
   Camp.spendGems(g, 3);
   returnBelongings(g, donor);
   g.roster = g.roster.filter((a) => a !== donor);
-  note(
-    h,
-    "Carried on " +
-      donor.name +
-      "’s story, inheriting " +
-      CLASSES[donor.classId].ability +
-      ".",
-  );
+
   return true;
 }
 export function buildHero(g, race, classId, scrollId) {
@@ -520,7 +512,7 @@ export function buildHero(g, race, classId, scrollId) {
   g.scrolls = g.scrolls.filter((s) => s !== scroll);
   const h = generateHero({ race, classId });
   g.roster.push(h);
-  note(h, "Created from a carefully deciphered " + race + " scroll.");
+
   return h;
 }
 export function addAttribute() {
@@ -1108,9 +1100,7 @@ export function recruitConverted(g, r, captured) {
   const h = structuredClone(captured);
   h.favorite = false;
   h.bonds = {};
-  h.journal = [
-    { text: "Heard a song and chose a different road.", at: g.lastClock },
-  ];
+  h.journal = [];
   h.currentHp = Math.max(1, h.currentHp ?? stats(h).hp);
   r.recruits.push(h);
   r.captures.push(h.id);
@@ -1330,7 +1320,6 @@ function milestone(g, r) {
         });
         if (welcomeHero(g, h))
           r.earned.characters = (r.earned.characters || 0) + 1;
-        note(h, "Found a new home after " + r.name + ".", g.lastClock);
       }
       r.completion = "Optional path cleared. Its special reward joined Camp.";
     } else {
@@ -1401,18 +1390,6 @@ export function endExpedition(g, r, reason = "recall", now = g.lastClock) {
       h.pendingMealXp = 0;
     }
     Camp.beginRecovery(g, h, now, reason === "defeat");
-    note(
-      h,
-      (reason === "complete"
-        ? "Reached " + r.name + "."
-        : reason === "defeat"
-          ? "The company brought everyone home to recover."
-          : "Returned before the road ended.") +
-        " " +
-        r.history.filter((e) => e.survived).length +
-        " encounters together.",
-      now,
-    );
   }
   r.recruited = 0;
   if (reason === "complete")
@@ -1422,7 +1399,6 @@ export function endExpedition(g, r, reason = "recall", now = g.lastClock) {
       h.recoveryUntil = 0;
       if (!g.roster.some((a) => a.id === h.id) && welcomeHero(g, h))
         r.recruited++;
-      note(h, "Finished the journey and made Camp a permanent home.", now);
     }
   r.recruits = [];
   r.temporaryParty = [];
@@ -1488,8 +1464,6 @@ export function resolveBattle(g, r, result, now = g.lastClock) {
       if (h.currentHp <= 0)
         h.currentHp = Math.max(1, Math.round(stats(h).hp * 0.2));
     }
-    for (const other of party(g, r))
-      if (other.id !== h.id) h.bonds[other.id] = (h.bonds[other.id] || 0) + 1;
   }
   if (r.mode !== "arena") Camp.gatherAfterBattle(g, r, party(g, r));
   Ever.awardCampXp(g, 12 * r.reward, "victories");

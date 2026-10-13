@@ -1,16 +1,16 @@
-import { acceptNpcQuest } from "./town-npcs.js?v=19";
-import * as Tavern from "./tavern.js?v=19";
+import { acceptNpcQuest } from "./town-npcs.js?v=20";
+import * as Tavern from "./tavern.js?v=20";
 import {
   CAMP_WORLD,
   CAMP_ANCHORS,
   revealedCampAreas,
-} from "./camp-world.js?v=19";
-import * as Learn from "./onboarding.js?v=19";
-import { normalizeCampWorld } from "./camp-world.js?v=19";
-import * as Ever from "./evernight.js?v=19";
-import { questById } from "./journeys.js?v=19";
-import * as Night from "./nightfall.js?v=19";
-import { Battle } from "./engine.js?v=19";
+} from "./camp-world.js?v=20";
+import * as Learn from "./onboarding.js?v=20";
+import { normalizeCampWorld } from "./camp-world.js?v=20";
+import * as Ever from "./evernight.js?v=20";
+import { questById } from "./journeys.js?v=20";
+import * as Night from "./nightfall.js?v=20";
+import { Battle } from "./engine.js?v=20";
 import {
   LOCATIONS,
   initialGame,
@@ -19,9 +19,9 @@ import {
   VENDORS,
   ITEMS,
   uid,
-} from "./data.js?v=19";
-import * as Camp from "./camp.js?v=19";
-import * as P from "./progression.js?v=19";
+} from "./data.js?v=20";
+import * as Camp from "./camp.js?v=20";
+import * as P from "./progression.js?v=20";
 
 // The clock lives outside the view. Every party gets the same fixed simulation steps.
 export const STEP = 1 / 30;
@@ -411,12 +411,6 @@ export class ExpeditionSimulation {
         break;
       case "removeAttribute":
         result = Night.removeAttribute(g, h, args.key);
-        break;
-      case "memory":
-        result = Night.addMemory(g, h, args.text);
-        break;
-      case "befriend":
-        result = Night.befriend(g, h, args.friend);
         break;
       case "hireVisitor":
         result = Night.hireVisitor(g, args.id);

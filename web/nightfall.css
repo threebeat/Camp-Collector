@@ -186,18 +186,6 @@ body {
   flex: 1;
   min-width: 100px;
 }
-.profile-journal {
-  max-height: 220px;
-  overflow: auto;
-  background: #1b273a;
-  padding: 12px;
-  border-radius: 8px;
-}
-.profile-journal p {
-  padding: 6px 0;
-  border-bottom: 1px dashed #cdc1a8;
-  font-size: 13px;
-}
 textarea.modal-select {
   width: 100%;
   min-height: 78px;

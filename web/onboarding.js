@@ -1,10 +1,9 @@
-import { stats } from "./data.js?v=19";
+import { stats } from "./data.js?v=20";
 export const LESSON_REWARD = 3;
 export const LEARNING_STAGES = [
   "intro",
   "pan",
   "move",
-  "profile",
   "crossroads",
   "route",
   "party",
@@ -20,13 +19,16 @@ export const LEARNING_STAGES = [
   "complete",
 ];
 const legacyStages = ["fernjourney", "defeat", "recruit"];
+const removedStages = ["profile"];
 export function validLearning(s) {
   return (
     s === undefined ||
     !!(
       s &&
-      [1, 2, 3].includes(s.version) &&
-      [...LEARNING_STAGES, ...legacyStages].includes(s.stage) &&
+      [1, 2, 3, 4].includes(s.version) &&
+      [...LEARNING_STAGES, ...legacyStages, ...removedStages].includes(
+        s.stage,
+      ) &&
       Number.isInteger(s.beat) &&
       s.beat >= 0 &&
       s.beat <= 2 &&
@@ -40,7 +42,7 @@ export function normalizeLearning(g) {
     const existing =
       g.campNamed || g.storyPage >= 3 || g.expeditions.length > 0;
     g.learning = {
-      version: 3,
+      version: 4,
       stage: existing ? "complete" : "intro",
       beat: 0,
       required: false,
@@ -50,6 +52,12 @@ export function normalizeLearning(g) {
     };
   }
   const s = g.learning;
+  // Version 3 asked players to reopen the profile they had just opened.
+  // Skip only that retired lesson; retain every earned receipt and checkpoint.
+  if (s.stage === "profile") {
+    s.stage = "crossroads";
+    s.done = false;
+  }
   if (s.version < 3) {
     if (s.version === 1 && s.stage === "pantry") s.stage = "quests";
     if (legacyStages.includes(s.stage)) s.stage = "recovery";
@@ -90,6 +98,7 @@ export function normalizeLearning(g) {
     }
     s.version = 3;
   }
+  s.version = 4;
   s.claimedStages ||= [];
   if (s.stage === "journey") {
     const r = g.expeditions.find((r) => r.id === s.journeyId);
@@ -114,7 +123,6 @@ export function learningReady(g) {
   const s = g.learning;
   if (!s || !learningLocked(g)) return false;
   if (s.stage === "journal") return true;
-  if (s.stage === "profile") return !!s.profileSeen;
   if (s.stage === "quests") return g.questClaims.includes("first-road");
   if (s.stage === "journey") return !!s.firstVictory;
   if (s.stage === "recovery")
@@ -222,14 +230,6 @@ export function learningEvent(g, event, id) {
   if (!s) return false;
   if (s.stage === "pan" && event === "pan") {
     s.done = true;
-    return true;
-  }
-  if (
-    ["move", "profile"].includes(s.stage) &&
-    event === "profile" &&
-    g.roster.some((h) => h.id === id)
-  ) {
-    s.profileSeen = true;
     return true;
   }
   if (["quests", "journal"].includes(s.stage) && event === "journal") {

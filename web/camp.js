@@ -1,5 +1,5 @@
-import * as Ever from "./evernight.js?v=19";
-import { gatherProfessions } from "./nightfall.js?v=19";
+import * as Ever from "./evernight.js?v=20";
+import { gatherProfessions } from "./nightfall.js?v=20";
 import {
   gatheringFacets,
   CORE_STATS,
@@ -13,7 +13,6 @@ import {
   uid,
   makeFacet,
   trainingBonus,
-  note,
   makeGem,
   gemValue,
   GEM_KINDS,
@@ -34,8 +33,8 @@ import {
   PETS,
   makePet,
   EVOLUTIONS,
-} from "./data.js?v=19";
-import { BUILDINGS, COOKING, BREWS } from "./world.js?v=19";
+} from "./data.js?v=20";
+import { BUILDINGS, COOKING, BREWS } from "./world.js?v=20";
 export const gemsTotal = (g) =>
   g.gemstones.reduce((sum, v) => sum + gemValue(v), 0);
 export function addGems(g, value, kind = "ruby") {
@@ -176,11 +175,7 @@ export function beginTraining(g, h, key) {
     ends: g.lastClock + seconds * 1000,
     cost,
   };
-  note(
-    h,
-    "Settled in for " + seconds + " seconds of " + key + " training.",
-    g.lastClock,
-  );
+
   return true;
 }
 export function sharpeningCost(item) {
@@ -218,13 +213,7 @@ export function updateCampClock(g) {
         a = h.talents.find((a) => a.key === key);
       if (a) a.level++;
       else h.talents.push(makeFacet(key));
-      note(
-        h,
-        "Completed " +
-          h.trainingJob.stat +
-          " training. Permanent training Talent improved.",
-        h.trainingJob.ends,
-      );
+
       Ever.awardCampXp(g, 25, "training");
       h.trainingJob = null;
       h.currentHp = stats(h).hp;
@@ -454,12 +443,7 @@ export function chooseClassNode(g, h, nodeId) {
   }
   h.classNodes.push(nodeId);
   h.currentHp = stats(h).hp;
-  note(
-    h,
-    "Spent a class point at the Bonfire: " +
-      node.name +
-      ". Sibling choices are locked.",
-  );
+
   return true;
 }
 export function teachTalent() {
@@ -539,17 +523,6 @@ export function evolveObject(g, kind, id, choice = null) {
   i.rarityTier = itemRarity(i);
   if (owner) {
     owner.currentHp = stats(owner).hp;
-    note(
-      owner,
-      "A familiar " +
-        (kind === "pet"
-          ? "friend"
-          : kind === "armor"
-            ? "armor piece"
-            : "weapon") +
-        " transformed at " +
-        (kind === "weapon" ? "the Blacksmith." : "the Equipment Workshop."),
-    );
   }
   return true;
 }

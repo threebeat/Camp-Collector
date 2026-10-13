@@ -125,7 +125,12 @@ async function building(page, key) {
     return;
   }
   await page.locator("[data-world-fit]").first().click();
-  await page.locator(`[data-building="${key}"]`).first().click();
+  await page
+    .locator(
+      `[data-building="${key}"]:visible, [data-build-site="${key}"]:visible`,
+    )
+    .first()
+    .click();
 }
 async function market(page) {
   await page.locator("[data-world-fit]").first().click();
@@ -158,7 +163,7 @@ async function campDetails(page) {
     await d.locator("summary").first().click();
 }
 
-test("opening, compact Camp, memory and reload preserve the company", async ({
+test("opening, compact Camp and separate character sections survive reload", async ({
   page,
 }) => {
   const { g, errors } = await start(page, false);
@@ -200,20 +205,21 @@ test("opening, compact Camp, memory and reload preserve the company", async ({
   await shot(page, "camp");
   await building(page, "tent");
   await modal(page).locator(`[data-profile="${g.roster[0].id}"]`).click();
-  await modal(page)
-    .locator("#memory-text")
-    .fill("The first fire held through the night.");
-  await modal(page).locator("[data-memory]").click();
-  await expect(modal(page)).toContainText(
-    "The first fire held through the night.",
+  await expect(modal(page).locator(".profile-attributes")).toBeVisible();
+  await expect(modal(page).locator(".profile-talents")).toContainText(
+    "Talents",
   );
+  await expect(
+    modal(page).locator("[data-memory], [data-befriend], #memory-text"),
+  ).toHaveCount(0);
   await close(page);
   await page.reload();
   await resume(page);
   await building(page, "tent");
   await modal(page).locator(`[data-profile="${g.roster[0].id}"]`).click();
-  await expect(modal(page)).toContainText(
-    "The first fire held through the night.",
+  await expect(modal(page)).toContainText(g.roster[0].name);
+  await expect(modal(page).locator(".profile-talents")).toContainText(
+    "Talents",
   );
   expect(errors).toEqual([]);
 });
@@ -258,7 +264,17 @@ test("unbuilt Market is gated and the tent upgrades into a cabin without a separ
     g.buildings.tent = 1;
     g.buildings.cabins = 0;
   });
-  await expect(page.locator("[data-market-visit]")).toHaveCount(0);
+  await expect(page.locator("[data-market-visit]")).toBeHidden();
+  await expect(page.locator(".camp-map")).toHaveAttribute(
+    "data-environment-ready",
+    "true",
+  );
+  await page.evaluate(() => {
+    window.qaUpgradeWorld = document.querySelector(".camp-map");
+    window.qaUpgradeGround = document.querySelector(".baked-camp-map");
+    window.qaUpgradeFire = document.querySelector(".camp-firelight");
+    window.qaUpgradeRevision = Number(window.qaUpgradeGround.dataset.revision);
+  });
   await page.locator("#brand-home").click();
   await modal(page).locator("[data-build-sites]").click();
   await modal(page).locator("[data-upgrade-home]").click();
@@ -266,6 +282,25 @@ test("unbuilt Market is gated and the tent upgrades into a cabin without a separ
   await expect(page.locator('[data-building="tent"]')).toContainText(
     "Character cabin",
   );
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        Number(document.querySelector(".baked-camp-map").dataset.revision),
+      ),
+    )
+    .toBeGreaterThan(await page.evaluate(() => window.qaUpgradeRevision));
+  expect(
+    await page.evaluate(
+      () =>
+        window.qaUpgradeWorld === document.querySelector(".camp-map") &&
+        window.qaUpgradeGround === document.querySelector(".baked-camp-map") &&
+        window.qaUpgradeFire === document.querySelector(".camp-firelight"),
+    ),
+  ).toBe(true);
+  const dirty = await page
+    .locator(".baked-camp-map")
+    .getAttribute("data-dirty-rects");
+  expect(JSON.parse(dirty).every((r) => r.w < 400 && r.h < 400)).toBe(true);
   await expect(page.locator('[data-building="cabins"]')).toHaveCount(0);
   await page.locator("#brand-home").click();
   await modal(page).locator("[data-build-sites]").click();
@@ -536,11 +571,6 @@ test("tutorial prompts persist, pay once, combine recovery and finish without a 
   await stage("move");
   await expect(modal(page)).toContainText(g.roster[0].name);
   await next();
-  await stage("profile");
-  await hero.click();
-  await page.locator("[data-resident-info]").click();
-  await expect(modal(page)).toHaveAttribute("data-sheet", "profile");
-  await next();
   await stage("crossroads");
   await page.reload();
   await resume(page);
@@ -630,7 +660,7 @@ test("tutorial prompts persist, pay once, combine recovery and finish without a 
     JSON.parse(localStorage.getItem("camp-collector-v12")),
   );
   expect(saved.roster.length).toBe(4);
-  expect(saved.learning.claimedStages).toHaveLength(15);
+  expect(saved.learning.claimedStages).toHaveLength(14);
   expect(saved.trackedQuest).toBe("bridge");
   expect(saved.expeditions.map((r) => r.reason)).toEqual([
     "complete",
@@ -803,5 +833,86 @@ test("dragging retains the lit scene, profiles use the right panel, and Trading 
   await expect(modal(page)).toContainText(g.roster[1].name);
   await expect(modal(page)).not.toContainText(g.roster[0].name);
   await shot(page, "trading-comparison");
+  expect(errors).toEqual([]);
+});
+
+test("baked bonfire, water motion and object lighting share a stable scene and respect reduced motion", async ({
+  page,
+}) => {
+  const { errors } = await start(page, true, (g) => {
+    g.roster.forEach((h, i) => {
+      const positions = [
+        [1780, 1090],
+        [1765, 1180],
+        [1610, 1115],
+      ];
+      g.mapPositions.camp[h.id] = {
+        x: positions[i][0] / 30,
+        y: positions[i][1] / 22,
+      };
+    });
+  });
+  await expect(page.locator(".camp-map")).toHaveAttribute(
+    "data-environment-ready",
+    "true",
+  );
+  await expect(page.locator('[data-building="bonfire"] > svg')).toHaveCount(0);
+  await expect(page.locator(".camp-flame")).toBeVisible();
+  await expect(page.locator(".camp-water")).toHaveAttribute(
+    "data-animated",
+    "true",
+  );
+  await page.evaluate(() => {
+    window.qaWaterFrame = document.querySelector(".camp-water").toDataURL();
+    window.qaFireOpacity =
+      document.querySelector(".camp-firelight").style.opacity;
+    window.qaGroundRevision =
+      document.querySelector(".baked-camp-map").dataset.revision;
+  });
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          window.qaWaterFrame !==
+          document.querySelector(".camp-water").toDataURL(),
+      ),
+    )
+    .toBe(true);
+  await expect
+    .poll(() => page.locator(".camp-firelight").getAttribute("style"))
+    .not.toContain(
+      `opacity: ${await page.evaluate(() => window.qaFireOpacity)};`,
+    );
+  expect(
+    await page.locator(".baked-camp-map").getAttribute("data-revision"),
+  ).toBe(await page.evaluate(() => window.qaGroundRevision));
+  await shot(page, "bonfire-night-shadows");
+  await page.locator('[data-map-camera="camp"]').focus();
+  for (let i = 0; i < 6; i++) await page.keyboard.press("ArrowDown");
+  await shot(page, "lake-water");
+  await page.locator("#settings-btn").click();
+  await modal(page).locator("#setting-motion").check();
+  await expect(page.locator(".camp-water")).toHaveAttribute(
+    "data-animated",
+    "false",
+  );
+  await close(page);
+  await page.evaluate(
+    () =>
+      (window.qaWaterPaused = document
+        .querySelector(".camp-water")
+        .toDataURL()),
+  );
+  await page.waitForTimeout(300);
+  expect(
+    await page.evaluate(
+      () =>
+        window.qaWaterPaused ===
+        document.querySelector(".camp-water").toDataURL(),
+    ),
+  ).toBe(true);
+  expect(
+    await page.locator(".camp-firelight").evaluate((el) => el.style.opacity),
+  ).toBe("0.9");
   expect(errors).toEqual([]);
 });

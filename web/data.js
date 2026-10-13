@@ -6,7 +6,7 @@ import {
   ENCHANTMENTS,
   WEAPON_MODIFIERS,
   weaponModifiers,
-} from "./weapons.js?v=19";
+} from "./weapons.js?v=20";
 export {
   WEAPONS,
   WEAPON_KINDS,
@@ -23,7 +23,7 @@ import {
   modifierFits,
   objectModifiers,
   validModifiers,
-} from "./modifiers.js?v=19";
+} from "./modifiers.js?v=20";
 export {
   ARMOR_MODIFIERS,
   PET_MODIFIERS,
@@ -1971,6 +1971,7 @@ export function generateHero(options = {}, random = Math.random) {
       idle: Math.floor(random() * 500),
     },
     favorite: false,
+    // Inert legacy fields remain readable in version-12 backups.
     bonds: {},
     journal: [],
     transformations: [],
@@ -2003,10 +2004,6 @@ export function generateHero(options = {}, random = Math.random) {
     h.armor = armorSlots(h).map((slot) =>
       slot.allowed ? makeItem(starterArmor(h, slot.key)) : null,
     );
-  if (!h.journal.length)
-    h.journal = [
-      { text: "A new character joined your company.", at: Date.now() },
-    ];
   return h;
 }
 export function makeHero(index = 0, options = {}) {
@@ -2284,10 +2281,6 @@ export function stats(h) {
     s[k] = Math.round(s[k]);
   return s;
 }
-export function note(h, text, at = Date.now()) {
-  h.journal.unshift({ text, at });
-  h.journal = h.journal.slice(0, 24);
-}
 export function gainXp(h, amount) {
   const xp = Math.round(amount * (RACES[h.race].xp || 1));
   h.totalXp = (h.totalXp || 0) + xp;
@@ -2307,8 +2300,6 @@ export function gainXp(h, amount) {
   if (h.level >= 100) h.xp = 0;
   if (levels) {
     h.currentHp = stats(h).hp;
-    if (CLASS_LEVELS.some((l) => h.level >= l && h.level - levels < l))
-      note(h, "Earned a class point. Visit the Bonfire to specialize.");
   }
   return levels;
 }
@@ -2451,9 +2442,6 @@ export function initialGame(random = Math.random, now = Date.now()) {
     ["Nereid", "healer"],
   ].map(([race, classId]) => generateHero({ race, classId, level: 5 }, random));
   for (const h of roster) {
-    h.journal = [
-      { text: "One of your first three. The road began here.", at: now },
-    ];
     h.currentHp = stats(h).hp;
   }
   return {
@@ -3986,7 +3974,7 @@ export function makeMythicalHero(key) {
   const weapon = makeMythicalWeapon(d.weapon);
   h.items[0] = weapon;
   h.currentHp = stats(h).hp;
-  note(h, d.text);
+
   return h;
 }
 Object.assign(COSMETICS, {

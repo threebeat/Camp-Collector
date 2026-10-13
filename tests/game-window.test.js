@@ -38,8 +38,6 @@ function firstRoad(sim) {
   acknowledge(sim);
   sim.action("dropResident", { id, building: "tent" }, now);
   acknowledge(sim);
-  sim.action("learningEvent", { event: "profile", id }, now);
-  acknowledge(sim);
   sim.action("navigate", { screen: "crossroads" }, now);
   acknowledge(sim);
   assert.ok(sim.action("lockRoute", {}, now).ok);
@@ -78,12 +76,15 @@ test("learning requires ordered actions and genuine roster identities", () => {
   assert.ok(sim.action("dropResident", { id, building: "tent" }, now).ok);
   assert.equal(sim.g.learning.stage, "move");
   acknowledge(sim);
-  assert.equal(sim.g.learning.stage, "profile");
+  assert.equal(sim.g.learning.stage, "crossroads");
   assert.equal(
     sim.action("learningEvent", { event: "profile", id: "missing" }, now).ok,
     false,
   );
-  assert.ok(sim.action("learningEvent", { event: "profile", id }, now).ok);
+  assert.equal(
+    sim.action("learningEvent", { event: "profile", id }, now).ok,
+    false,
+  );
 });
 test("the required first journey cannot be skipped, changed to a trial, unstaged or recalled", () => {
   const sim = opened(),
@@ -100,8 +101,6 @@ test("the required first journey cannot be skipped, changed to a trial, unstaged
   sim.action("learningEvent", { event: "pan" }, now);
   acknowledge(sim);
   sim.action("dropResident", { id, building: "tent" }, now);
-  acknowledge(sim);
-  sim.action("learningEvent", { event: "profile", id }, now);
   acknowledge(sim);
   sim.action("navigate", { screen: "crossroads" }, now);
   acknowledge(sim);

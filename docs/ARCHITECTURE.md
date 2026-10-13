@@ -1,6 +1,6 @@
 # Architecture
 
-This describes the implementation at version 0.5.0. It is a map of the present code, not a commitment to keep its boundaries or technology forever.
+This describes the implementation at version 0.6.0. It is a map of the present code, not a commitment to keep its boundaries or technology forever.
 
 ## Runtime boundaries
 
@@ -29,7 +29,7 @@ The hosted backend is an ESM Worker. It serves embedded web assets and the authe
 
 ## Saved model
 
-`initialGame()` supplies a versioned root record. Its main collections are `roster`, `inventory`, `companions`, `scrolls`, `gemstones` and `expeditions`. It also records Camp buildings/resources, exploration, boss clears, quests, challenge reward receipts and cosmetic ownership. Characters have their own IDs, generated names, race/class, appearance, levels/XP, equipment, armor, companion, Attributes, Talents, class nodes, bonds and journal entries. Object IDs distinguish two instances of the same base weapon.
+`initialGame()` supplies a versioned root record. Its main collections are `roster`, `inventory`, `companions`, `scrolls`, `gemstones` and `expeditions`. It also records Camp buildings/resources, exploration, boss clears, quests, challenge reward receipts and cosmetic ownership. Characters have their own IDs, generated names, race/class, appearance, levels/XP, equipment, armor, companion, Attributes, Talents, class nodes and inert legacy social fields. Object IDs distinguish two instances of the same base weapon.
 
 An expedition stores its party IDs, frozen itinerary, seed, current encounter, phase, AUTO flag, elapsed/pending seconds, rewards, temporary recruits and serialized battle. Equipment is not changed by the player during a journey. The checkpoint synchronizes battle-earned XP, levels and health back into the owning characters.
 
@@ -63,7 +63,7 @@ These guards make the board functional, but do not prove the caller actually ear
 
 ## Build and deployment
 
-`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=19` cache URLs. Generated output is excluded from source control.
+`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=20` cache URLs. Generated output is excluded from source control.
 
 The hosting manifest binds the existing Sites project with `d1: 'DB'` and no R2 bucket. Sites applies committed `drizzle/` migrations before uploading the Worker. The original source origin and owner-private audience must be preserved when publishing unless the owner directs otherwise. A separate GitHub remote can coexist; it is not a replacement deployment ID.
 
@@ -132,3 +132,12 @@ Learning schema 3 stores task readiness separately from explicit acknowledgement
 `town-npcs.js` owns stable authored NPC descriptions, deterministic portraits and progression-gated rotating offers. Acceptance validates the NPC and current map at the simulation boundary, freezes generated objectives and tracks the quest. Journal filtering excludes unaccepted offers. Trading Post uses compatible existing forge stock with a Camp purchase gate and the dragged character’s comparison context. Arena navigation/launch require the separate building. Challenge backend behavior and authenticated access are unchanged.
 
 Crossroads now has overview, fixed map/route planning and fixed party planning. Regional images are generated WebP bytes inside SVG envelopes; see GENERATED_MAP_ART for original prompts and provenance. The Bonfire tree draws its connectors from the same canonical parent IDs used by the model.
+
+
+## Darker living Camp (0.6)
+
+`camp-background.js` keeps an ungraded scenery canvas, a dark baked ground canvas and a local firelight patch per mounted world. `campScenery` describes stable building/hearth pieces; `changedScenery` invalidates only their rectangles. Each dirty region restores terrain and intersecting tiles in depth order. Firelight rebakes only if its radius changes or a dirty region intersects it. The stone ring, logs, soot and embers are baked into the same scenery as buildings. Camera/lighting/ground nodes survive construction and upgrades; prebound hidden service targets become visible in `homestead-ui.sync`.
+
+`SceneLighting.sync` refreshes progression fog and the canonical bonfire source without replacing the scene. Camp skips the old second PixelLighting ambient pass. Moving lamps draw local live light, then character/prop projections and contact shadows draw below sprites. A shared `fireFlicker` modulates cached scenery opacity, actor brightness and shadows; a small flame canvas supplies flames and embers. `camp-water.js` registers clipped ripples and waterfalls to the 1468×1071 painting, excluding banks and islands. Water renders at ten Hz; the dynamic light pass at twenty Hz. Reduced motion freezes decorative animation. These budgets are not a physical-device frame-rate guarantee.
+
+Learning version 4 removes `profile` from the fourteen acknowledgements, migrating that old stage directly to `crossroads` without adding/replaying rewards. New tent drops already open character information. Social commands, profile sections and automatic memory/bond accumulation are removed. Version-12 legacy `journal` and `bonds` fields remain inert and round-trip existing saves; they do not drive gameplay. Attributes/professions and learned talents are distinct profile sections. Save key/season/schema, expedition checkpoints and SQL migrations stay unchanged.

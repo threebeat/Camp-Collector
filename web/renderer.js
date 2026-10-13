@@ -1,12 +1,12 @@
-import { MAP_ASSETS } from "./map-assets.js?v=19";
-import { paintGroundShadow } from "./scene-lighting.js?v=19";
-import { WorldCamera } from "./camera.js?v=19";
+import { MAP_ASSETS } from "./map-assets.js?v=20";
+import { paintGroundShadow } from "./scene-lighting.js?v=20";
+import { WorldCamera } from "./camera.js?v=20";
 import {
   vision,
   lightSources,
   environmentLights,
   revealed,
-} from "./lighting.js?v=19";
+} from "./lighting.js?v=20";
 import {
   W,
   H,
@@ -16,14 +16,14 @@ import {
   ITEMS,
   allGear,
   itemRarity,
-} from "./data.js?v=19";
-import { portraitSvg, petSvg, creatureSvg } from "./art.js?v=19";
+} from "./data.js?v=20";
+import { portraitSvg, petSvg, creatureSvg } from "./art.js?v=20";
 import {
   pixelTerrainSvg,
   pixelPropSvg,
   pixelCreatureSvg,
-} from "./pixel-art.js?v=19";
-import { PixelLighting } from "./pixel-lighting.js?v=19";
+} from "./pixel-art.js?v=20";
+import { PixelLighting } from "./pixel-lighting.js?v=20";
 
 const PAD_X = 600,
   PAD_Y = 480,

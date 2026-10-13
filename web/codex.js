@@ -19,8 +19,8 @@ import {
   WEAPON_MODIFIERS,
   ARMOR_MODIFIERS,
   PET_MODIFIERS,
-} from "./data.js?v=19";
-import { CONTEXT, BUILDINGS, MATERIALS } from "./world.js?v=19";
+} from "./data.js?v=20";
+import { CONTEXT, BUILDINGS, MATERIALS } from "./world.js?v=20";
 const mechanics = [
   [
     "Living Camp and Market",
@@ -35,7 +35,7 @@ const mechanics = [
   [
     "A level is a small step",
     "Progression",
-    "Race and class growth tables increase all six stats on every level. A level-up restores full health. Equipped equipment, armor and companions also earn XP. Characters keep their names, race, bonds, and memories as they grow. Class points are earned at levels 10, 20, 40, 60 and 80, independently of rarity.",
+    "Race and class growth tables increase all six stats on every level. A level-up restores full health. Equipped equipment, armor and companions also earn XP. Characters keep their names, race, equipment and class choices as they grow. Class points are earned at levels 10, 20, 40, 60 and 80, independently of rarity.",
   ],
   [
     "Talents and Attributes",

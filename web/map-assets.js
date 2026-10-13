@@ -2,7 +2,7 @@
 // SVG envelopes embed PNG bytes so the existing text-asset Worker can serve them.
 export const MAP_ASSETS = Object.freeze({
   camp: Object.freeze({
-    url: "/map-camp-v05.svg?v=19",
+    url: "/map-camp-v05.svg?v=20",
     width: 3000,
     height: 2200,
     pixelSize: 2,
@@ -10,7 +10,7 @@ export const MAP_ASSETS = Object.freeze({
     originY: 0,
   }),
   tavern: Object.freeze({
-    url: "/map-tavern.svg?v=19",
+    url: "/map-tavern.svg?v=20",
     width: 1200,
     height: 900,
     pixelSize: 2,
@@ -20,7 +20,7 @@ export const MAP_ASSETS = Object.freeze({
     entrance: Object.freeze({ x: 600, y: 810 }),
   }),
   forest: Object.freeze({
-    url: "/map-expedition-forest.svg?v=19",
+    url: "/map-expedition-forest.svg?v=20",
     width: 2400,
     height: 1440,
     pixelSize: 2,
@@ -29,7 +29,7 @@ export const MAP_ASSETS = Object.freeze({
     battlefield: Object.freeze({ x: 600, y: 480, width: 1200, height: 480 }),
   }),
   jungle: Object.freeze({
-    url: "/map-expedition-jungle.svg?v=19",
+    url: "/map-expedition-jungle.svg?v=20",
     width: 2400,
     height: 1440,
     pixelSize: 2,
@@ -38,7 +38,7 @@ export const MAP_ASSETS = Object.freeze({
     battlefield: Object.freeze({ x: 600, y: 480, width: 1200, height: 480 }),
   }),
   village: Object.freeze({
-    url: "/map-expedition-village.svg?v=19",
+    url: "/map-expedition-village.svg?v=20",
     width: 2400,
     height: 1440,
     pixelSize: 2,
@@ -47,7 +47,7 @@ export const MAP_ASSETS = Object.freeze({
     battlefield: Object.freeze({ x: 600, y: 480, width: 1200, height: 480 }),
   }),
   volcano: Object.freeze({
-    url: "/map-expedition-volcano.svg?v=19",
+    url: "/map-expedition-volcano.svg?v=20",
     width: 2400,
     height: 1440,
     pixelSize: 2,
@@ -56,7 +56,7 @@ export const MAP_ASSETS = Object.freeze({
     battlefield: Object.freeze({ x: 600, y: 480, width: 1200, height: 480 }),
   }),
   ruins: Object.freeze({
-    url: "/map-expedition-ruins.svg?v=19",
+    url: "/map-expedition-ruins.svg?v=20",
     width: 2400,
     height: 1440,
     pixelSize: 2,
@@ -98,5 +98,5 @@ export const PRERENDERED_BUILDINGS = Object.freeze([
 // painted first and the object surface second, so no shadow can cover its caster.
 export function prerenderedBuildingSvg(key) {
   if (!PRERENDERED_BUILDINGS.includes(key)) return null;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" preserveAspectRatio="none" aria-hidden="true" data-pixel-art="building" data-prerendered-building="${key}" style="image-rendering:pixelated;overflow:visible"><image href="/map-building-${key}.svg?v=19" x="-16" y="-16" width="80" height="80" /></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" preserveAspectRatio="none" aria-hidden="true" data-pixel-art="building" data-prerendered-building="${key}" style="image-rendering:pixelated;overflow:visible"><image href="/map-building-${key}.svg?v=20" x="-16" y="-16" width="80" height="80" /></svg>`;
 }

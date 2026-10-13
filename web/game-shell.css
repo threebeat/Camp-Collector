@@ -1903,3 +1903,51 @@ body[data-screen="party"] #game-window[data-locked="true"] #app-content {
     max-height: 60dvh;
   }
 }
+
+/* 0.6: cached night ground, local firelight, and registered water overlays. */
+.camp-map .world-ground > .prerendered-map {
+  filter: brightness(0.36);
+}
+.camp-firelight,
+.camp-water,
+.camp-flame {
+  position: absolute;
+  pointer-events: none;
+}
+.camp-firelight {
+  display: block;
+  will-change: opacity;
+}
+.camp-water {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  opacity: 0.72;
+}
+.camp-flame {
+  z-index: 4;
+  width: 160px;
+  height: 180px;
+}
+.map-world [hidden] {
+  display: none !important;
+}
+.camp-map .world-resident > svg,
+.camp-map .world-prop > svg,
+.camp-map .town-npc > svg {
+  filter: brightness(var(--actor-light, 0.8));
+}
+#game-window .baked-building[data-building="bonfire"] {
+  width: 112px;
+  height: 106px;
+}
+#game-window .baked-building[data-building="bonfire"] .building-hit-area {
+  width: 100px;
+  height: 68px;
+}
+.profile-attributes,
+.profile-talents {
+  padding: 4px 0 14px;
+  border-bottom: 1px solid #344055;
+}

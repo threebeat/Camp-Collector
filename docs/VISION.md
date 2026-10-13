@@ -4,7 +4,7 @@ Evernight is a persistent character collector built around watching automatic ba
 
 ## What should guide decisions
 
-- **Characters matter over time.** Names, appearance, traits, companions, class choices, journals and shared experiences should help players recognize favorites and remember their history.
+- **Characters matter over time.** Names, appearance, traits, companions, class choices and expedition experiences should help players recognize favorites and remember their history.
 - **Teams express choices.** Race and class begin simply; equipment, learned skills, companions and specialization create understandable changes in how a unit behaves.
 - **Battles explain themselves visually.** Selection, flight, magic, weapon properties, terrain interactions and win/loss should be apparent without reading a spreadsheet.
 - **Camp feels like home.** Residents and companions move around a readable place. Services open from buildings; resources and progression should be clear without crowding a phone screen.
@@ -24,13 +24,13 @@ These are current product goals and may evolve with the owner. They do not manda
 | Is background play trustworthy? | Check catch-up, multiple tabs, repeated reconnects, device switching and visible reward timing |
 | Can the economy support competition? | Decide which ownership/reward transactions need server verification before expanding player-versus-player stakes |
 | What makes Mythicals special? | Build original authored identities with recognizable silhouettes and behavior, not only larger numbers |
-| Is there enough narrative texture? | Use rare contextual dialogue, small journal moments, map landmarks and character quirks without mechanical repetition |
+| Is there enough narrative texture? | Use rare contextual dialogue, small quest moments, map landmarks and character quirks without mechanical repetition |
 
 ## Possible future work
 
 Server saves and an authenticated economy would improve cross-device play, competitive fairness and durable ownership. Timestamp-based authoritative progression or scheduled server simulation are both options; the choice should follow expected scale, cost and required fidelity. Do not introduce heavy infrastructure before the owner knows the problem it solves.
 
-Other useful directions include richer class choices, more distinct companion behavior, camp construction depth, authored encounters, biome-specific movement/projectiles, better map boss silhouettes, deeper relationship interactions, accessibility settings, optional gore controls, stronger asset variety and easier content authoring. The owner has chosen Evernight and permanent-night camp-horror lore. Public game sharing, an open-source license and any monetization model remain undecided.
+Other useful directions include richer class choices, more distinct companion behavior, camp construction depth, authored encounters, biome-specific movement/projectiles, better map boss silhouettes, accessibility settings, optional gore controls, stronger asset variety and easier content authoring. The owner has chosen Evernight and permanent-night camp-horror lore. Public game sharing, an open-source license and any monetization model remain undecided.
 
 Balance constants are provisional. Content counts and release snapshots describe what exists now rather than promising a permanent campaign structure. Treat new user feedback as steering, update this document when goals shift, and keep the code/documentation usable by a future human or agent.
 
@@ -67,3 +67,7 @@ Every return should feel like approaching an empty fire, then revealing the play
 ## Living in the Camp — 0.5
 
 Preserve immersion when moving people and belongings: scene updates must not flash or replay introductions. A larger, detailed environment grounds services in baked terrain and shadows. Tutorial lessons wait for the player’s acknowledgement and provide small rewards; the final goal leads to ordinary play without an arbitrary Journal action. The town holds recruitment, quests, trade and challenges, while the late Arena is its own place. Journal is a record of known commitments; Crossroads is the clear path from an expedition overview to road choice and party choice. Class development should read as a connected RPG tree.
+
+## A darker home — 0.6
+
+The owner wants static scenery to feel alive through restrained water and synchronized firelight. Buildings and bonfire belong to the ground, with only affected environment pieces replaced when the Camp changes. Live actors cast readable, fading shadows. Tutorial guidance should not repeat information already opened by a taught action. Character attachment comes through identity, equipment, attributes and talents; memories and friendship features are removed.

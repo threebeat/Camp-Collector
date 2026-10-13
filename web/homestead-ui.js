@@ -1,35 +1,35 @@
-import { mountCampBackground } from "./camp-background.js?v=19";
+import { mountCampBackground } from "./camp-background.js?v=20";
 import {
   TOWN_NPCS,
   BARTENDER,
   npcHero,
   npcQuestOffers,
-} from "./town-npcs.js?v=19";
-import { hasCost, buildingAllowed } from "./camp.js?v=19";
-import { campProgress } from "./evernight.js?v=19";
-import { learningLocked } from "./onboarding.js?v=19";
-import { mapAssetMarkup, prerenderedBuildingSvg } from "./map-assets.js?v=19";
+} from "./town-npcs.js?v=20";
+import { hasCost, buildingAllowed } from "./camp.js?v=20";
+import { campProgress } from "./evernight.js?v=20";
+import { learningLocked } from "./onboarding.js?v=20";
+import { mapAssetMarkup, prerenderedBuildingSvg } from "./map-assets.js?v=20";
 import {
   CAMP_WORLD,
   CAMP_ANCHORS,
   CAMP_PLOTS,
   CAMP_VENDORS,
   revealedCampAreas,
-} from "./camp-world.js?v=19";
-import { BUILDINGS } from "./world.js?v=19";
-import { VENDORS } from "./data.js?v=19";
-import { available } from "./progression.js?v=19";
-import { vision } from "./lighting.js?v=19";
+} from "./camp-world.js?v=20";
+import { BUILDINGS } from "./world.js?v=20";
+import { VENDORS } from "./data.js?v=20";
+import { available } from "./progression.js?v=20";
+import { vision } from "./lighting.js?v=20";
 import {
   pixelPropSvg,
   pixelJournalSvg,
   pixelCampGroundSvg,
   pixelBuildingSvg,
   pixelTerrainSvg,
-} from "./pixel-art.js?v=19";
-import { portraitSvg } from "./art.js?v=19";
-import { pixelMarkup } from "./pixel-markup.js?v=19";
-import { WorldCamera, attachCameraInput } from "./camera.js?v=19";
+} from "./pixel-art.js?v=20";
+import { portraitSvg } from "./art.js?v=20";
+import { pixelMarkup } from "./pixel-markup.js?v=20";
+import { WorldCamera, attachCameraInput } from "./camera.js?v=20";
 const views = new Map();
 let ground = null;
 export function createHomesteadUi(c) {
@@ -41,12 +41,7 @@ export function createHomesteadUi(c) {
     const g = getGame();
     ground ||= mapAssetMarkup("camp");
     const buildings = Object.entries(CAMP_ANCHORS)
-      .filter(
-        ([key]) =>
-          !["storage", "questboard"].includes(key) &&
-          g.buildings[key] &&
-          !(key === "pantry" && g.buildings.kitchen),
-      )
+      .filter(([key]) => !["storage", "questboard"].includes(key))
       .map(([key, [x, y]]) => {
         const name =
           key === "tent" && g.buildings.tent > 1
@@ -57,17 +52,16 @@ export function createHomesteadUi(c) {
         const attrs =
           key === "market" ? "data-market-visit" : `data-building="${key}"`;
         const upgrades = Object.entries(BUILDINGS)
-          .filter(([id, d]) => d.upgradeFrom === key && !g.buildings[id])
+          .filter(([id, d]) => d.upgradeFrom === key)
           .map(
             ([id]) =>
               `<span class="build-ready-dot" data-build-dot="${id}" hidden aria-label="Upgrade available"></span>`,
           )
           .join("");
         return button(
-          `${key === "bonfire" ? pixelBuildingSvg("bonfire") : `<span class="building-hit-area" aria-hidden="true"></span>`}<strong>${name}</strong>${upgrades}`,
-          `${attrs} data-drop-target="building:${key}" data-scene-key="${key}" data-world-x="${x}" data-world-y="${y}" style="left:${x}px!important;top:${y}px!important" aria-label="Open ${name}"`,
-          "world-building camp-building built " +
-            (key !== "bonfire" ? "baked-building " : "") +
+          `<span class="building-hit-area" aria-hidden="true"></span><strong>${name}</strong>${upgrades}`,
+          `${attrs} ${!g.buildings[key] || (key === "pantry" && g.buildings.kitchen) ? "hidden" : ""} data-drop-target="building:${key}" data-scene-key="${key}" data-world-x="${x}" data-world-y="${y}" style="left:${x}px!important;top:${y}px!important" aria-label="Open ${name}"`,
+          "world-building camp-building built baked-building " +
             (key === "guildhall" && g.roster.length < 6 ? " guild-locked" : ""),
         );
       })
@@ -78,11 +72,10 @@ export function createHomesteadUi(c) {
       south: [1960, 1560],
     };
     const plots = Object.entries(plotMarkers)
-      .filter(([key]) => !g.campExpansions.includes(key))
       .map(([key, [x, y]]) =>
         button(
           `Clear ${key} plot`,
-          `data-expand-camp="${key}" style="left:${x}px;top:${y}px"`,
+          `data-expand-camp="${key}" ${g.campExpansions.includes(key) ? "hidden" : ""} style="left:${x}px;top:${y}px"`,
           "world-plot",
         ),
       )
@@ -122,36 +115,26 @@ export function createHomesteadUi(c) {
       )
       .join("");
     const sites = Object.entries(CAMP_ANCHORS)
-      .filter(([key, [x, y]]) => {
+      .filter(([key]) => {
         const d = BUILDINGS[key];
-        return (
-          d?.cost &&
-          !d.legacy &&
-          !d.upgradeFrom &&
-          !g.buildings[key] &&
-          !(key === "pantry" && g.buildings.kitchen) &&
-          buildingAllowed(g, d) &&
-          revealedCampAreas(g).some((a) => Math.hypot(x - a.x, y - a.y) < a.r)
-        );
+        return d?.cost && !d.legacy && !d.upgradeFrom;
       })
       .map(([key, [x, y]]) =>
         button(
           `${BUILDINGS[key].name} site<span class="build-ready-dot" data-build-dot="${key}" hidden aria-label="Available to build"></span>`,
-          `data-building="${key}" data-build-site="${key}" style="left:${x}px;top:${y}px"`,
+          `data-build-site="${key}" hidden style="left:${x}px;top:${y}px"`,
           "world-plot build-site",
         ),
       )
       .join("");
-    const portal = g.portalUnlocked
-      ? button(
-          pixelBuildingSvg("portal") + "<strong>Portal mage</strong>",
-          'data-portal data-scene-key="portal" data-world-x="2100" data-world-y="650" style="left:2100px;top:650px"',
-          "world-building",
-        )
-      : "";
+    const portal = button(
+      '<span class="building-hit-area" aria-hidden="true"></span><strong>Portal mage</strong>',
+      `data-portal ${g.portalUnlocked ? "" : "hidden"} data-scene-key="portal" data-world-x="2100" data-world-y="650" style="left:2100px;top:650px"`,
+      "world-building baked-building",
+    );
     return viewport(
       "camp",
-      `<div class="world-ground pixel-ground">${ground}</div>${buildings}${residents}${props}${sites}${portal}${plots}${townPeople("camp")}${g.buildings.dock ? button("The Bell Beneath · 25 floors", 'data-island-preview style="left:1910px;top:1780px"', "world-plot island-sign") : ""}`,
+      `<div class="world-ground pixel-ground">${ground}</div>${buildings}${residents}${props}${sites}${portal}${plots}${townPeople("camp")}${button("The Bell Beneath · 25 floors", `data-island-preview ${g.buildings.dock ? "" : "hidden"} style="left:1910px;top:1780px"`, "world-plot island-sign")}`,
       CAMP_WORLD.width,
       CAMP_WORLD.height,
       CAMP_WORLD.center,
@@ -180,13 +163,12 @@ export function createHomesteadUi(c) {
   }
   function townPeople(map) {
     const g = getGame();
-    if (!g.buildings.tavern) return "";
     return TOWN_NPCS.filter((n) => n.map === map)
       .map((n) =>
         button(
           portraitSvg(npcHero(n), true) +
             `<span class="npc-quest-mark" data-npc-mark="${n.id}" ${npcQuestOffers(g, n.id).length ? "" : "hidden"}>?</span><strong>${n.name}</strong>`,
-          `data-town-npc="${n.id}" style="left:${n.x}px;top:${n.y}px" aria-label="Talk to ${n.name}, ${n.role}"`,
+          `data-town-npc="${n.id}" ${g.buildings.tavern ? "" : "hidden"} style="left:${n.x}px;top:${n.y}px" aria-label="Talk to ${n.name}, ${n.role}"`,
           "town-npc",
         ),
       )
@@ -194,6 +176,33 @@ export function createHomesteadUi(c) {
   }
   function sync() {
     const g = getGame();
+    const world = document.querySelector(".camp-map");
+    if (world) {
+      mountCampBackground(world, g);
+      world.querySelectorAll("[data-scene-key]").forEach((el) => {
+        const key = el.dataset.sceneKey;
+        el.hidden =
+          key === "portal"
+            ? !g.portalUnlocked
+            : !g.buildings[key] || (key === "pantry" && !!g.buildings.kitchen);
+        if (key === "tent")
+          el.querySelector("strong").textContent =
+            g.buildings.tent > 1 ? "Character cabin" : "Character tent";
+        if (key === "guildhall")
+          el.classList.toggle("guild-locked", g.roster.length < 6);
+      });
+      world
+        .querySelectorAll("[data-town-npc]")
+        .forEach((el) => (el.hidden = !g.buildings.tavern));
+      world
+        .querySelectorAll("[data-expand-camp]")
+        .forEach(
+          (el) =>
+            (el.hidden = g.campExpansions.includes(el.dataset.expandCamp)),
+        );
+      const island = world.querySelector("[data-island-preview]");
+      if (island) island.hidden = !g.buildings.dock;
+    }
     document.querySelectorAll("[data-world-resident]").forEach((el) => {
       if (
         el.classList.contains("picked-up") ||
@@ -240,6 +249,7 @@ export function createHomesteadUi(c) {
       const key = el.dataset.buildDot,
         d = BUILDINGS[key];
       el.hidden =
+        !!g.buildings[key] ||
         !hasCost(g, d.cost) ||
         !buildingAllowed(g, d) ||
         (d.minCampLevel && campProgress(g).level < d.minCampLevel) ||
@@ -248,9 +258,14 @@ export function createHomesteadUi(c) {
           !(g.learning.stage === "build" && key === "pantry"));
     });
     document.querySelectorAll("[data-build-site]").forEach((el) => {
+      const key = el.dataset.buildSite,
+        [x, y] = CAMP_ANCHORS[key];
       el.hidden =
-        el.dataset.buildSite !== "pantry" &&
-        !!el.querySelector("[data-build-dot]")?.hidden;
+        !!g.buildings[key] ||
+        (key === "pantry" && !!g.buildings.kitchen) ||
+        !buildingAllowed(g, BUILDINGS[key]) ||
+        !revealedCampAreas(g).some((a) => Math.hypot(x - a.x, y - a.y) < a.r) ||
+        (key !== "pantry" && !!el.querySelector("[data-build-dot]")?.hidden);
     });
     document.querySelectorAll("[data-npc-mark]").forEach((el) => {
       el.hidden = !npcQuestOffers(g, el.dataset.npcMark).length;
@@ -432,7 +447,11 @@ export function createHomesteadUi(c) {
     const el =
       key === "resident"
         ? document.querySelector(".world-resident")
-        : document.querySelector(`[data-building="${key}"]`);
+        : [
+            ...document.querySelectorAll(
+              `[data-building="${key}"], [data-build-site="${key}"]`,
+            ),
+          ].find((el) => !el.hidden);
     el?.classList.add("lesson-target");
     setTimeout(() => el?.classList.remove("lesson-target"), 3500);
   }

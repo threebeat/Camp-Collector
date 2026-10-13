@@ -170,40 +170,51 @@ test("a map drag suppresses service activation, arrow keys pan, and wheel zoom u
   handlers.wheel({ ...event(200, 200), deltaY: -100 });
   assert.ok(camera.width < width);
 });
-test("Camp residents cast shadows and emit light only with a light item; the bonfire is the dominant source", () => {
+test("Camp residents cast visible fire shadows and only equipped lamps add moving ground light", () => {
   const original = globalThis.document;
   globalThis.document = {
     createElement: () => {
       const c = createCanvas(1, 1);
       c.setAttribute = () => {};
+      c.dataset = {};
+      c.style = {};
       return c;
     },
   };
   try {
-    const fire = {
-        dataset: { sceneKey: "bonfire", worldX: "900", worldY: "650" },
+    const hero = {
+      dataset: { hero: "camp-hero", lightRadius: "0" },
+      style: {
+        left: "1740px",
+        top: "1220px",
+        setProperty(k, v) {
+          this[k] = v;
+        },
       },
-      hero = {
-        dataset: { lightRadius: "0" },
-        style: { left: "820px", top: "780px" },
-      };
-    const el = {
-      dataset: { worldWidth: "1800", worldHeight: "1400", localMap: "camp" },
-      appendChild() {},
-      querySelectorAll: (q) => (q.includes("scene-key") ? [fire] : [hero]),
     };
-    const light = new SceneLighting(el, fresh());
+    const el = {
+      dataset: { worldWidth: "3000", worldHeight: "2200", localMap: "camp" },
+      style: { setProperty() {} },
+      appendChild() {},
+      querySelector: () => null,
+      querySelectorAll: (q) => (q.includes("scene-key") ? [] : [hero]),
+    };
+    const g = fresh();
+    g.settings.reducedMotion = true;
+    const light = new SceneLighting(el, g);
     light.draw(1);
     assert.equal(light.staticLights.length, 1);
     assert.ok(light.staticLights[0].r >= 420);
-    assert.equal(light.scene.map.objects.filter((o) => o.r === 9).length, 1);
-    const dark = light.light.mask.getContext("2d").getImageData(102, 97, 1, 1)
-      .data[3];
+    const ctx = light.canvas.getContext("2d");
+    assert.ok(
+      ctx.getImageData(875, 625, 1, 1).data[3] > 40,
+      "fire projects a visible ground shadow",
+    );
+    const dark = ctx.getImageData(885, 595, 1, 1).data[3];
     hero.dataset.lightRadius = "190";
     light.draw(2);
-    const lit = light.light.mask.getContext("2d").getImageData(102, 97, 1, 1)
-      .data[3];
-    assert.ok(lit <= dark);
+    const lit = ctx.getImageData(885, 595, 1, 1).data[3];
+    assert.ok(lit > dark, "equipped lamp adds light");
   } finally {
     globalThis.document = original;
   }

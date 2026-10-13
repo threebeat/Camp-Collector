@@ -319,7 +319,11 @@ class BrowserImage extends (native?.Image || class {}) {
   set src(v) {
     super.src = v.startsWith("data:image/svg+xml")
       ? Buffer.from(decodeURIComponent(v.slice(v.indexOf(",") + 1)))
-      : v;
+      : v.startsWith("/map-")
+        ? readFileSync(
+            new URL("../web/" + v.slice(1).split("?")[0], import.meta.url),
+          )
+        : v;
   }
   get src() {
     return super.src;
@@ -456,9 +460,6 @@ test(
       await click('[data-building="tent"]');
       assert.equal(state().learning.stage, "move");
       await click("[data-lesson-continue]");
-      await click('[data-world-resident="0"]');
-      await click("[data-resident-info]");
-      await click("[data-lesson-continue]");
       assert.equal(state().learning.stage, "crossroads");
       assert.equal(root.querySelector(".company-section"), null);
       assert.equal(root.querySelector("[data-card-hp]"), null);
@@ -467,7 +468,11 @@ test(
 
       await click('[data-building="tent"]');
       await click('[data-profile="' + first + '"]');
-      assert.match(get("#modal-content").innerHTML, /Add a memory/);
+      assert.match(get("#modal-content").innerHTML, /profile-talents/);
+      assert.doesNotMatch(
+        get("#modal-content").innerHTML,
+        /Memories|Friends|data-memory/,
+      );
       await click("[data-close]");
 
       await click('[data-building="crossroads"]');

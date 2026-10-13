@@ -36,7 +36,7 @@ Dispatch changes through `web/simulation.js`; do not mutate view snapshots. Nigh
 
 `scripts/build.mjs` uses esbuild to resolve the Worker module graph and embeds native browser modules/CSS into the asset map. `dist/` is generated and ignored. The `evernight-worker` CI artifact contains the built Worker, manifest and append-only database migration files. CI does not itself change the production Site.
 
-Asset queries use `?v=19`; save version/key remain 12. Changing asset cache URLs never authorizes deleting progress. The current version-12 season is `camp-fresh-2026-10-11` and the key is `camp-collector-v12`. Version 0.14 adds Camp XP, meals, lights, guild standing, wagers, settings and expanded class branches; 0.13 added an empty Boots slot. Existing paid Outfitter construction becomes the Equipment Workshop.
+Asset queries use `?v=20`; save version/key remain 12. Changing asset cache URLs never authorizes deleting progress. The current version-12 season is `camp-fresh-2026-10-11` and the key is `camp-collector-v12`. Version 0.14 adds Camp XP, meals, lights, guild standing, wagers, settings and expanded class branches; 0.13 added an empty Boots slot. Existing paid Outfitter construction becomes the Equipment Workshop.
 
 ## Production deployment
 
@@ -54,6 +54,6 @@ Deploying elsewhere requires an equivalent trusted identity boundary, D1-compati
 
 The old v12 reset was explicitly authorized at that time. `drizzle/0001_fresh_camps.sql` is already applied to the existing Site and must not be edited/reused as a new wipe. All SQL migrations are append-only. Versions 0.13 and 0.14 introduce no database migration and no reset. Code rollback does not undo a destructive database migration.
 
-Preserve IDs, names, favorites, journals, bonds, belongings, claims and active-party checkpoints. Use focused tests for genuine behavior changes. Record observed browser results separately from assumed physical-device behavior. Before release, update current-game rules, release notes, generated reference and the next-agent handoff.
+Preserve IDs, names, favorites, inert legacy social records, belongings, claims and active-party checkpoints. Use focused tests for genuine behavior changes. Record observed browser results separately from assumed physical-device behavior. Before release, update current-game rules, release notes, generated reference and the next-agent handoff.
 
-The current public/package release is 0.5.0, the persistent Camp and generated-map release. Browser cache URLs are v19; this does not change save version 12. For sprite grids, palette, provenance and new-content maintenance, read PIXEL_ART.md. Keep dense sprites compacted through pixelMarkup at HTML boundaries and retain inline currentColor icons. Native canvas checks validate sprites and light geometry; use the supported remote browser pipeline for actual viewport/layout checks.
+The current public/package release is 0.6.0, the darker living Camp release. Browser cache URLs are v20; this does not change save version 12. For sprite grids, palette, provenance and new-content maintenance, read PIXEL_ART.md. Keep dense sprites compacted through pixelMarkup at HTML boundaries and retain inline currentColor icons. Native canvas checks validate sprites and light geometry; use the supported remote browser pipeline for actual viewport/layout checks.

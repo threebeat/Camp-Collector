@@ -214,18 +214,26 @@ test("the Kitchen upgrades the Pantry in place, keeps food shopping and makes si
   assert.equal(g.consumables.stew, 1);
   assert.equal(g.consumables.tea, 1);
 });
-test("tent memories and reciprocal friendships survive migration and HTML remains plain text", () => {
+test("retired social commands cannot alter characters; legacy records survive migration", () => {
   const g = funded(),
     [h, f] = g.roster;
-  assert.ok(Night.addMemory(g, h, "<script>the fire survived</script>"));
-  assert.ok(Night.befriend(g, h, f.id));
-  assert.equal(Night.befriend(g, h, f.id), false);
-  const loaded = P.migrateSave(g);
+  h.journal = [{ text: "An old saved memory.", at: NOW }];
+  h.bonds[f.id] = 2;
+  const sim = new ExpeditionSimulation(g, NOW),
+    before = JSON.stringify(sim.g.roster.map((h) => [h.journal, h.bonds]));
   assert.equal(
-    loaded.roster[0].journal[0].text,
-    "Shared a first story with " + f.name + " by the fire.",
+    sim.action("memory", { id: h.id, text: "New entry" }, NOW).ok,
+    false,
   );
-  assert.equal(loaded.roster[1].bonds[h.id], 1);
+  assert.equal(
+    sim.action("befriend", { id: h.id, friend: f.id }, NOW).ok,
+    false,
+  );
+  const loaded = P.migrateSave(sim.snapshot().game);
+  assert.equal(
+    JSON.stringify(loaded.roster.map((h) => [h.journal, h.bonds])),
+    before,
+  );
   assert.equal(loaded.roster[0].id, h.id);
 });
 test("neutral arrivals have stable identities, recruit once and dock ships are Legendary or authored Mythical", () => {
@@ -255,8 +263,8 @@ test("v12 migration preserves identity, collections, checkpoints and paid Outfit
     h = g.roster[0];
   Camp.nameCamp(g, "Keep the Fire");
   h.favorite = true;
-  Night.befriend(g, h, g.roster[1].id);
-  Night.addMemory(g, h, "Remember this.");
+  h.bonds[g.roster[1].id] = 1;
+  h.journal = [{ text: "Remember this.", at: NOW }];
   g.buildings.outfitter = 1;
   P.stageCrossroads(g);
   P.lockRoute(g);

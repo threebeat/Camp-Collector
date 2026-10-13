@@ -1,11 +1,11 @@
-import { pixelBuildingSvg } from "./pixel-art.js?v=19";
-import { portraitSvg, icon } from "./art.js?v=19";
-import { pixelMarkup } from "./pixel-markup.js?v=19";
+import { pixelBuildingSvg } from "./pixel-art.js?v=20";
+import { portraitSvg, icon } from "./art.js?v=20";
+import { pixelMarkup } from "./pixel-markup.js?v=20";
 import {
   learningLocked,
   learningReady,
   LESSON_REWARD,
-} from "./onboarding.js?v=19";
+} from "./onboarding.js?v=20";
 
 const story = [
   [
@@ -29,12 +29,7 @@ const lessons = {
   ],
   move: [
     "A helping hand",
-    "Drag an adventurer onto the Character tent to open it for them. You can also select a hero, then select a building.",
-    "resident",
-  ],
-  profile: [
-    "Meet your company",
-    "Open a hero’s Info to see equipment, carried light, abilities and memories.",
+    "Drag an adventurer onto the Character tent to see their information and equipment. You can also select a hero, then select a building.",
     "resident",
   ],
   crossroads: [

@@ -163,3 +163,7 @@ Near lower-left place a ruined sun temple with broken stepped terraces overtaken
 Keep this a coherent high-aerial whole-region map, not a side-view painting. Jungle margins are dense but include many varying clearings and natural corridors to support future route-marker overlays. Temple structures are stately environmental ruins, never detached isolated icons. Static shadows should feel soft and grounded. 
 Constraints: NO labels, NO text of any kind, NO symbols or markers, NO node circles, NO badges, NO arrows, NO route-network linework, NO dotted roads or highlighted roads, NO compass rose, NO legend, NO border, NO map UI, NO characters or creatures, NO loose movable props. Do not draw connection lines: the application will add all route paths. All pixels are part of the terrain art. The finished result must feel like a lovingly handcrafted premium RPG region, markedly richer than a procedural placeholder.
 ```
+
+## 0.6 rendering additions
+
+The generated image bytes are unchanged. The game now applies a dark ambient grade, composites static buildings and a code-authored stone hearth into cached local scenery, and derives the warm firelight patch from that scenery. Code-native ripple and waterfall animation is registered to this image at 1468×1071 coordinates, with clipped banks and exclusions for the lake island/rocks. No new generated-image provenance is required.

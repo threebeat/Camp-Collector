@@ -1,15 +1,15 @@
-import { TOWN_NPCS, npcQuestOffers } from "./town-npcs.js?v=19";
-import * as Tavern from "./tavern.js?v=19";
-import { createGameShell } from "./game-shell.js?v=19";
-import { learningLocked } from "./onboarding.js?v=19";
-import { createHomesteadUi } from "./homestead-ui.js?v=19";
-import { CAMP_VENDORS } from "./camp-world.js?v=19";
-import * as Ever from "./evernight.js?v=19";
-import { createEvernightUi } from "./evernight-ui.js?v=19";
-import { vision, revealed } from "./lighting.js?v=19";
-import * as Night from "./nightfall.js?v=19";
-import { createNightfallUi } from "./nightfall-ui.js?v=19";
-import { regionLandmarks } from "./landmarks.js?v=19";
+import { TOWN_NPCS, npcQuestOffers } from "./town-npcs.js?v=20";
+import * as Tavern from "./tavern.js?v=20";
+import { createGameShell } from "./game-shell.js?v=20";
+import { learningLocked } from "./onboarding.js?v=20";
+import { createHomesteadUi } from "./homestead-ui.js?v=20";
+import { CAMP_VENDORS } from "./camp-world.js?v=20";
+import * as Ever from "./evernight.js?v=20";
+import { createEvernightUi } from "./evernight-ui.js?v=20";
+import { vision, revealed } from "./lighting.js?v=20";
+import * as Night from "./nightfall.js?v=20";
+import { createNightfallUi } from "./nightfall-ui.js?v=20";
+import { regionLandmarks } from "./landmarks.js?v=20";
 import {
   GAME_SEASON,
   MYTHICAL_HEROES,
@@ -77,10 +77,10 @@ import {
   objectModifiers,
   modifierPool,
   petInfo,
-} from "./data.js?v=19";
-import { Battle, distance } from "./engine.js?v=19";
-import { Renderer } from "./renderer.js?v=19";
-import { icon, portraitSvg, petSvg, itemSvg, cosmeticSvg } from "./art.js?v=19";
+} from "./data.js?v=20";
+import { Battle, distance } from "./engine.js?v=20";
+import { Renderer } from "./renderer.js?v=20";
+import { icon, portraitSvg, petSvg, itemSvg, cosmeticSvg } from "./art.js?v=20";
 import {
   activeExpeditions,
   expeditionSlots,
@@ -94,8 +94,8 @@ import {
   stockResetAt,
   trialInfo,
   trialClaimKey,
-} from "./progression.js?v=19";
-import * as Camp from "./camp.js?v=19";
+} from "./progression.js?v=20";
+import * as Camp from "./camp.js?v=20";
 import {
   BUILDINGS,
   BRANCHES,
@@ -106,8 +106,8 @@ import {
   CALENDAR_BONUSES,
   COOKING,
   BREWS,
-} from "./world.js?v=19";
-import { CODEX } from "./codex.js?v=19";
+} from "./world.js?v=20";
+import { CODEX } from "./codex.js?v=20";
 import {
   REGIONS,
   REGION_ORDER,
@@ -121,22 +121,22 @@ import {
   questState,
   activeQuests,
   bossDefeated,
-} from "./journeys.js?v=19";
-import { attachResidentDragging } from "./map-interaction.js?v=19";
-import { createClient } from "./client.js?v=19";
-import { CampChatter } from "./chatter.js?v=19";
-import { exportCamp, readCampBackup } from "./saves.js?v=19";
+} from "./journeys.js?v=20";
+import { attachResidentDragging } from "./map-interaction.js?v=20";
+import { createClient } from "./client.js?v=20";
+import { CampChatter } from "./chatter.js?v=20";
+import { exportCamp, readCampBackup } from "./saves.js?v=20";
 import {
   BattleSelection,
   attachBattleGestures,
-} from "./battle-interaction.js?v=19";
+} from "./battle-interaction.js?v=20";
 import {
   pixelBuildingSvg,
   pixelTerrainSvg,
   pixelPropSvg,
-} from "./pixel-art.js?v=19";
-import { pixelMarkup } from "./pixel-markup.js?v=19";
-import { SceneLighting } from "./scene-lighting.js?v=19";
+} from "./pixel-art.js?v=20";
+import { pixelMarkup } from "./pixel-markup.js?v=20";
+import { SceneLighting } from "./scene-lighting.js?v=20";
 let sceneLights = [];
 const battleSelection = new BattleSelection();
 const campChatter = new CampChatter();
@@ -1213,7 +1213,7 @@ function reviewCombine(h, donor) {
   openModal(
     "Carry their story forward?",
     `${h.name} will inherit ${CLASSES[donor.classId].ability}.`,
-    `<div class="modal-note"><strong>${esc(donor.name)} will permanently leave the collection.</strong><p>Their equipment and companion return to storage. ${esc(h.name)} keeps their identity, memories, and ${donor.name.replace(/[<>&]/g, "")}’s ability.</p><p>80 gold + 3 gems</p></div>`,
+    `<div class="modal-note"><strong>${esc(donor.name)} will permanently leave the collection.</strong><p>Their equipment and companion return to storage. ${esc(h.name)} keeps their identity and inherits ${donor.name.replace(/[<>&]/g, "")}’s ability.</p><p>80 gold + 3 gems</p></div>`,
     button("Keep both", "data-close", "secondary-button") +
       button("Confirm combination", 'id="confirm-combine"'),
   );
@@ -1857,6 +1857,7 @@ function bindActions(root = document) {
     }
     showBuilding(b.dataset.building);
   });
+  bind("[data-build-site]", (b) => showBuilding(b.dataset.buildSite));
   bind("[data-world-prop]", (b) => {
     if (b.dataset.ignoreClick !== "yes" && b.dataset.propKind === "torch")
       act("toggleProp", { id: b.dataset.worldProp });
@@ -2559,17 +2560,12 @@ function onUpdate(data) {
   const next = mapScreen
     ? [
         game.screen,
-        JSON.stringify(game.buildings),
-        JSON.stringify(game.campExpansions),
-        Ever.campProgress(game).level,
         game.roster
           .filter((h) => available(game, h))
           .slice(0, 6)
           .map((h) => h.id)
           .join(),
         game.tavern?.stock.map((o) => o.id).join(),
-        game.portalUnlocked,
-        game.roster.length >= 6,
       ].join("|")
     : [
         game.screen,
@@ -2615,7 +2611,10 @@ function onUpdate(data) {
     lastDetail = performance.now();
     updateDetailLive();
   }
-  if (mapScreen) homeUi.sync();
+  if (mapScreen) {
+    homeUi.sync();
+    for (const light of sceneLights) light.sync(game);
+  }
   gameShell.update();
   updateHud(!!data.requestId);
   $("save-status").textContent = data.storageFailed
@@ -2685,8 +2684,6 @@ function showBuilding(key, id) {
     );
     return;
   }
-  if (key === "tent" && id && game.learning?.stage === "profile")
-    act("learningEvent", { event: "profile", id });
   if (key === "pantry" && game.buildings.kitchen) {
     showKitchen();
     return;
@@ -3573,7 +3570,7 @@ function regionMap() {
         questState(game, q).unlocked &&
         (q.id === game.trackedQuest || game.questPins.includes(q.id)),
     );
-  return `<section class="route-map-shell"><div class="map-toolbar"><span>${LOCATIONS[loc].name} · ${seen.size} / ${region.nodes.length} discovered</span><div>${button("−", 'data-map-zoom="-1" aria-label="Zoom out"', "icon-button")}${button("+", 'data-map-zoom="1" aria-label="Zoom in"', "icon-button")}${button("Fit map", "data-map-fit", "secondary-button")}</div></div><div class="region-map-viewport" id="region-map-viewport"><div class="region-map" style="--map-scale:${mapZoom};--map-tint:${LOCATIONS[loc].color}" aria-label="${LOCATIONS[loc].name} local roads"><svg viewBox="0 0 900 1300" preserveAspectRatio="none" aria-hidden="true"><image href="/map-route-${loc}-v05.svg?v=19" width="900" height="1300" preserveAspectRatio="none"/>${region.roads.map((e) => `<path d="${roadPath(region, e)}" fill="none" stroke="#c3ab79" stroke-opacity=".65" stroke-width="5" stroke-linecap="round" stroke-dasharray="${e.style === "wild" ? "3 17" : "none"}"/>`).join("")}${routes
+  return `<section class="route-map-shell"><div class="map-toolbar"><span>${LOCATIONS[loc].name} · ${seen.size} / ${region.nodes.length} discovered</span><div>${button("−", 'data-map-zoom="-1" aria-label="Zoom out"', "icon-button")}${button("+", 'data-map-zoom="1" aria-label="Zoom in"', "icon-button")}${button("Fit map", "data-map-fit", "secondary-button")}</div></div><div class="region-map-viewport" id="region-map-viewport"><div class="region-map" style="--map-scale:${mapZoom};--map-tint:${LOCATIONS[loc].color}" aria-label="${LOCATIONS[loc].name} local roads"><svg viewBox="0 0 900 1300" preserveAspectRatio="none" aria-hidden="true"><image href="/map-route-${loc}-v05.svg?v=20" width="900" height="1300" preserveAspectRatio="none"/>${region.roads.map((e) => `<path d="${roadPath(region, e)}" fill="none" stroke="#c3ab79" stroke-opacity=".65" stroke-width="5" stroke-linecap="round" stroke-dasharray="${e.style === "wild" ? "3 17" : "none"}"/>`).join("")}${routes
     .filter((r) => r.index === (d?.routeIndex ?? 0))
     .map(
       (r) =>
@@ -3724,7 +3721,7 @@ function v7Detail() {
       )
       .join(
         "",
-      )}</div></div><div class="detail-section"><div class="detail-section-label">Talents</div><div class="detail-chip-list">${(h.talents || []).map((t, i) => button(esc(talentInfo(t).name), `data-explain="talent" data-index="${i}"`, "detail-chip")).join("") || '<span class="small">No training yet.</span>'}</div></div><div class="detail-section"><div class="detail-section-label">Companion</div>${h.companion ? button(`${petSvg(h.companion)}<strong>${esc(evolutionName(h.companion, "pet"))}</strong>`, 'data-explain="pet" data-index="0"', "pet-detail detail-chip") : '<p class="small">No companion. Meet friends in the Character tent.</p>'}</div></div>`,
+      )}</div></div><div class="detail-section"><div class="detail-section-label">Talents</div><div class="detail-chip-list">${(h.talents || []).map((t, i) => button(esc(talentInfo(t).name), `data-explain="talent" data-index="${i}"`, "detail-chip")).join("") || '<span class="small">No training yet.</span>'}</div></div><div class="detail-section"><div class="detail-section-label">Companion</div>${h.companion ? button(`${petSvg(h.companion)}<strong>${esc(evolutionName(h.companion, "pet"))}</strong>`, 'data-explain="pet" data-index="0"', "pet-detail detail-chip") : '<p class="small">No companion equipped.</p>'}</div></div>`,
   );
   detailFingerprint = detailKey(h, u);
   bindActions(el);
@@ -3954,7 +3951,7 @@ function reviewClassNode(id, node) {
   openModal(
     n.name,
     "Spend one class point",
-    `<div class="character-preview">${portraitSvg(h)}</div><p class="modal-note">${n.text}</p><p>${n.parent === "root" ? "This talent begins your class tree. Your subclass choice comes next." : h.classPath ? "Choose this fork of your " + path.name + " calling; its sibling will be locked." : "Choosing " + path.name + " locks every other branch. This character keeps their race, name, memories and bonds."}</p>`,
+    `<div class="character-preview">${portraitSvg(h)}</div><p class="modal-note">${n.text}</p><p>${n.parent === "root" ? "This talent begins your class tree. Your subclass choice comes next." : h.classPath ? "Choose this fork of your " + path.name + " calling; its sibling will be locked." : "Choosing " + path.name + " locks every other branch. This character keeps their race, name and equipment."}</p>`,
     button("Keep thinking", "data-close", "secondary-button") +
       button("Learn this node", 'id="confirm-class-node"'),
   );
@@ -4764,8 +4761,6 @@ function showResidentActions(id) {
   popup.querySelector("[data-resident-info]").onclick = () => {
     popup.hidden = true;
     nightUi.showProfile(h);
-    if (game.learning?.stage === "profile")
-      act("learningEvent", { event: "profile", id });
   };
   popup.querySelector("[data-resident-close]").onclick = () => {
     popup.hidden = true;

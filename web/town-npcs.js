@@ -1,6 +1,6 @@
-import { generateHero } from "./data.js?v=19";
-import { seeded } from "./engine.js?v=19";
-import { QUESTS, generatedContracts } from "./journeys.js?v=19";
+import { generateHero } from "./data.js?v=20";
+import { seeded } from "./engine.js?v=20";
+import { QUESTS, generatedContracts } from "./journeys.js?v=20";
 export const TOWN_NPCS = [
   {
     id: "mara",

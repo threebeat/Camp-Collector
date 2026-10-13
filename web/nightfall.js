@@ -1,4 +1,4 @@
-import { fed } from "./evernight.js?v=19";
+import { fed } from "./evernight.js?v=20";
 // Evernight's night-world services. Commands own mutations; views only dispatch.
 import {
   ATTRIBUTES,
@@ -16,14 +16,13 @@ import {
   armorRestriction,
   equipmentRestriction,
   stats,
-  note,
   uid,
   gainFacetXp,
   makeGem,
   heroRarity,
-} from "./data.js?v=19";
-import { idle, campCapacity, payCost, addGems } from "./camp.js?v=19";
-import { seeded } from "./engine.js?v=19";
+} from "./data.js?v=20";
+import { idle, campCapacity, payCost, addGems } from "./camp.js?v=20";
+import { seeded } from "./engine.js?v=20";
 
 export const PROFESSION_NAMES = ["Miner", "Lumberjack", "Hunter"];
 export const professionRank = (a) =>
@@ -119,13 +118,7 @@ export function trainProfession(g, h, key) {
   ];
   g.guildStanding ||= {};
   g.guildStanding[guild] = (g.guildStanding[guild] || 0) + 10;
-  note(
-    h,
-    "Learned " +
-      professionLabel(professions(h).find((a) => a.key === key)) +
-      " at the Guildhall.",
-    g.lastClock,
-  );
+
   return true;
 }
 export function gatherProfessions(g, r, heroes) {
@@ -200,37 +193,7 @@ export function removeAttribute(g, h, key) {
     return false;
   h.attributes = h.attributes.filter((v) => v !== a);
   h.currentHp = Math.min(h.currentHp, stats(h).hp);
-  note(h, "The Lantern Clinic lifted " + key + ".", g.lastClock);
-  return true;
-}
-export function addMemory(g, h, text) {
-  const value = String(text || "")
-    .trim()
-    .replace(/[\x00-\x1f]/g, "")
-    .slice(0, 180);
-  if (g.screen !== "camp" || !g.roster.includes(h) || !value) return false;
-  note(h, value, g.lastClock);
-  return true;
-}
-export function befriend(g, h, id) {
-  const friend = g.roster.find((v) => v.id === id);
-  if (
-    g.screen !== "camp" ||
-    !g.roster.includes(h) ||
-    !idle(g, h) ||
-    !friend ||
-    friend === h ||
-    !idle(g, friend) ||
-    h.bonds[id]
-  )
-    return false;
-  h.bonds[id] = 1;
-  friend.bonds[h.id] = Math.max(1, friend.bonds[h.id] || 0);
-  note(
-    h,
-    "Shared a first story with " + friend.name + " by the fire.",
-    g.lastClock,
-  );
+
   return true;
 }
 export function refreshVisitors(g) {
@@ -315,11 +278,7 @@ export function hireVisitor(g, id) {
   delete h.place;
   delete h.price;
   g.roster.push(h);
-  note(
-    h,
-    "Followed the lanterns to " + (g.campName || "your camp") + ".",
-    g.lastClock,
-  );
+
   return h;
 }
 export function compatibleSlots(h, item) {

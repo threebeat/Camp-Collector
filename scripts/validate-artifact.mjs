@@ -32,13 +32,13 @@ const home = await app.fetch(new Request("https://camp.test/"), {}, {});
 assert.equal(home.status, 200);
 const html = await home.text();
 assert.ok(html.includes('id="brand-name"'));
-assert.ok(html.includes("app.js?v=19"));
+assert.ok(html.includes("app.js?v=20"));
 assert.ok(!html.includes("Little Legends"));
-assert.ok(html.includes("homestead.css?v=19"));
-assert.ok(html.includes("game-shell.css?v=19"));
+assert.ok(html.includes("homestead.css?v=20"));
+assert.ok(html.includes("game-shell.css?v=20"));
 assert.ok(html.includes('id="game-window"'));
 assert.equal(
-  (await app.fetch(new Request("https://camp.test/homestead.css?v=19"), {}, {}))
+  (await app.fetch(new Request("https://camp.test/homestead.css?v=20"), {}, {}))
     .status,
   200,
 );
@@ -81,7 +81,7 @@ for (const path of [
   "client.js",
 ]) {
   const asset = await app.fetch(
-    new Request("https://camp.test/" + path + "?v=19"),
+    new Request("https://camp.test/" + path + "?v=20"),
     {},
     {},
   );
@@ -116,7 +116,7 @@ console.log(
 );
 
 const nightCss = await app.fetch(
-  new Request("https://camp.test/nightfall.css?v=19"),
+  new Request("https://camp.test/nightfall.css?v=20"),
   {},
   {},
 );
@@ -124,7 +124,7 @@ assert.equal(nightCss.status, 200);
 assert.ok((await nightCss.text()).includes("data-allegiance"));
 
 const pixels = await app.fetch(
-  new Request("https://camp.test/pixel.css?v=19"),
+  new Request("https://camp.test/pixel.css?v=20"),
   {},
   {},
 );
@@ -141,7 +141,7 @@ for (const asset of [
   "building-tent",
 ]) {
   const result = await app.fetch(
-    new Request("https://camp.test/map-" + asset + ".svg?v=19"),
+    new Request("https://camp.test/map-" + asset + ".svg?v=20"),
     {},
     {},
   );
@@ -157,7 +157,7 @@ for (const asset of [
   ),
 ]) {
   const result = await app.fetch(
-    new Request("https://camp.test/map-" + asset + "-v05.svg?v=19"),
+    new Request("https://camp.test/map-" + asset + "-v05.svg?v=20"),
     {},
     {},
   );

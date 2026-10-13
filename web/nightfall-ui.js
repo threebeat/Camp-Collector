@@ -1,4 +1,4 @@
-import { vision } from "./lighting.js?v=19";
+import { vision } from "./lighting.js?v=20";
 import {
   CLASSES,
   RACES,
@@ -10,23 +10,24 @@ import {
   equipmentSlots,
   className,
   characterAttributes,
+  talentInfo,
   allGear,
   itemInfo,
   itemRarity,
   RARITIES,
   heroRarity,
   makeItem,
-} from "./data.js?v=19";
-import * as Night from "./nightfall.js?v=19";
-import * as Camp from "./camp.js?v=19";
+} from "./data.js?v=20";
+import * as Night from "./nightfall.js?v=20";
+import * as Camp from "./camp.js?v=20";
 import {
   QUESTS,
   generatedContracts,
   allQuests,
   questState,
   activeQuests,
-} from "./journeys.js?v=19";
-import { portraitSvg, itemSvg, petSvg, icon } from "./art.js?v=19";
+} from "./journeys.js?v=20";
+import { portraitSvg, itemSvg, petSvg, icon } from "./art.js?v=20";
 
 // Screens are separate from the simulation and receive its command boundary.
 export function createNightfallUi(c) {
@@ -88,8 +89,8 @@ export function createNightfallUi(c) {
           ),
         )
         .join("")}</div>
-      <h3>Light & sight</h3>${button((h.light ? itemInfo(h.light).name : "No light") + " · " + vision(h).label + " · " + vision(h).sight + " sight", `data-light-profile="${h.id}"`, "equipment-slot")}<h3>Companion</h3><div class="profile-companion">${h.companion ? petSvg(h.companion) : icon("paw", 42)}<p>${h.companion ? esc(h.companion.key) + " · Lv " + h.companion.level : "There is room for a friend."}</p>${button("Choose companion", `data-service="pet" data-for="${h.id}" ${ready ? "" : "disabled"}`, "secondary-button")}</div>
-      <h3>Attributes & professions</h3><div class="detail-chip-list">${characterAttributes(
+      <h3>Light & sight</h3>${button((h.light ? itemInfo(h.light).name : "No light") + " · " + vision(h).label + " · " + vision(h).sight + " sight", `data-light-profile="${h.id}"`, "equipment-slot")}<h3>Companion</h3><div class="profile-companion">${h.companion ? petSvg(h.companion) : icon("paw", 42)}<p>${h.companion ? esc(h.companion.key) + " · Lv " + h.companion.level : "No companion equipped."}</p>${button("Choose companion", `data-service="pet" data-for="${h.id}" ${ready ? "" : "disabled"}`, "secondary-button")}</div>
+      <section class="profile-attributes" aria-labelledby="profile-attributes-heading"><h3 id="profile-attributes-heading">Attributes & professions</h3><div class="detail-chip-list">${characterAttributes(
         h,
       )
         .map(
@@ -98,30 +99,16 @@ export function createNightfallUi(c) {
         )
         .join(
           "",
-        )}</div><p class="small">Guildhall teaches professions. The Lantern Clinic can lift supernatural Attributes.</p>
-      <h3>Friends</h3><div class="bond-list">${
-        Object.entries(h.bonds)
-          .map(
-            ([id, n]) =>
-              `<p>${esc(hero(id)?.name || "An old friend")} · ${n} shared encounters</p>`,
-          )
-          .join("") || "<p>A first shared story is waiting.</p>"
-      }</div><div class="friend-choices">${g.roster
-        .filter((f) => f !== h && !h.bonds[f.id] && Camp.idle(g, f))
-        .map((f) =>
-          button(
-            "Share a story with " + esc(f.name),
-            `data-befriend="${f.id}" data-for="${h.id}" ${ready ? "" : "disabled"}`,
-            "text-button",
-          ),
-        )
-        .join("")}</div>
-      <h3>Memories</h3><div class="profile-journal">${h.journal
-        .slice(0, 20)
-        .map((e) => `<p>${esc(e.text)}</p>`)
-        .join(
-          "",
-        )}</div><label class="field-label" for="memory-text">Add a memory</label><textarea id="memory-text" class="modal-select" maxlength="180" placeholder="A little moment worth keeping…"></textarea>${button("Keep this memory", `data-memory="${h.id}"`, "secondary-button")}
+        )}</div><p class="small">Guildhall teaches professions. The Lantern Clinic can lift supernatural Attributes.</p></section>
+      <section class="profile-talents" aria-labelledby="profile-talents-heading"><h3 id="profile-talents-heading">Talents</h3><div class="detail-chip-list">${
+        (h.talents || [])
+          .map((t) => {
+            const d = talentInfo(t);
+            return `<span class="detail-chip" title="${esc(d.text)}">${esc(d.name)} · Lv ${t.level}</span>`;
+          })
+          .join("") ||
+        '<p class="small">No talents learned yet. Train at the Training Grounds.</p>'
+      }</div></section>
       <div class="character-service-grid">${button("Growth tables", `data-growth="${h.id}"`, "secondary-button")}${button("Train a stat", `data-service="training" data-for="${h.id}" ${ready ? "" : "disabled"}`, "secondary-button")}${button("Equipment Workshop", 'data-service="armory"', "secondary-button")}${button("Retire adventurer", `data-release="${h.id}" ${!ready || h.favorite || g.roster.length <= 3 ? "disabled" : ""}`, "text-button danger")}</div>`,
       button("← All adventurers", "data-tent-list", "secondary-button"),
     );
@@ -413,29 +400,6 @@ export function createNightfallUi(c) {
         armor: true,
       });
       showArmor(h, +b.dataset.profileArmor);
-    });
-    on("[data-memory]", async (b) => {
-      if (
-        await act(
-          "memory",
-          {
-            id: b.dataset.memory,
-            text: document.getElementById("memory-text").value,
-          },
-          "Memory kept.",
-        )
-      )
-        showProfile(hero(b.dataset.memory));
-    });
-    on("[data-befriend]", async (b) => {
-      if (
-        await act(
-          "befriend",
-          { id: b.dataset.for, friend: b.dataset.befriend },
-          "A first shared story.",
-        )
-      )
-        showProfile(hero(b.dataset.for));
     });
     on("[data-profession]", async (b) => {
       if (

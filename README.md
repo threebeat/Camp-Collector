@@ -27,13 +27,14 @@ npm run test:e2e
 
 GitHub Actions runs model/artifact checks and desktop Chromium, Android Chromium and iPhone WebKit emulation on main pushes and pull requests. It retains the built Worker, browser reports and scene screenshots. See [DEVELOPMENT.md](docs/DEVELOPMENT.md) for publishing and [QA.md](docs/QA.md) for observed results and limits.
 
-## Evernight 0.5
+## Evernight 0.6
 
-- Camp keeps its lit scene mounted when heroes and props move. Ground shadows diffuse to transparent ends.
+- Camp is darker, with a baked stone hearth and firelit ground. Water ripples and waterfalls follow the painting; flames, scenery light and live character light flicker together.
+- Construction and upgrades repaint only local environment pieces. Camp, camera, lighting and unrelated ground remain mounted. Bonfire shadows visibly start at characters’ feet and diffuse outward.
 - A larger generated Camp background combines trees, coherent paths and baked building tiles. Five generated regional maps sit under interactive roads and quest markers.
-- Fifteen persistent tutorial prompts use an explicit Continue, green when ready, and each pays three coins. The combined Fernbridge recovery/recruitment lesson supplies the five wood needed for the Pantry; the final Continue is immediately available.
+- Fourteen persistent tutorial prompts use an explicit Continue, green when ready, and each pays three coins. The combined Fernbridge recovery/recruitment lesson supplies the five wood needed for the Pantry; the final Continue is immediately available.
 - Crossroads opens on expedition status, then leads through fixed route and party planning screens with scrolling inside their panels.
-- The camp menu holds the Journal, Build, Stock, Codex and Shop. Journal lists accepted/reached quests; Tavern NPCs offer new ones. Hero Info uses a desktop side panel and a full phone screen.
+- The camp menu holds the Journal, Build, Stock, Codex and Shop. Journal lists accepted/reached quests; Tavern NPCs offer new ones. Hero Info uses a desktop side panel and a full phone screen, with separate Attributes and Talents. Character memories and friendships are retired.
 - The village contains Tavern, Guild lodge and Trading Post. Drag a hero to the Trading Post for compatible goods and personal equipment comparisons. The bartender hosts daily, monthly and player challenges; a separate northwest Arena becomes buildable at Camp level four.
 - Bonfire class choices form a connected RPG skill tree. Non-combat encounters collect healing and loot automatically and remain visible for five seconds; expedition props stay under fog.
 

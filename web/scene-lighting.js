@@ -1,12 +1,15 @@
-import { PixelLighting } from "./pixel-lighting.js?v=19";
-import { revealedCampAreas } from "./camp-world.js?v=19";
-import { campProgress } from "./evernight.js?v=19";
+import { PixelLighting } from "./pixel-lighting.js?v=20";
+import { revealedCampAreas } from "./camp-world.js?v=20";
+import { bonfireLight, fireFlicker } from "./camp-background.js?v=20";
+import { createCampWater, paintCampWater } from "./camp-water.js?v=20";
 
 // World-space lighting survives camera transforms. Layout is sampled once, not every frame.
 export class SceneLighting {
   constructor(element, game = null) {
     this.element = element;
     this.game = game;
+    this.camp = element.dataset.localMap === "camp";
+    if (this.camp) this.water = createCampWater(element);
     this.width = Number(element.dataset.worldWidth) || 800;
     this.height = Number(element.dataset.worldHeight) || 700;
     this.canvas = document.createElement("canvas");
@@ -27,7 +30,7 @@ export class SceneLighting {
         this.staticLights.push({
           x,
           y: y + 12,
-          r: 420 + Math.min(100, (game ? campProgress(game).level : 1) * 6),
+          ...bonfireLight(game),
           color: "#f4c76a",
           kind: "fire",
         });
@@ -77,30 +80,52 @@ export class SceneLighting {
     this.fog.className = "scene-reveal";
     this.fog.setAttribute("aria-hidden", "true");
     element.appendChild(this.fog);
+    this.sync(game);
+  }
+  sync(game) {
+    this.game = game;
+    if (!this.camp || !game) return;
+    this.staticLights = [bonfireLight(game)];
+    const areas = revealedCampAreas(game),
+      key = JSON.stringify(areas);
+    if (key === this.fogKey) return;
+    this.fogKey = key;
     const fog = this.fog.getContext("2d");
-    if (element.dataset.localMap === "camp" && game) {
-      fog.fillStyle = "#080a16";
-      fog.fillRect(0, 0, this.fog.width, this.fog.height);
-      fog.globalCompositeOperation = "destination-out";
-      for (const area of revealedCampAreas(game))
-        for (const [f, a] of [
-          [1.13, 0.18],
-          [1.07, 0.3],
-          [1, 0.98],
-        ]) {
-          fog.fillStyle = `rgba(0,0,0,${a})`;
-          fog.beginPath();
-          fog.arc(area.x / 8, area.y / 8, (area.r * f) / 8, 0, Math.PI * 2);
-          fog.fill();
-        }
+    fog.globalCompositeOperation = "source-over";
+    fog.fillStyle = "#03060d";
+    fog.fillRect(0, 0, this.fog.width, this.fog.height);
+    fog.globalCompositeOperation = "destination-out";
+    for (const area of areas) {
+      const gradient = fog.createRadialGradient(
+        area.x / 8,
+        area.y / 8,
+        (area.r * 0.83) / 8,
+        area.x / 8,
+        area.y / 8,
+        (area.r * 1.14) / 8,
+      );
+      gradient.addColorStop(0, "rgba(0,0,0,1)");
+      gradient.addColorStop(1, "rgba(0,0,0,0)");
+      fog.fillStyle = gradient;
+      fog.fillRect(
+        (area.x - area.r * 1.14) / 8,
+        (area.y - area.r * 1.14) / 8,
+        (area.r * 2.28) / 8,
+        (area.r * 2.28) / 8,
+      );
     }
   }
   draw(time) {
     if (time - this.at < 1 / 20) return;
     this.at = time;
+    const reduced =
+      !!this.game?.settings?.reducedMotion ||
+      !!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const flicker = fireFlicker(time, reduced);
     const lights = [...this.staticLights],
       people = [];
     for (const el of this.residents) {
+      if (el.hidden) continue;
       const x = parseFloat(el.style.left),
         y = parseFloat(el.style.top);
       people.push({
@@ -112,8 +137,9 @@ export class SceneLighting {
           el.dataset.townNpc ||
           "bartender",
         x,
-        y: y - 2,
-        r: el.dataset.worldProp ? 13 : 9,
+        y: y + 1,
+        r: el.dataset.worldProp ? 13 : 12,
+        height: el.dataset.worldProp ? 24 : 40,
       });
       const r = Number(el.dataset.lightRadius);
       if (r > 0)
@@ -131,26 +157,100 @@ export class SceneLighting {
           kind: "lamp",
         });
     }
-    // Resident occluders use the same ray geometry as buildings, without an innate aura.
-    this.scene.map.objects = [...this.objects, ...people];
-    this.light.paint(
-      { map: { objects: [] } },
-      lights,
-      [],
-      [],
-      time,
-      this.element.dataset.localMap === "tavern" ? 0.18 : 0.5,
-    );
     const ctx = this.canvas.getContext("2d");
     ctx.setTransform(0.5, 0, 0, 0.5, 0, 0);
     ctx.clearRect(0, 0, this.width, this.height);
-    this.light.composite(ctx);
-    ctx.imageSmoothingEnabled = false;
-    // All cast shadows stay on the ground plane, below their owner sprites.
-    for (const caster of people)
-      for (const source of lights) {
-        paintGroundShadow(ctx, source, caster);
+    if (this.camp) {
+      // Ground and fire illumination are already baked. Only moving lamps add
+      // live ground light; never wash out the scene with a second ambient pass.
+      const patch = this.element.querySelector(".camp-firelight");
+      if (patch) patch.style.opacity = String(0.9 * flicker);
+      for (const source of lights.filter((l) => l.kind === "lamp")) {
+        const glow = ctx.createRadialGradient(
+          source.x,
+          source.y,
+          0,
+          source.x,
+          source.y,
+          source.r,
+        );
+        glow.addColorStop(0, "rgba(234,184,98,.11)");
+        glow.addColorStop(0.4, "rgba(198,155,87,.045)");
+        glow.addColorStop(1, "rgba(198,155,87,0)");
+        ctx.fillStyle = glow;
+        ctx.fillRect(
+          source.x - source.r,
+          source.y - source.r,
+          source.r * 2,
+          source.r * 2,
+        );
       }
+      if (
+        (!reduced && time - (this.waterAt ?? -Infinity) >= 0.1) ||
+        !this.waterPainted ||
+        reduced !== this.waterReduced
+      ) {
+        paintCampWater(this.water.getContext("2d"), time, reduced);
+        this.waterPainted = true;
+        this.waterAt = time;
+        this.waterReduced = reduced;
+      }
+      this.water.dataset.animated = String(!reduced);
+      this.element.style.setProperty?.("--fire-flicker", String(flicker));
+      for (const el of this.residents) {
+        const x = parseFloat(el.style.left),
+          y = parseFloat(el.style.top);
+        let illumination = 0;
+        for (const source of lights) {
+          const f = Math.max(
+            0,
+            1 - Math.hypot(x - source.x, y - source.y) / source.r,
+          );
+          illumination = Math.max(
+            illumination,
+            f * (source.kind === "fire" ? flicker : 0.75),
+          );
+        }
+        el.style.setProperty?.(
+          "--actor-light",
+          String(Math.min(1.05, 0.55 + illumination * 0.55)),
+        );
+      }
+    } else {
+      this.light.paint(
+        { map: { objects: [] } },
+        lights,
+        [],
+        [],
+        time,
+        this.element.dataset.localMap === "tavern" ? 0.18 : 0.5,
+      );
+      this.light.composite(ctx);
+    }
+    ctx.imageSmoothingEnabled = true;
+    // Project from each footpoint away from the fire, after ALL ground light,
+    // below sprites. Own lanterns never project their owner's shadow.
+    for (const caster of people) {
+      for (const source of lights) {
+        const strength = this.camp
+          ? source.kind === "fire"
+            ? 0.64 * flicker
+            : 0.16
+          : 0.26;
+        paintGroundShadow(ctx, source, caster, strength);
+      }
+      if (this.camp) {
+        ctx.fillStyle = "rgba(2,4,8,.42)";
+        ctx.beginPath();
+        ctx.ellipse(caster.x, caster.y, 10, 3.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    if (this.camp) {
+      this.paintFlame(time, reduced, flicker);
+      return;
+    }
+
     const fire = this.staticLights.find((l) => l.kind === "fire");
     if (fire) {
       ctx.globalCompositeOperation = "screen";
@@ -175,6 +275,56 @@ export class SceneLighting {
       }
     }
   }
+  paintFlame(time, reduced, flicker) {
+    if (!this.flame) {
+      this.flame = document.createElement("canvas");
+      this.flame.className = "camp-flame";
+      this.flame.width = 160;
+      this.flame.height = 180;
+      this.flame.setAttribute("aria-hidden", "true");
+      this.element.appendChild(this.flame);
+    }
+    const fire = this.staticLights[0],
+      ctx = this.flame.getContext("2d");
+    this.flame.style.left = fire.x - 80 + "px";
+    this.flame.style.top = fire.y - 145 + "px";
+    ctx.clearRect(0, 0, 160, 180);
+    if (reduced) time = 0;
+    for (let i = 0; i < 5; i++) {
+      const x = 64 + i * 8,
+        height = (33 + Math.sin(i * 11) * 13) * flicker,
+        sway = Math.sin(time * 4 + i) * 4;
+      ctx.fillStyle = ["#9c421b", "#d36c22", "#e89432", "#f1b959", "#ffdb8d"][
+        i
+      ];
+      ctx.beginPath();
+      ctx.moveTo(x - 10, 144);
+      ctx.bezierCurveTo(
+        x - 17,
+        125,
+        x + sway,
+        135 - height * 0.5,
+        x + sway + 2,
+        135 - height,
+      );
+      ctx.bezierCurveTo(x + 16, 132 - height * 0.35, x + 15, 139, x + 9, 145);
+      ctx.closePath();
+      ctx.fill();
+    }
+    if (!reduced)
+      for (let i = 0; i < 5; i++) {
+        const phase = (time * 0.43 + i * 0.19) % 1;
+        ctx.globalAlpha = (1 - phase) * 0.65;
+        ctx.fillStyle = "#eab868";
+        ctx.fillRect(
+          77 + Math.sin(i * 6 + time) * 15,
+          124 - phase * 79,
+          1.5,
+          2.5,
+        );
+      }
+    ctx.globalAlpha = 1;
+  }
 }
 
 export function groundShadow(source, caster) {
@@ -186,7 +336,16 @@ export function groundShadow(source, caster) {
   const ux = dx / d,
     uy = dy / d,
     r = caster.r || 9,
-    length = Math.min(100, 18 + d * 0.28);
+    length =
+      source.height && caster.height
+        ? Math.min(
+            150,
+            Math.max(
+              35,
+              (d * caster.height) / Math.max(22, source.height - caster.height),
+            ),
+          )
+        : Math.min(100, 18 + d * 0.28);
   return [
     { x: caster.x - uy * r, y: caster.y + ux * r },
     { x: caster.x + uy * r, y: caster.y - ux * r },
