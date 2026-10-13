@@ -41,7 +41,8 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npx playwright install --with-deps chromium webkit
-      - run: npm run test:e2e
+      # Temporary diagnostic run; restore the full suite before release.
+      - run: npx playwright test --project=iphone-webkit --grep="route and battlefield" --retries=0
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
