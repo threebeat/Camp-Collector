@@ -5,7 +5,7 @@ import {
   AFFIXES,
   ENCHANTMENTS,
   WEAPONS,
-} from "./weapons.js?v=18";
+} from "./weapons.js?v=19";
 const mod = (name, text, stats, style, color, only = {}) => ({
   name,
   text,

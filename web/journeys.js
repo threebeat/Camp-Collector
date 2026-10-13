@@ -1,4 +1,4 @@
-import { LOCATIONS, DIFFICULTIES, allGear } from "./data.js?v=18";
+import { LOCATIONS, DIFFICULTIES, allGear } from "./data.js?v=19";
 export const REGION_ORDER = [
   "greenway",
   "marsh",
@@ -671,7 +671,7 @@ export const QUESTS = [
     location: "greenway",
     target: "clearing",
     check: (g) => !!g.journeyClears["greenway:clearing"],
-    reward: { gold: 45, wood: 6, stone: 4 },
+    reward: { gold: 45, stone: 4 },
   },
   {
     id: "bridge",

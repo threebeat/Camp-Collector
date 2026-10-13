@@ -378,7 +378,7 @@ Later region names appear here for developers; the Crossroads picker only reveal
 | --- | --- | --- | --- |
 | tent | Character tent | Meet, equip, teach Talents, or recycle your characters. | Available initially |
 | storage | Storage | Equipment, companions, scrolls, consumables, gems, and materials in one chest. | Available initially |
-| pantry | Pantry | Stock food to halve recovery time after expeditions. | 5 gold |
+| pantry | Pantry | Stock food to halve recovery time after expeditions. | 5 gold, 5 wood |
 | training | Training Grounds | Learn a permanent training Talent for one stat. The character stays here until their timed session ends. | 90 gold, 18 wood, 10 stone; roster 4+ |
 | blacksmith | Blacksmith | Improve weapons, choose transformative modifiers, or craft a new Common weapon. | 65 gold, 12 wood, 8 stone |
 | kitchen | Kitchen | Upgrade the Pantry into a Kitchen. Stock food, cook six meals efficiently, and choose ingredients for expedition dishes. | 90 gold, 18 wood, 12 stone |
@@ -396,6 +396,8 @@ Later region names appear here for developers; the Crossroads picker only reveal
 | tavern | Last Lantern Tavern | Hire travelers and meet visiting adventurers at Camp. | 100 gold, 20 wood, 10 stone |
 | clinic | Lantern Clinic | Lift eligible Attributes at Camp. | 90 gold, 12 wood, 12 stone, 8 herbs |
 | questboard | Journal | Take quests and organize the company’s goals. | Available initially |
+| tradingpost | Trading Post | Basic weapons, armor and travel gear. Bring a hero to compare their equipment. | 65 gold, 12 wood, 6 stone |
+| arena | Arena | A fighting ground beyond the village. Revealed at Camp level 4. | 180 gold, 24 wood, 30 stone |
 
 ## Weapon modifiers
 

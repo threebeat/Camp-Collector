@@ -63,3 +63,7 @@ The owner now wants the experience contained entirely in one retro pixel game wi
 ## A smoother Camp — Evernight 0.4
 
 Every return should feel like approaching an empty fire, then revealing the player's home through Continue. Camp is the primary play space: drag heroes to services, grow the clearing and meet new heroes in a full Tavern interior. Pre-rendered scenery carries static detail while live characters, props and lights occupy separate layers. The first victory and first defeat are authored lessons, followed by free hero choice, Pantry construction and the clear goal of completing Fernbridge. The technical bar and full-window battlefield keep navigation and play controls direct.
+
+## Living in the Camp — 0.5
+
+Preserve immersion when moving people and belongings: scene updates must not flash or replay introductions. A larger, detailed environment grounds services in baked terrain and shadows. Tutorial lessons wait for the player’s acknowledgement and provide small rewards; the final goal leads to ordinary play without an arbitrary Journal action. The town holds recruitment, quests, trade and challenges, while the late Arena is its own place. Journal is a record of known commitments; Crossroads is the clear path from an expedition overview to road choice and party choice. Class development should read as a connected RPG tree.

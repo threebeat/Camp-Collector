@@ -1,6 +1,6 @@
-import { pixelTerrainSvg, pixelBuildingSvg } from "./pixel-art.js?v=18";
-import * as E from "./evernight.js?v=18";
-import { vision } from "./lighting.js?v=18";
+import { pixelTerrainSvg, pixelBuildingSvg } from "./pixel-art.js?v=19";
+import * as E from "./evernight.js?v=19";
+import { vision } from "./lighting.js?v=19";
 import {
   CLASSES,
   ITEMS,
@@ -11,12 +11,12 @@ import {
   classNodeState,
   classPoints,
   itemInfo,
-} from "./data.js?v=18";
+} from "./data.js?v=19";
 import {
   activeExpeditions,
   available,
   expeditionSlots,
-} from "./progression.js?v=18";
+} from "./progression.js?v=19";
 import {
   allQuests,
   questState,
@@ -24,9 +24,9 @@ import {
   activeQuests,
   REGION_ORDER,
   REGIONS,
-} from "./journeys.js?v=18";
-import { MATERIALS, calendarMonth, MONTH_THEMES } from "./world.js?v=18";
-import { portraitSvg, itemSvg, icon } from "./art.js?v=18";
+} from "./journeys.js?v=19";
+import { MATERIALS, calendarMonth, MONTH_THEMES } from "./world.js?v=19";
+import { portraitSvg, itemSvg, icon } from "./art.js?v=19";
 export function createEvernightUi(c) {
   const {
       getGame,
@@ -88,6 +88,12 @@ export function createEvernightUi(c) {
   }
   function questsView() {
     let list = allQuests(g())
+      .filter(
+        (q) =>
+          questState(g(), q).unlocked ||
+          questState(g(), q).claimed ||
+          g().sideQuests.includes(q.id),
+      )
       .filter((q) => {
         const s = questState(g(), q);
         return questFilter === "all" || questFilter === "completed"
@@ -109,7 +115,7 @@ export function createEvernightUi(c) {
           : Number(questState(g(), b).complete) -
             Number(questState(g(), a).complete),
     );
-    return `<section class="quest-journal"><div class="section-heading"><div><span class="eyebrow">YOUR COMPANY'S JOURNAL</span><h1>Your quests</h1><p>${g().questClaims.length} completed · ${activeQuests(g()).length} active</p></div>${button("← Camp", 'data-nav="camp"', "secondary-button")}</div><div class="quest-controls"><input id="quest-search" aria-label="Search quests" placeholder="Search quests" value="${esc(questSearch)}"><select id="quest-filter" aria-label="Quest status">${["active", "pinned", "completed", "all"].map((k) => `<option value="${k}" ${questFilter === k ? "selected" : ""}>${k[0].toUpperCase() + k.slice(1)}</option>`).join("")}</select><select id="quest-sort" aria-label="Sort quests">${["progress", "category", "name"].map((k) => `<option value="${k}" ${g().questSort === k ? "selected" : ""}>${k}</option>`).join("")}</select></div><div class="quest-grid">${
+    return `<section class="quest-journal"><div class="section-heading"><div><span class="eyebrow">YOUR COMPANY'S JOURNAL</span><h1>Your quests</h1><p>${g().questClaims.length} completed · ${activeQuests(g()).length} active</p></div></div><div class="quest-controls"><input id="quest-search" aria-label="Search quests" placeholder="Search quests" value="${esc(questSearch)}"><select id="quest-filter" aria-label="Quest status">${["active", "pinned", "completed", "all"].map((k) => `<option value="${k}" ${questFilter === k ? "selected" : ""}>${k[0].toUpperCase() + k.slice(1)}</option>`).join("")}</select><select id="quest-sort" aria-label="Sort quests">${["progress", "category", "name"].map((k) => `<option value="${k}" ${g().questSort === k ? "selected" : ""}>${k}</option>`).join("")}</select></div><div class="quest-grid">${
       list
         .map((q) => {
           const s = questState(g(), q),
@@ -124,56 +130,47 @@ export function createEvernightUi(c) {
             )}</p><div class="card-actions">${button(g().questPins.includes(q.id) ? "Unpin" : "Pin", `data-pin-quest="${q.id}"`, "text-button")}${!s.claimed && s.unlocked ? button(g().trackedQuest === q.id ? "Tracking" : "Track", `data-track-quest="${q.id}"`, "secondary-button") : ""}${button(s.claimed ? "Claimed" : "Claim reward", `data-quest="${q.id}" ${!s.unlocked || !s.complete || s.claimed ? "disabled" : ""}`)}</div></article>`;
         })
         .join("") ||
-      "<p>No quests match. Find more stories in the Journal or at the Guild lodge.</p>"
+      "<p>No quests match. Look for people with a question mark around the Tavern to find new stories.</p>"
     }</div></section>`;
   }
   function tree(h, readOnly = false) {
     const nodes = classTree(h).flatMap((p) => p.nodes),
-      chosen = h.classNodes || [];
-    return `<div class="evernight-tree" role="group" aria-label="Branching ${CLASSES[h.classId].label} class tree">${[
-      10, 20, 40, 60, 80,
-    ]
-      .map((level, i) => {
-        let options = nodes.filter(
-          (n) =>
-            n.level === level &&
-            (!n.path || !h.classPath || n.path === h.classPath),
+      levels = [10, 20, 40, 60, 80];
+    const children = (id) => nodes.filter((n) => n.parent === id);
+    const spots = new Map();
+    let leaf = 0;
+    function place(n) {
+      const branch = children(n.id);
+      const x = branch.length
+        ? branch.map(place).reduce((a, b) => a + b, 0) / branch.length
+        : 80 + leaf++ * 104;
+      spots.set(n.id, { x, y: 160 + levels.indexOf(n.level) * 132 });
+      return x;
+    }
+    nodes.filter((n) => n.parent === "root").forEach(place);
+    const width = Math.max(780, leaf * 104 + 56),
+      rootX = spots.get(nodes[0].id)?.x || width / 2;
+    const wires = nodes
+      .map((n) => {
+        const b = spots.get(n.id),
+          a = spots.get(n.parent) || { x: rootX, y: 48 },
+          mid = (a.y + b.y) / 2;
+        return `<path class="${classNodeState(h, n).learned ? "learned" : ""}" d="M${a.x} ${a.y + 28}V${mid}H${b.x}V${b.y - 28}"/>`;
+      })
+      .join("");
+    return `<div class="skill-tree-scroll" tabindex="0" aria-label="Scroll branching class tree"><div class="rpg-skill-tree" style="width:${width}px;height:760px" role="group" aria-label="${CLASSES[h.classId].label} skill tree"><svg viewBox="0 0 ${width} 760" aria-hidden="true">${wires}</svg><div class="tree-hero" style="left:${rootX}px">${portraitSvg(h, true)}<strong>${esc(CLASSES[h.classId].label)}</strong></div>${nodes
+      .map((n) => {
+        const state = classNodeState(h, n),
+          pos = spots.get(n.id);
+        return button(
+          `<span class="skill-emblem">${icon(state.learned ? "check" : n.kind === "subclass" ? "shield" : n.name.includes("Forceful") ? "sword" : n.name.includes("Measured") ? "eye" : "spark", 24)}</span><strong>${esc(n.name)}</strong><small>Lv ${n.level}${state.learned ? " · Learned" : state.available ? " · 1 point" : ""}</small>`,
+          `data-class-node="${n.id}" data-for="${h.id}" style="left:${pos.x}px;top:${pos.y}px" title="${esc(n.text)}" aria-label="${esc(n.name)}. Level ${n.level}. ${esc(n.text)}${state.learned ? " Learned." : state.available ? " Available." : " Locked."}" ${readOnly || !state.available || !available(g(), h) ? "disabled" : ""}`,
+          `rpg-skill-node ${state.learned ? "learned" : state.available ? "available" : "locked"}`,
         );
-        if (i > 1)
-          options = options.filter(
-            (n) =>
-              chosen.includes(n.parent) ||
-              !chosen.length ||
-              !chosen.some(
-                (id) =>
-                  nodes.find((n) => n.id === id)?.level ===
-                  [10, 20, 40, 60, 80][i - 1],
-              ),
-          );
-        const unique = new Map(
-          options.map((n) => [
-            n.name + (n.kind === "talent" ? n.parent : ""),
-            n,
-          ]),
-        );
-        return `<section class="tree-stage"><span class="eyebrow">LEVEL ${level} · ${i % 2 ? "SUBCLASS" : "TALENT"}</span><div>${
-          [...unique.values()]
-            .map((n) => {
-              const s = classNodeState(h, n);
-              return button(
-                `<strong>${s.learned ? "✓ " : ""}${esc(n.name)}</strong><small>${esc(n.text)}</small>`,
-                `data-class-node="${n.id}" data-for="${h.id}" ${readOnly || !s.available || !available(g(), h) ? "disabled" : ""}`,
-                "tree-choice " +
-                  (s.learned ? "learned" : s.locked ? "locked" : ""),
-              );
-            })
-            .join("") ||
-          '<span class="muted">Choose the previous talent or subclass to reveal this branch.</span>'
-        }</div></section>`;
       })
       .join(
         "",
-      )}</div><p class="small">Talent → subclass → talent → subclass → talent. Each point locks sibling choices.</p>`;
+      )}</div></div><p class="small">Follow the connected branches. Green nodes can be learned; gold nodes are yours. Each point locks sibling choices.</p>`;
   }
   function difficultyCards() {
     return `<div class="difficulty-grid">${["normal", "hard", "nightmare"]
@@ -193,10 +190,15 @@ export function createEvernightUi(c) {
     openModal(
       "The Bonfire",
       "Class trees and world difficulty",
-      `<h3>World difficulty</h3><p>Applies to new expeditions and NPC challenges. Route danger still matters.</p>${difficultyCards()}<h3>Class tree</h3>${h ? heroPicker(h) + `<p>${esc(h.name)} · ${classPoints(h)} unspent points</p>` + tree(h) : "<p>Your adventurers are away.</p>"}`,
+      `<div class="bonfire-character">${h ? heroPicker(h) + `<p>${esc(h.name)} · ${classPoints(h)} unspent points</p>` : "<p>Your adventurers are away.</p>"}</div>${h ? tree(h) : ""}<details class="bonfire-difficulty"><summary>World difficulty · ${DIFFICULTIES[g().worldDifficulty].name}</summary>${difficultyCards()}</details>`,
       "",
       () => bonfire(h && hero(h.id)),
     );
+    document.getElementById("modal").dataset.sheet = "skills";
+    const treeScroll = document.querySelector(".skill-tree-scroll");
+    if (treeScroll)
+      treeScroll.scrollLeft =
+        (treeScroll.scrollWidth - treeScroll.clientWidth) / 2;
     const picker = document.getElementById("service-hero");
     if (picker) picker.onchange = () => bonfire(hero(picker.value));
   }

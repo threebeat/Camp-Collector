@@ -1,7 +1,7 @@
-import { validLearning } from "./onboarding.js?v=18";
-import * as Ever from "./evernight.js?v=18";
-import { questById } from "./journeys.js?v=18";
-import * as Night from "./nightfall.js?v=18";
+import { validLearning } from "./onboarding.js?v=19";
+import * as Ever from "./evernight.js?v=19";
+import { questById } from "./journeys.js?v=19";
+import * as Night from "./nightfall.js?v=19";
 import {
   GAME_SEASON,
   MYTHICAL_HEROES,
@@ -64,14 +64,14 @@ import {
   modifierFits,
   validModifiers,
   petInfo,
-} from "./data.js?v=18";
-import * as Camp from "./camp.js?v=18";
+} from "./data.js?v=19";
+import * as Camp from "./camp.js?v=19";
 import {
   BRANCHES,
   calendarDay,
   calendarMonth,
   CALENDAR_BONUSES,
-} from "./world.js?v=18";
+} from "./world.js?v=19";
 import {
   journeyInfo,
   journeyRequirements,
@@ -83,8 +83,8 @@ import {
   trackQuest,
   difficultyAllowed,
   REGION_CHAMPIONS,
-} from "./journeys.js?v=18";
-import { seeded } from "./engine.js?v=18";
+} from "./journeys.js?v=19";
+import { seeded } from "./engine.js?v=19";
 export const SLOT_MILESTONES = [0, 12, 35, 75];
 export const activeExpeditions = (g) =>
   g.expeditions.filter((r) => r.status === "active");
@@ -275,7 +275,7 @@ export function moveResident(g, id, x, y) {
     return false;
   g.mapPositions[g.screen][id] = {
     x: Math.max(5, Math.min(95, x)),
-    y: Math.max(16, Math.min(95, y)),
+    y: Math.max(g.screen === "camp" ? 3 : 16, Math.min(95, y)),
   };
   return true;
 }
@@ -780,11 +780,17 @@ export function buy(g, input) {
   const o = list[index];
   if (
     (g.screen === "market" && !g.buildings.market) ||
-    (g.screen === "camp" && !(o.kind === "hero" && g.buildings.tavern))
+    (g.screen === "camp" &&
+      !(o.kind === "hero" && g.buildings.tavern) &&
+      !(g.buildings.tradingpost && (g.market.forge || []).includes(o)))
   )
     return false;
   if (["attribute", "talent"].includes(o.kind)) return false;
-  if (o.kind === "hero" && heroRarity(o.hero) > Math.min(3, g.buildings.tavern || 1)) return false;
+  if (
+    o.kind === "hero" &&
+    heroRarity(o.hero) > Math.min(3, g.buildings.tavern || 1)
+  )
+    return false;
   if (
     (o.kind === "hero" && g.roster.length >= Camp.campCapacity(g)) ||
     g.gold < o.gold ||

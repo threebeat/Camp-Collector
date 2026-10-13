@@ -1,12 +1,12 @@
-import { MAP_ASSETS } from "./map-assets.js?v=18";
-import { groundShadow } from "./scene-lighting.js?v=18";
-import { WorldCamera } from "./camera.js?v=18";
+import { MAP_ASSETS } from "./map-assets.js?v=19";
+import { paintGroundShadow } from "./scene-lighting.js?v=19";
+import { WorldCamera } from "./camera.js?v=19";
 import {
   vision,
   lightSources,
   environmentLights,
   revealed,
-} from "./lighting.js?v=18";
+} from "./lighting.js?v=19";
 import {
   W,
   H,
@@ -16,14 +16,14 @@ import {
   ITEMS,
   allGear,
   itemRarity,
-} from "./data.js?v=18";
-import { portraitSvg, petSvg, creatureSvg } from "./art.js?v=18";
+} from "./data.js?v=19";
+import { portraitSvg, petSvg, creatureSvg } from "./art.js?v=19";
 import {
   pixelTerrainSvg,
   pixelPropSvg,
   pixelCreatureSvg,
-} from "./pixel-art.js?v=18";
-import { PixelLighting } from "./pixel-lighting.js?v=18";
+} from "./pixel-art.js?v=19";
+import { PixelLighting } from "./pixel-lighting.js?v=19";
 
 const PAD_X = 600,
   PAD_Y = 480,
@@ -362,6 +362,20 @@ export class Renderer {
         flying: u.flying,
         kind: "vision",
       }));
+    // Props and ground effects belong below the fog mask, exactly like terrain.
+    for (const decal of battle.decals || [])
+      disk(
+        ctx,
+        decal.x,
+        decal.y,
+        decal.r,
+        decal.type === "blood" ? "#713d55" : "#242535",
+      );
+    for (const prop of battle.props || []) {
+      if (prop.dead) continue;
+      for (const source of lamps) paintGroundShadow(ctx, source, prop);
+      this.prop(ctx, prop.kind, prop.x, prop.y + 10, 42, 42);
+    }
     const shifted = (p) => ({ ...p, x: p.x + PAD_X, y: p.y + PAD_Y });
     this.lighting.paint(
       {
@@ -377,36 +391,14 @@ export class Renderer {
     ctx.translate(-PAD_X, -PAD_Y);
     this.lighting.composite(ctx);
     ctx.restore();
-    for (const unit of [...visibleUnits, ...(battle.props || [])].filter(
-      (u) => !u.dead,
-    ))
-      for (const source of lamps) {
-        const shadow = groundShadow(source, {
+    for (const unit of visibleUnits.filter((u) => !u.dead))
+      for (const source of lamps)
+        paintGroundShadow(ctx, source, {
           id: unit.uid,
           x: unit.x,
           y: unit.y,
           r: unit.r || 9,
         });
-        if (!shadow) continue;
-        ctx.fillStyle = "rgba(4,7,15,.24)";
-        ctx.beginPath();
-        shadow.forEach((p, i) =>
-          i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y),
-        );
-        ctx.closePath();
-        ctx.fill();
-      }
-
-    for (const decal of battle.decals || [])
-      disk(
-        ctx,
-        decal.x,
-        decal.y,
-        decal.r,
-        decal.type === "blood" ? "#713d55" : "#242535",
-      );
-    for (const prop of battle.props || [])
-      if (!prop.dead) this.prop(ctx, prop.kind, prop.x, prop.y + 10, 42, 42);
     for (const zone of battle.zones || []) {
       const color =
         zone.type === "blessing"

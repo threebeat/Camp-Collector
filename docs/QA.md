@@ -1,5 +1,12 @@
 # Verification record
 
+## 0.5 verification
+
+The local suite contains 187 model/integration tests, including persistent tutorial acknowledgement/rewards, NPC visit and acceptance guards, Journal exclusion of unaccepted quests, Trading Post purchase permissions, late Arena construction, once-only coordinate migration and actual raster shadow falloff. Existing save/checkpoint, combat, economy, Worker and connected DOM flows remain covered. Build validation now verifies all six generated WebP SVG envelopes through the bundled Worker.
+
+The remote browser suite has 36 scenarios across desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit. Added coverage retains the same scene/light/ground nodes after a prop drop, opens the profile side panel, drags a hero to the Trading Post for personal comparison, and walks the explicit tutorial through both scripted roads. Remote results and visual review are recorded after the release candidate completes. Physical devices and hosted multi-account behavior remain unverified.
+
+
 ## Evernight 0.4 menu, Tavern and guided progression
 
 The local suite passes **185 Node tests**, followed by build and Worker artifact validation. New coverage checks the two scripted tutorial outcomes across sixteen seeds and checkpoint resumes, enemy-only HP changes, Tavern rarity/upgrades/free-choice purchases, Guild access at six heroes, persistent movable props and ground-shadow projection. The connected DOM flow completes both tutorial journeys, quest claiming, recruitment and Pantry construction. All thirty PNG assets match the bytes embedded in their shipped SVG envelopes.

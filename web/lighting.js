@@ -1,4 +1,4 @@
-import { ITEMS, hasAttribute } from "./data.js?v=18";
+import { ITEMS, hasAttribute } from "./data.js?v=19";
 export const NIGHT_SIGHT = {
   Dwarf: 220,
   Gnome: 200,

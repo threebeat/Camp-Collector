@@ -31,6 +31,8 @@ async function start(page, funded = true, prepare = () => {}) {
       "armory",
       "blacksmith",
       "training",
+      "arena",
+      "tradingpost",
       "alchemist",
     ])
       g.buildings[k] = 1;
@@ -99,10 +101,15 @@ async function nav(page, key) {
   if (key === "expeditions") {
     await nav(page, "camp");
     await building(page, "crossroads");
-    await page.locator('[data-crossroads-tab="companies"]').click();
     return;
   }
   await nav(page, "camp");
+  if (key === "challenges" || key === "calendar") {
+    await building(page, "tavern");
+    await page.locator("#main-nav [data-tavern-bar]").click();
+    await modal(page).locator('[data-bar-challenge="daily"]').click();
+    return;
+  }
   await page
     .locator(
       `#main-nav [data-nav="${key === "challenges" ? "calendar" : key}"]`,
@@ -168,7 +175,7 @@ test("opening, compact Camp, memory and reload preserve the company", async ({
     "pan",
   );
   await expect(page.locator("#opening-scene")).not.toBeVisible();
-  await expect(page.locator("#main-nav button")).toHaveCount(6);
+  await expect(page.locator("#main-nav button")).toHaveCount(5);
   await expect(page.locator("#food-count")).toHaveCount(0);
   await fits(page);
   await page.waitForTimeout(2500);
@@ -293,9 +300,9 @@ test("guild, quest, clinic, recruiting and Arena services work at Camp", async (
   await modal(page).locator('[data-guild-lesson="scouts"]').click();
   await expect(modal(page)).toContainText("20");
   await close(page);
-  await building(page, "questboard");
-  await modal(page).locator("[data-journal-board]").click();
-  await modal(page).locator('[data-accept-quest="guild-initiate"]').click();
+  await page.locator("[data-world-fit]").click();
+  await page.locator('[data-town-npc="orin"]').click();
+  await modal(page).locator("[data-npc-accept]").first().click();
   await close(page);
   await nav(page, "quests");
   await expect(page.locator(".quest-journal")).toBeVisible();
@@ -324,7 +331,8 @@ test("guild, quest, clinic, recruiting and Arena services work at Camp", async (
   await page.locator("#main-nav [data-tavern-bar]").click();
   await modal(page).locator("[data-tavern-buy]").first().click();
   await close(page);
-  await page.locator("[data-camp-arena]").click();
+  await nav(page, "camp");
+  await building(page, "arena");
   await page.locator("#arena-gold").fill("25");
   await page.locator("#arena-resource").selectOption("wood");
   await page.locator("#arena-amount").fill("5");
@@ -376,6 +384,7 @@ test("route and battlefield updates never open profiles; manual camera, focus an
   await expect(page.locator("#hero-detail")).toHaveCount(0);
   await page.waitForTimeout(1100);
   await expect(modal(page)).not.toBeVisible();
+  await page.locator("[data-plan-expedition]").click();
   await page.locator('[data-destination="clearing"]').click();
   await page.locator("[data-lock-route]").click();
   await expect(page.locator("#hero-detail")).toBeEmpty();
@@ -477,6 +486,7 @@ test("lights, class choices, global difficulty, chosen portals and Codex retain 
   await modal(page).locator("#confirm-class-node").click();
   await modal(page).locator('[data-class-node="breaker:0"]').click();
   await modal(page).locator("#confirm-class-node").click();
+  await modal(page).locator(".bonfire-difficulty summary").click();
   await modal(page).locator('[data-world-difficulty="hard"]').click();
   await close(page);
   await page.locator("[data-world-fit]").click();
@@ -492,7 +502,7 @@ test("lights, class choices, global difficulty, chosen portals and Codex retain 
   expect(errors).toEqual([]);
 });
 
-test("the tutorial persists through both roads, character dragging, a free hero and pantry construction", async ({
+test("tutorial prompts persist, pay once, combine recovery and finish without a Journal footer", async ({
   page,
 }) => {
   test.setTimeout(120000);
@@ -504,28 +514,46 @@ test("the tutorial persists through both roads, character dragging, a free hero 
       "data-learning",
       value,
     );
+  const next = async () => {
+    await expect(page.locator("[data-lesson-continue]")).toBeEnabled();
+    await page.locator("[data-lesson-continue]").click();
+  };
   for (let i = 0; i < 3; i++) await page.locator("#opening-continue").click();
   await stage("pan");
+  await expect(page.locator("[data-lesson-continue]")).toBeDisabled();
   await page.locator('[data-map-camera="camp"]').focus();
   await page.keyboard.press("ArrowRight");
+  await stage("pan");
+  await next();
   await stage("move");
-  // Exercise pointer capture on a real sprite, including the phone layouts.
   const hero = page.locator('[data-world-resident="0"]');
   await hero.dragTo(page.locator('[data-building="tent"]'));
-  await stage("crossroads");
+  await stage("move");
   await expect(modal(page)).toContainText(g.roster[0].name);
-  await close(page);
+  await next();
+  await stage("profile");
+  await hero.click();
+  await page.locator("[data-resident-info]").click();
+  await expect(modal(page)).toHaveAttribute("data-sheet", "profile");
+  await next();
+  await stage("crossroads");
   await page.reload();
   await resume(page);
   await stage("crossroads");
-  await expect(page.locator("#opening-scene")).not.toBeVisible();
   await building(page, "crossroads");
+  await expect(page.locator(".crossroads-hub")).toBeVisible();
+  await next();
   await stage("route");
+  await page.locator("[data-plan-expedition]").click();
+  await shot(page, "route-planner");
+  await expect(page.locator("#app-content")).toHaveCSS("overflow", "hidden");
   await page.locator("[data-lock-route]").click();
+  await next();
   await stage("party");
+  await shot(page, "party-planner");
   await page.locator("#launch-btn").click();
+  await next();
   await stage("journey");
-  await expect(page.locator("#hero-detail")).toBeEmpty();
   await page.addInitScript(() => {
     if (sessionStorage.getItem("qa-fast-forward")) {
       const save = JSON.parse(localStorage.getItem("camp-collector-v12"));
@@ -540,45 +568,59 @@ test("the tutorial persists through both roads, character dragging, a free hero 
     await resume(page);
   };
   await catchUp();
+  await stage("journey");
+  await next();
   await stage("quests");
+  await expect(page.locator("#learning-coach")).toContainText(
+    "Open journal in the camp menu at the top of the screen and claim your first quest rewards",
+  );
   await building(page, "questboard");
+  await expect(modal(page).locator(".modal-footer")).toHaveCount(0);
   await modal(page).locator('[data-quest="first-road"]').click();
-  await modal(page).locator("[data-finish-learning]").click();
+  await next();
   await stage("fernbridge");
   await building(page, "crossroads");
+  await next();
   await stage("fernroute");
+  await page.locator("[data-plan-expedition]").click();
+  await expect(
+    page.locator('[data-destination="bridge"] .quest-map-marker'),
+  ).toBeVisible();
   await page.locator("[data-lock-route]").click();
+  await next();
+  await stage("fernparty");
   await page.locator("#launch-btn").click();
-  await stage("fernjourney");
+  await next();
+  await stage("recovery");
   await catchUp();
-  await stage("defeat");
-  await expect(page.locator("#learning-coach")).toContainText("recover");
-  await page.locator("[data-lesson-help]").click();
-  await stage("recruit");
+  await stage("recovery");
+  await expect(page.locator("[data-lesson-continue]")).toBeDisabled();
   await building(page, "tavern");
-  await expect(page.locator('[data-map-camera="tavern"]')).toBeVisible();
   await expect(page.locator("[data-tavern-hero]")).toHaveCount(6);
-  await expect(page.locator(".tavern-map")).not.toContainText("Uncommon");
   await page.locator("[data-tavern-hero]").nth(4).click();
-  await expect(modal(page)).not.toContainText("undefined");
   await modal(page).locator("[data-tavern-hire]").click();
+  await stage("recovery");
+  await next();
   await stage("build");
   await page.locator("#game-home").click();
+  await expect(page.locator('[data-build-dot="pantry"]')).toBeVisible();
   await building(page, "pantry");
   await modal(page).locator('[data-construct="pantry"]').click();
+  await stage("build");
+  await next();
   await stage("pantry");
   await building(page, "pantry");
   await modal(page).locator('[data-food="1"]').click();
-  await close(page);
+  await next();
   await stage("journal");
-  await building(page, "questboard");
-  await modal(page).locator("[data-finish-learning]").click();
+  await next();
   await stage("complete");
   await expect(page.locator("#learning-coach")).not.toBeVisible();
   const saved = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("camp-collector-v12")),
   );
   expect(saved.roster.length).toBe(4);
+  expect(saved.learning.claimedStages).toHaveLength(15);
   expect(saved.trackedQuest).toBe("bridge");
   expect(saved.expeditions.map((r) => r.reason)).toEqual([
     "complete",
@@ -586,7 +628,6 @@ test("the tutorial persists through both roads, character dragging, a free hero 
   ]);
   expect(saved.journeyClears["greenway:bridge"]).toBeFalsy();
   await building(page, "crossroads");
-  await page.locator('[data-crossroads-tab="companies"]').click();
   await page.locator(`[data-watch="${saved.expeditions[0].id}"]`).click();
   await expect(page.locator(".report-panel")).toContainText("Expedition won");
   await fits(page);
@@ -699,5 +740,58 @@ test("saved Camp opens at an empty main menu and movable props retain their posi
   await building(page, "guildhall");
   await expect(modal(page)).not.toBeVisible();
   await expect(page.locator("#toast")).toContainText("six heroes");
+  expect(errors).toEqual([]);
+});
+
+test("dragging retains the lit scene, profiles use the right panel, and Trading Post compares the dragged hero", async ({
+  page,
+}) => {
+  const { g, errors } = await start(page);
+  await expect(page.locator(".baked-camp-map")).toBeVisible();
+  await expect(page.locator("#game-window")).not.toHaveClass(/revealing-world/);
+  await page.evaluate(() => {
+    window.qaWorld = document.querySelector(".camp-map");
+    window.qaLight = document.querySelector(".scene-lightfield");
+    window.qaGround = document.querySelector(".baked-camp-map");
+  });
+  const prop = page.locator('[data-world-prop="lantern"]'),
+    box = await prop.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(
+    box.x + box.width / 2 + 35,
+    box.y + box.height / 2 + 30,
+    { steps: 8 },
+  );
+  await page.mouse.up();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          window.qaWorld === document.querySelector(".camp-map") &&
+          window.qaLight === document.querySelector(".scene-lightfield") &&
+          window.qaGround === document.querySelector(".baked-camp-map"),
+      ),
+    )
+    .toBe(true);
+  await expect(page.locator("#game-window")).not.toHaveClass(/revealing-world/);
+  await page.locator('[data-world-resident="0"]').click();
+  await page.locator("[data-resident-info]").click();
+  const drawer = await modal(page).boundingBox();
+  expect(drawer.width).toBeLessThanOrEqual(
+    page.viewportSize().width <= 850 ? page.viewportSize().width : 445,
+  );
+  await shot(page, "character-info-panel");
+  await close(page);
+  await page.locator("[data-world-fit]").click();
+  await page
+    .locator('[data-world-resident="1"]')
+    .dragTo(page.locator('[data-building="tradingpost"]'));
+  await expect(modal(page)).toContainText("Trading Post");
+  await expect(modal(page)).toContainText(g.roster[1].name);
+  await modal(page).locator("[data-compare]").first().click();
+  await expect(modal(page)).toContainText(g.roster[1].name);
+  await expect(modal(page)).not.toContainText(g.roster[0].name);
+  await shot(page, "trading-comparison");
   expect(errors).toEqual([]);
 });

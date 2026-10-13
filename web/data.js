@@ -6,7 +6,7 @@ import {
   ENCHANTMENTS,
   WEAPON_MODIFIERS,
   weaponModifiers,
-} from "./weapons.js?v=18";
+} from "./weapons.js?v=19";
 export {
   WEAPONS,
   WEAPON_KINDS,
@@ -23,7 +23,7 @@ import {
   modifierFits,
   objectModifiers,
   validModifiers,
-} from "./modifiers.js?v=18";
+} from "./modifiers.js?v=19";
 export {
   ARMOR_MODIFIERS,
   PET_MODIFIERS,

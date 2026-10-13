@@ -27,17 +27,17 @@ npm run test:e2e
 
 GitHub Actions runs model/artifact checks and desktop Chromium, Android Chromium and iPhone WebKit emulation on main pushes and pull requests. It retains the built Worker, browser reports and scene screenshots. See [DEVELOPMENT.md](docs/DEVELOPMENT.md) for publishing and [QA.md](docs/QA.md) for observed results and limits.
 
-## Evernight 0.4
+## Evernight 0.5
 
-- Every visit begins at an empty bonfire main menu. Continue fades into the saved Camp; Start New Game preserves the introduction and asks before replacing existing progress.
-- A contextual technical bar exposes Camp’s Journal, Build, Stock, Codex, Trials and Shop directly. The menu exposes only fullscreen, including an available-viewport fallback.
-- Original pre-rendered pixel environments and building tiles bake static scenery, light and shadows. Live characters, movable Camp props and carried/spell lights render above them; ground shadows stay below their casters.
-- Drag a hero onto a building to open that hero’s service. The old Walk action is removed. The starting Camp has its fire, Crossroads, tent and a cheap Pantry construction site.
-- The Last Lantern Tavern fills the window with wandering recruitable heroes and a consumables bar. Two upgrades unlock Rare then Legendary travelers and more supplies. The neighboring Guild lodge requires six owned heroes.
-- The saved tutorial guarantees a clearing victory, then a Fernbridge defeat, explains quests and loss/recovery, offers any common first recruit free, and teaches Pantry construction for five gold. Completing Fernbridge becomes the next goal.
-- Expedition combat fills the available game area, with play controls below and Camp access above. Overscan scenery extends beyond the camera. Generated enemy HP is 15% lower; player stats are unchanged.
+- Camp keeps its lit scene mounted when heroes and props move. Ground shadows diffuse to transparent ends.
+- A larger generated Camp background combines trees, coherent paths and baked building tiles. Five generated regional maps sit under interactive roads and quest markers.
+- Fifteen persistent tutorial prompts use an explicit Continue, green when ready, and each pays three coins. The combined Fernbridge recovery/recruitment lesson supplies the five wood needed for the Pantry; the final Continue is immediately available.
+- Crossroads opens on expedition status, then leads through fixed route and party planning screens with scrolling inside their panels.
+- The camp menu holds the Journal, Build, Stock, Codex and Shop. Journal lists accepted/reached quests; Tavern NPCs offer new ones. Hero Info uses a desktop side panel and a full phone screen.
+- The village contains Tavern, Guild lodge and Trading Post. Drag a hero to the Trading Post for compatible goods and personal equipment comparisons. The bartender hosts daily, monthly and player challenges; a separate northwest Arena becomes buildable at Camp level four.
+- Bonfire class choices form a connected RPG skill tree. Non-combat encounters collect healing and loot automatically and remain visible for five seconds; expedition props stay under fog.
 
-Existing class trees, quests, global difficulty, twelve-hour meals, rewarded retirement, light equipment, guild standing, Arena wagers, monthly collections, Kitchen, Archaeology and the island remain playable.
+The empty-fire main menu, introduction, scripted first win/defeat, six-hero Guild gate, Tavern upgrades and retained camp/expedition systems remain.
 
 Existing current-season v12 saves and active expeditions migrate without a reset. The Site keeps its original URL so browser-local progress remains accessible. Personal saves/economy remain browser-local; missed expedition time reconstructs at 1× when the page returns. Cross-device synchronization and an always-running expedition server are future work.
 

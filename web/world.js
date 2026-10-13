@@ -1,4 +1,4 @@
-import { LOCATIONS, periodKey } from "./data.js?v=18";
+import { LOCATIONS, periodKey } from "./data.js?v=19";
 export const MATERIALS = {
   wood: {
     name: "Wood",
@@ -41,7 +41,7 @@ export const BUILDINGS = {
   },
   pantry: {
     name: "Pantry",
-    cost: { gold: 5 },
+    cost: { gold: 5, wood: 5 },
     icon: "heart",
     text: "Stock food to halve recovery time after expeditions.",
     x: 47,
@@ -522,3 +522,19 @@ BUILDINGS.cabins.text =
 BUILDINGS.cabins.legacy = true;
 CONTEXT.expansions =
   "Pan or zoom out to see shadowed land. Clear a plot to make room; buildings and Camp levels reveal more of the surrounding night.";
+
+BUILDINGS.tradingpost = {
+  name: "Trading Post",
+  icon: "coin",
+  service: "tradingpost",
+  text: "Basic weapons, armor and travel gear. Bring a hero to compare their equipment.",
+  cost: { gold: 65, wood: 12, stone: 6 },
+};
+BUILDINGS.arena = {
+  name: "Arena",
+  icon: "sword",
+  service: "arena",
+  minCampLevel: 4,
+  text: "A fighting ground beyond the village. Revealed at Camp level 4.",
+  cost: { gold: 180, wood: 24, stone: 30 },
+};

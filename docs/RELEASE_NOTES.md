@@ -1,5 +1,16 @@
 # Release notes
 
+## 0.5.0 — Roads and stories
+
+- Retained Camp/Tavern scenes eliminate drag/drop flashes; the opening fade cannot replay. Dynamic ground shadows fade and diffuse at their ends.
+- Added generated detailed Camp and five regional map grounds, baked Camp building composition, larger world and save-compatible placement migration.
+- Reworked fifteen tutorial lessons around explicit, task-gated green Continue buttons with three-gold receipts. Combined Fernbridge journey/defeat/recruitment, supplied five wood before Pantry construction, changed its cost to five wood/five gold and removed Journal footer progression.
+- Simplified Crossroads to current expeditions followed by fixed route and party planning. Tracked/pinned quest targets have gold markers.
+- Added Tavern quest NPCs, bartender legacy challenges and village Trading Post with dragged-hero comparisons. Arena is a distinct northwest building at Camp level four. Journal only contains accepted/reached quests.
+- Added desktop profile side panels, phone full-screen profiles, connected Bonfire class trees and buildable-site dots. Renamed the technical bar to camp menu.
+- Non-combat encounters automatically collect healing/loot and linger five seconds at all observation speeds. Expedition props and their shadows remain under fog.
+- Kept the same Site, audience, save schema 12, season, character identities and active checkpoints. Asset cache revision is 19; no database migration or reset.
+
 ## 0.4.0 — The Last Lantern
 
 - Added an empty-fire main menu on every visit, a seamless Continue-to-Camp fade, explicit new-game replacement confirmation and contextual technical-bar actions.

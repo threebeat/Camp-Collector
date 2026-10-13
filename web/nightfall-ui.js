@@ -1,4 +1,4 @@
-import { vision } from "./lighting.js?v=18";
+import { vision } from "./lighting.js?v=19";
 import {
   CLASSES,
   RACES,
@@ -16,17 +16,17 @@ import {
   RARITIES,
   heroRarity,
   makeItem,
-} from "./data.js?v=18";
-import * as Night from "./nightfall.js?v=18";
-import * as Camp from "./camp.js?v=18";
+} from "./data.js?v=19";
+import * as Night from "./nightfall.js?v=19";
+import * as Camp from "./camp.js?v=19";
 import {
   QUESTS,
   generatedContracts,
   allQuests,
   questState,
   activeQuests,
-} from "./journeys.js?v=18";
-import { portraitSvg, itemSvg, petSvg, icon } from "./art.js?v=18";
+} from "./journeys.js?v=19";
+import { portraitSvg, itemSvg, petSvg, icon } from "./art.js?v=19";
 
 // Screens are separate from the simulation and receive its command boundary.
 export function createNightfallUi(c) {
@@ -125,6 +125,7 @@ export function createNightfallUi(c) {
       <div class="character-service-grid">${button("Growth tables", `data-growth="${h.id}"`, "secondary-button")}${button("Train a stat", `data-service="training" data-for="${h.id}" ${ready ? "" : "disabled"}`, "secondary-button")}${button("Equipment Workshop", 'data-service="armory"', "secondary-button")}${button("Retire adventurer", `data-release="${h.id}" ${!ready || h.favorite || g.roster.length <= 3 ? "disabled" : ""}`, "text-button danger")}</div>`,
       button("← All adventurers", "data-tent-list", "secondary-button"),
     );
+    document.getElementById("modal").dataset.sheet = "profile";
   }
   function showClass(h) {
     const d = CLASSES[h.classId],
@@ -327,7 +328,10 @@ export function createNightfallUi(c) {
       "Your company’s equipped belongings",
       `<div class="item-list">${
         game()
-          .roster.flatMap((h) =>
+          .roster.filter(
+            (h) => !c.getShoppingHero?.() || h.id === c.getShoppingHero().id,
+          )
+          .flatMap((h) =>
             Night.compatibleSlots(h, item).map(
               (v) =>
                 `<article><h3>${esc(h.name)} · ${v.s.label}</h3>${comparisonHtml(h, item, v.index, v.armor)}</article>`,

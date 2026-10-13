@@ -72,7 +72,20 @@ class Element {
   set className(value) {
     this.attrs.class = value;
   }
+  get parentElement() {
+    return this.parent;
+  }
+  remove() {
+    if (this.parent)
+      this.parent.children = this.parent.children.filter((c) => c !== this);
+    this.parent = null;
+  }
+  replaceChildren(...children) {
+    this.children = [];
+    children.forEach((c) => this.appendChild(c));
+  }
   appendChild(child) {
+    child.remove();
     child.parent = this;
     this.children.push(child);
     return child;
@@ -248,7 +261,13 @@ class Element {
   }
   async click() {
     if (this.disabled) return;
-    const e = { target: this, clientX: 0, clientY: 0, preventDefault() {} };
+    const e = {
+      target: this,
+      currentTarget: this,
+      clientX: 0,
+      clientY: 0,
+      preventDefault() {},
+    };
     await this.onclick?.(e);
     for (const fn of this.listeners.click || []) await fn(e);
   }
@@ -429,12 +448,18 @@ test(
       await get('[data-map-camera="camp"]').dispatch("keydown", {
         key: "ArrowRight",
       });
+      assert.equal(state().learning.stage, "pan");
+      await click("[data-lesson-continue]");
       assert.equal(state().learning.stage, "move");
       const first = state().roster[0].id;
       await click('[data-world-resident="0"]');
       await click('[data-building="tent"]');
+      assert.equal(state().learning.stage, "move");
+      await click("[data-lesson-continue]");
+      await click('[data-world-resident="0"]');
+      await click("[data-resident-info]");
+      await click("[data-lesson-continue]");
       assert.equal(state().learning.stage, "crossroads");
-      await click("[data-close]");
       assert.equal(root.querySelector(".company-section"), null);
       assert.equal(root.querySelector("[data-card-hp]"), null);
       nextFrame(performance.now());
@@ -447,42 +472,52 @@ test(
 
       await click('[data-building="crossroads"]');
       assert.equal(state().screen, "crossroads");
+      await click("[data-lesson-continue]");
+      await click("[data-plan-expedition]");
       assert.equal(root.querySelector("#hero-detail")?.innerHTML || "", "");
       await click('[data-destination="clearing"]');
       await click("[data-lock-route]");
       assert.equal(state().screen, "party");
+      await click("[data-lesson-continue]");
       assert.equal(root.querySelector("#hero-detail")?.innerHTML || "", "");
       await click("#launch-btn");
+      await click("[data-lesson-continue]");
       assert.equal(root.querySelector("#hero-detail")?.innerHTML || "", "");
       await click("#pause-btn");
       assert.equal(worker.sim.observation.paused, true);
       nextFrame(performance.now());
       await click("#game-home");
       worker.advance(600000);
+      assert.equal(state().learning.stage, "journey");
+      await click("[data-lesson-continue]");
       assert.equal(state().learning.stage, "quests");
       await click("[data-open-journal]");
       await click('[data-quest="first-road"]');
-      await click("[data-finish-learning]");
+      await click("[data-lesson-continue]");
       await click('[data-building="crossroads"]');
+      await click("[data-lesson-continue]");
+      await click("[data-plan-expedition]");
       await click("[data-lock-route]");
+      await click("[data-lesson-continue]");
       await click("#launch-btn");
+      await click("[data-lesson-continue]");
       await click("#game-home");
       worker.advance(600000);
-      assert.equal(state().learning.stage, "defeat");
-      await click("[data-lesson-help]");
+      assert.equal(state().learning.stage, "recovery");
       await click('[data-building="tavern"]');
       assert.equal(state().screen, "tavern");
       await click("[data-tavern-hero]");
       await click("[data-tavern-hire]");
       assert.equal(state().roster.length, 4);
+      await click("[data-lesson-continue]");
       await click("#game-home");
       await click('[data-building="pantry"]');
       await click('[data-construct="pantry"]');
+      await click("[data-lesson-continue]");
       await click('[data-building="pantry"]');
       await click('[data-food="1"]');
-      await click("[data-close]");
-      await click("[data-open-journal]");
-      await click("[data-finish-learning]");
+      await click("[data-lesson-continue]");
+      await click("[data-lesson-continue]");
       assert.equal(state().learning.stage, "complete");
       worker.sim.g.roster.push(generateHero(), generateHero());
       worker.sim.g.gold = 10000;

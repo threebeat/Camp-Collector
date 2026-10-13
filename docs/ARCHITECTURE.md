@@ -1,6 +1,6 @@
 # Architecture
 
-This describes the implementation at version 0.4.0. It is a map of the present code, not a commitment to keep its boundaries or technology forever.
+This describes the implementation at version 0.5.0. It is a map of the present code, not a commitment to keep its boundaries or technology forever.
 
 ## Runtime boundaries
 
@@ -41,7 +41,7 @@ Browser `localStorage` is the only personal Camp persistence today. It is scoped
 
 `ExpeditionSimulation` uses `STEP = 1/30`. All active expeditions receive real elapsed time; a round-robin drain gives each party fixed combat steps. A time budget prevents a long offline catch-up from monopolizing the interface. Remaining elapsed time is retained in `pendingSeconds` and processed incrementally.
 
-Only the actively observed party may run at 2× or 3× or pause. Unobserved parties always advance at 1×. Changing screens, losing visibility/focus, selecting a faster speed or reopening saved active expeditions enables AUTO. Long timer gaps are interpreted as suspended browser time and use 1× even if a fast battle was previously open. At observed 1× with AUTO off, combat still plays, but interludes wait for Continue. New encounters have a 3–2–1–Fight preparation countdown.
+Only the actively observed party may run at 2× or 3× or pause. Unobserved parties always advance at 1×. Changing screens, losing visibility/focus, selecting a faster speed or reopening saved active expeditions enables AUTO. Long timer gaps are interpreted as suspended browser time and use 1× even if a fast battle was previously open. All interludes collect automatically and last five real seconds when observed, independently of combat speed; paused observation remains paused. New encounters have a 3–2–1–Fight preparation countdown.
 
 A Web Worker helps while the browser continues scheduling it; it does not defeat mobile operating-system suspension. A closed tab has no server process advancing that party. Returning to the page simulates the missing time from its checkpoint. This distinction matters when designing notifications, server saves or competitive economy.
 
@@ -63,7 +63,7 @@ These guards make the board functional, but do not prove the caller actually ear
 
 ## Build and deployment
 
-`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=18` cache URLs. Generated output is excluded from source control.
+`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=19` cache URLs. Generated output is excluded from source control.
 
 The hosting manifest binds the existing Sites project with `d1: 'DB'` and no R2 bucket. Sites applies committed `drizzle/` migrations before uploading the Worker. The original source origin and owner-private audience must be preserved when publishing unless the owner directs otherwise. A separate GitHub remote can coexist; it is not a replacement deployment ID.
 
@@ -101,7 +101,7 @@ The challenge sanitizer accepts canonical light equipment and new class nodes; i
 
 ## Growing Camp and performance (0.2)
 
-`camp-world.js` defines the 1800×1400 world anchors, four active merchants, revealed areas and idempotent legacy home/service migration. `homestead-ui.js` owns the Camp/Market world viewports and their disposable ResizeObservers. `camera.js` provides frame-time easing, party-bounds framing, zoom/coordinate inversion, two-axis drag, pinch, keyboard controls and synthetic-click suppression. `homestead.css` is the final compact layout layer.
+`camp-world.js` defines the 3000×2200 world anchors, four active merchants, revealed areas and idempotent legacy home/service migration. `homestead-ui.js` owns the Camp/Market world viewports and their disposable ResizeObservers. `camera.js` provides frame-time easing, party-bounds framing, zoom/coordinate inversion, two-axis drag, pinch, keyboard controls and synthetic-click suppression. `homestead.css` is the final compact layout layer.
 
 The renderer caches visual sprite identities without XP/timer fields, reuses terrain and draws finer movement onto a 1200×480 world raster. App snapshots retain the Battle prototype/terrain but shallow-copy visual entities rather than reconstructing the model each update; units and projectiles interpolate from the previous displayed position. The simulation continues owning combat/checkpoints. Camera state survives ordinary expedition rerenders and observation-only responses do not rebuild the DOM. HUD writes are throttled. ResizeObserver caches viewport measurements; observers disconnect when their view is replaced.
 
@@ -120,3 +120,15 @@ Learning version 2 adds quest explanation, the scripted Fernbridge loss, free Ta
 `map-assets.js` references checked-in PNGs inside SVG envelopes served by the existing text-asset Worker. `scripts/generate-map-assets.mjs` deterministically creates Camp, Tavern, five expedition biomes and building tiles from original art. Static scenery, contact shadows and fixed light are baked once. `SceneLighting` draws dynamic ground lighting and character/prop projections underneath actors; a separate reveal canvas handles expansion fog. `Renderer` surrounds the 1200×480 combat world with 600 horizontal and 480 vertical units of overscan. Camera zoom is capped to keep that outer boundary offscreen. Dynamic actors, props and spell effects draw over the ground-light pass, so a caster is never darkened by its own projected shadow. See MAP_ASSETS.md for regeneration and provenance.
 
 Save version/key/season, active checkpoint identities and database migrations remain unchanged. Journal claims and every gameplay mutation stay behind the simulation boundary.
+
+## Persistent Camp and explicit lessons (0.5)
+
+Camp/Tavern structural signatures exclude position, light toggles, learning and ordinary command replies. `homestead-ui.sync()` updates actor destinations, portraits, prop light state, NPC question marks and build dots in place. Only structural changes replace the scene. The introductory reveal class is cleared on a timer, so it cannot restart during later updates.
+
+`camp-background.js` caches a construction-keyed canvas composed from the generated terrain and existing building tiles/shadows. Building DOM nodes are transparent service/drop targets; fire, characters and props remain live. World revision 2 translates old pixel/percentage placements into the larger world exactly once. Camp anchors and revelation are shared with simulation validation. Dynamic shadow painting uses a fading gradient and soft edge below owners. Combat props/decals/shadows are now below the fog composite.
+
+Learning schema 3 stores task readiness separately from explicit acknowledgement and once-only reward receipts. `learningContinue(stage)` rejects stale/duplicate acknowledgements; every one of fifteen lessons pays three gold and recovery adds five wood. Legacy Fernbridge journey/defeat/recruit stages merge into recovery. Open dialogs host the same tutorial coach so it remains operable in the browser top layer. The final lesson is immediately ready.
+
+`town-npcs.js` owns stable authored NPC descriptions, deterministic portraits and progression-gated rotating offers. Acceptance validates the NPC and current map at the simulation boundary, freezes generated objectives and tracks the quest. Journal filtering excludes unaccepted offers. Trading Post uses compatible existing forge stock with a Camp purchase gate and the dragged character’s comparison context. Arena navigation/launch require the separate building. Challenge backend behavior and authenticated access are unchanged.
+
+Crossroads now has overview, fixed map/route planning and fixed party planning. Regional images are generated WebP bytes inside SVG envelopes; see GENERATED_MAP_ART for original prompts and provenance. The Bonfire tree draws its connectors from the same canonical parent IDs used by the model.

@@ -5,8 +5,8 @@ import {
   heroRarity,
   stats,
   note,
-} from "./data.js?v=18";
-import { campCapacity, payCost } from "./camp.js?v=18";
+} from "./data.js?v=19";
+import { campCapacity, payCost } from "./camp.js?v=19";
 export const TAVERN_UPGRADES = [
   null,
   { gold: 140, wood: 12, stone: 6 },
@@ -78,14 +78,22 @@ export function hireAtTavern(g, id) {
     index = t.stock.findIndex((o) => o.id === id),
     offer = t.stock[index];
   if (!offer || g.gold < offer.gold) return false;
-  if (g.learning?.required && g.learning.stage !== "recruit") return false;
+  if (
+    g.learning?.required &&
+    !(
+      g.learning.stage === "recovery" &&
+      g.learning.lossResolved &&
+      !t.firstHireClaimed
+    )
+  )
+    return false;
   g.gold -= offer.gold;
   t.stock.splice(index, 1);
   const hero = offer.hero;
   hero.currentHp = stats(hero).hp;
   g.roster.push(hero);
   note(hero, "Accepted an invitation at the Last Lantern Tavern.", g.lastClock);
-  if (g.learning?.stage === "recruit") t.firstHireClaimed = true;
+  if (g.learning?.stage === "recovery") t.firstHireClaimed = true;
   return hero;
 }
 export function upgradeTavern(g) {

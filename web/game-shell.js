@@ -1,7 +1,11 @@
-import { pixelBuildingSvg } from "./pixel-art.js?v=18";
-import { portraitSvg, icon } from "./art.js?v=18";
-import { pixelMarkup } from "./pixel-markup.js?v=18";
-import { learningLocked } from "./onboarding.js?v=18";
+import { pixelBuildingSvg } from "./pixel-art.js?v=19";
+import { portraitSvg, icon } from "./art.js?v=19";
+import { pixelMarkup } from "./pixel-markup.js?v=19";
+import {
+  learningLocked,
+  learningReady,
+  LESSON_REWARD,
+} from "./onboarding.js?v=19";
 
 const story = [
   [
@@ -55,7 +59,7 @@ const lessons = {
   ],
   quests: [
     "A purpose beyond survival",
-    "Open Journal in the technical bar. Claim A first road together, then read your next goal: reach Fernbridge.",
+    "Open journal in the camp menu at the top of the screen and claim your first quest rewards",
     "questboard",
   ],
   fernbridge: [
@@ -73,24 +77,14 @@ const lessons = {
     "Start your second expedition. The darkness ahead is stronger than it seems.",
     "party",
   ],
-  fernjourney: [
-    "The darkness pushes back",
-    "Watch your company face Fernbridge. You can always return to Camp from the technical bar.",
-    "journey",
-  ],
-  defeat: [
-    "Everyone comes home",
-    "A lost expedition keeps your owned heroes, equipment and earned ordinary loot. They need time to recover. Destination rewards wait until you win.",
-    "defeat",
-  ],
-  recruit: [
-    "Another light at the fire",
-    "Open the tavern and choose any common hero. Your first invitation is free. The Guild lodge opens once you own six heroes.",
-    "tavern",
+  recovery: [
+    "A light after defeat",
+    "Watch the Fernbridge expedition. Losing brings your heroes and equipment home safely, with recovery time. Then visit the Tavern and invite any common hero for free. The Guild lodge opens at six heroes.",
+    "recovery",
   ],
   build: [
     "Make room for tomorrow",
-    "Open Build in the technical bar or the Pantry site. Building this Pantry costs just 5 gold.",
+    "Open Build in the camp menu or select the Pantry site. Use the 5 wood from your previous lesson and 5 gold to build it.",
     "build",
   ],
   pantry: [
@@ -100,7 +94,7 @@ const lessons = {
   ],
   journal: [
     "Make Fernbridge your own",
-    "Your company is growing. Read the Journal, prepare your heroes, and return to complete Beyond the bridge. Future expeditions follow ordinary combat rules.",
+    "Your company is growing. Track quests in the Journal, then find their gold markers at the Crossroads. Your next goal is Beyond the bridge: prepare your heroes and return to Fernbridge. Continue whenever you are ready.",
     "questboard",
   ],
 };
@@ -255,22 +249,42 @@ export function createGameShell(c) {
       void root.offsetWidth;
       root.classList.add("revealing-world");
       c.reveal?.();
+      setTimeout(
+        () => root.classList.remove("revealing-world"),
+        duration(3500),
+      );
     }
     lastStage = s.stage;
     const coach = document.getElementById("learning-coach"),
       lesson = lessons[s.stage];
     coach.hidden = !lesson;
-    const coachState = `${s.stage}:${s.journalSeen}:${g.screen}:${g.questClaims.includes("first-road")}`;
+    const ready = learningReady(g);
+    const dialog = document.getElementById("modal");
+    const parent = dialog?.open && lesson ? dialog : root;
+    if (coach.parentElement !== parent) parent.appendChild(coach);
+    const coachState = `${s.stage}:${ready}:${s.lossResolved}:${g.screen}`;
     if (lesson && coachKey !== coachState) {
       coachKey = coachState;
       const n = Object.keys(lessons).indexOf(s.stage) + 1;
-      coach.innerHTML = `<div><span class="eyebrow">LEARN ${n} / ${Object.keys(lessons).length}</span><strong>${lesson[0]}</strong><p>${lesson[1]}</p></div><button class="secondary-button" data-lesson-help>${s.stage === "defeat" ? "Find a hero" : s.stage === "journal" && s.journalSeen ? "Begin your story" : "Show me"}</button>`;
-      coach.querySelector("button").onclick = () =>
-        s.stage === "defeat"
-          ? act("learningEvent", { event: "defeat-read" })
-          : s.stage === "journal" && s.journalSeen
-            ? act("learningEvent", { event: "journal-read" })
-            : c.help(lesson[2]);
+      coach.innerHTML = `<div><span class="eyebrow">LEARN ${n} / ${Object.keys(lessons).length} · +${LESSON_REWARD} coins${s.stage === "recovery" ? " · +5 wood" : ""}</span><strong>${lesson[0]}</strong><p>${lesson[1]}</p></div><div class="lesson-actions">${!ready ? '<button class="secondary-button" data-lesson-help>Show me</button>' : ""}<button class="lesson-continue ${ready ? "ready" : ""}" data-lesson-continue ${ready ? "" : "disabled"}>Continue ${ready ? "✓" : ""}</button></div>`;
+      coach
+        .querySelector("[data-lesson-help]")
+        ?.addEventListener("click", () => {
+          c.closeSheets?.();
+          c.help(
+            lesson[2] === "recovery"
+              ? s.lossResolved
+                ? "tavern"
+                : "journey"
+              : lesson[2],
+          );
+        });
+      coach.querySelector("[data-lesson-continue]").onclick = async (event) => {
+        event.currentTarget.disabled = true;
+        if (await act("learningContinue", { stage: s.stage }))
+          c.closeSheets?.();
+        update();
+      };
     }
     const hint = document.getElementById("game-control-hint");
     if (hint) {

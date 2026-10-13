@@ -1,11 +1,16 @@
-import * as Tavern from "./tavern.js?v=18";
-import { CAMP_ANCHORS, revealedCampAreas } from "./camp-world.js?v=18";
-import * as Learn from "./onboarding.js?v=18";
-import { normalizeCampWorld } from "./camp-world.js?v=18";
-import * as Ever from "./evernight.js?v=18";
-import { questById } from "./journeys.js?v=18";
-import * as Night from "./nightfall.js?v=18";
-import { Battle } from "./engine.js?v=18";
+import { acceptNpcQuest } from "./town-npcs.js?v=19";
+import * as Tavern from "./tavern.js?v=19";
+import {
+  CAMP_WORLD,
+  CAMP_ANCHORS,
+  revealedCampAreas,
+} from "./camp-world.js?v=19";
+import * as Learn from "./onboarding.js?v=19";
+import { normalizeCampWorld } from "./camp-world.js?v=19";
+import * as Ever from "./evernight.js?v=19";
+import { questById } from "./journeys.js?v=19";
+import * as Night from "./nightfall.js?v=19";
+import { Battle } from "./engine.js?v=19";
 import {
   LOCATIONS,
   initialGame,
@@ -14,9 +19,9 @@ import {
   VENDORS,
   ITEMS,
   uid,
-} from "./data.js?v=18";
-import * as Camp from "./camp.js?v=18";
-import * as P from "./progression.js?v=18";
+} from "./data.js?v=19";
+import * as Camp from "./camp.js?v=19";
+import * as P from "./progression.js?v=19";
 
 // The clock lives outside the view. Every party gets the same fixed simulation steps.
 export const STEP = 1 / 30;
@@ -32,11 +37,12 @@ export class ExpeditionSimulation {
     Learn.normalizeLearning(this.g);
     Tavern.normalizeTavern(this.g);
     this.g.campProps ||= [
-      { id: "lantern", kind: "torch", x: 990, y: 700, lit: true },
-      { id: "supply-crate", kind: "crate", x: 820, y: 665 },
-      { id: "water-barrel", kind: "barrel", x: 1070, y: 850 },
+      { id: "lantern", kind: "torch", x: 1790, y: 1150, lit: true },
+      { id: "supply-crate", kind: "crate", x: 1620, y: 1115 },
+      { id: "water-barrel", kind: "barrel", x: 1870, y: 1300 },
     ];
     if (this.g.buildings.tavern) P.marketStock(this.g, "guild");
+    if (this.g.buildings.tradingpost) P.marketStock(this.g, "forge");
     Night.refreshVisitors(this.g);
     this.battles = new Map();
     this.observation = { id: null, visible: false, speed: 1, paused: false };
@@ -100,7 +106,9 @@ export class ExpeditionSimulation {
     return this.observation.visible && this.observation.id === r.id
       ? this.observation.paused
         ? 0
-        : this.observation.speed
+        : r.phase === "interlude"
+          ? 1
+          : this.observation.speed
       : 1;
   }
   observe(next, now = Date.now()) {
@@ -131,9 +139,11 @@ export class ExpeditionSimulation {
         Number.isFinite(now) ? now : this.g.lastClock,
       ),
       elapsed = (clock - this.g.lastClock) / 1000;
+    this.longGap = elapsed > 2;
     this.g.lastClock = clock;
     Ever.consumeMeals(this.g);
     P.refreshStock(this.g);
+    if (this.g.buildings.tradingpost) P.marketStock(this.g, "forge");
     Night.refreshVisitors(this.g);
     if (this.g.screen === "tavern") Tavern.normalizeTavern(this.g);
     if (this.g.screen === "shop") P.gemShopStock(this.g);
@@ -145,10 +155,6 @@ export class ExpeditionSimulation {
     // even if the player had left a fast or paused battle open before suspension.
     this.backgroundAuto();
     for (const r of P.activeExpeditions(this.g)) {
-      if (r.phase === "interlude" && !r.auto) {
-        r.pendingSeconds = 0;
-        continue;
-      }
       r.pendingSeconds += elapsed * (elapsed > 2 ? 1 : this.rate(r));
     }
     this.drain(budgetMs);
@@ -202,13 +208,18 @@ export class ExpeditionSimulation {
         P.resolveBattle(this.g, r, b.result, at);
         this.battles.delete(r.id);
         r.battleState = null;
-        if (r.phase === "interlude" && !r.auto) r.pendingSeconds = 0;
+        if (r.phase === "interlude") {
+          r.phaseSeconds = 5;
+          P.useStop(this.g, r);
+          if (
+            !this.longGap &&
+            this.observation.visible &&
+            this.observation.id === r.id
+          )
+            r.pendingSeconds = 0;
+        }
       }
     } else if (r.phase === "interlude") {
-      if (!r.auto) {
-        r.pendingSeconds = 0;
-        return;
-      }
       r.phaseSeconds -= dt;
       if (r.phaseSeconds <= 4 && !r.stop.done) P.useStop(this.g, r);
       if (r.phaseSeconds <= 1e-8) {
@@ -284,8 +295,8 @@ export class ExpeditionSimulation {
           result = P.moveResident(
             g,
             h.id,
-            anchor[0] / 18,
-            (anchor[1] + 95) / 14,
+            (anchor[0] * 100) / CAMP_WORLD.width,
+            ((anchor[1] + 95) * 100) / CAMP_WORLD.height,
           );
         break;
       }
@@ -297,9 +308,9 @@ export class ExpeditionSimulation {
           Number.isFinite(args.x) &&
           Number.isFinite(args.y) &&
           args.x > 20 &&
-          args.x < 1780 &&
+          args.x < CAMP_WORLD.width - 20 &&
           args.y > 20 &&
-          args.y < 1380 &&
+          args.y < CAMP_WORLD.height - 20 &&
           revealedCampAreas(g).some(
             (a) => Math.hypot(a.x - args.x, a.y - args.y) < a.r - 12,
           )
@@ -328,6 +339,9 @@ export class ExpeditionSimulation {
         break;
       case "finishOpening":
         result = Learn.finishOpening(g, args.name);
+        break;
+      case "learningContinue":
+        result = Learn.learningContinue(g, args.stage);
         break;
       case "learningEvent":
         result = Learn.learningEvent(g, args.event, args.id);
@@ -413,6 +427,9 @@ export class ExpeditionSimulation {
       case "equipmentSeen":
         result = Night.markEquipmentSeen(g, h, args.index, !!args.armor);
         break;
+      case "acceptNpcQuest":
+        result = acceptNpcQuest(g, args.npc, args.id);
+        break;
       case "acceptQuest": {
         const q = questById(g, args.id);
         if (
@@ -486,6 +503,7 @@ export class ExpeditionSimulation {
             !["camp", "party", "crossroads"].includes(g.screen))
         )
           break;
+        if (args.screen === "arena" && !g.buildings.arena) break;
         if (args.screen === "tavern" && !g.buildings.tavern) break;
         if (args.screen === "tavern") Tavern.normalizeTavern(g);
         if (args.screen !== "market") g.marketParty = [];
@@ -685,6 +703,11 @@ export class ExpeditionSimulation {
         result = P.setDestination(g, args);
         break;
       case "launch":
+        if (
+          (g.screen === "arena" || g.destination?.mode === "arena") &&
+          !g.buildings.arena
+        )
+          break;
         result = P.startExpedition(g, args, now);
         if (result)
           this.observation = {

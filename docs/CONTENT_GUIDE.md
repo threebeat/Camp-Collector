@@ -104,8 +104,10 @@ Read [PIXEL_ART.md](PIXEL_ART.md). All canonical bases have original authored pi
 
 Camp service IDs are stable for migration. New home upgrades increment the tent in place and mirror the legacy cabins counter; do not introduce a second cabin placement. Active Market vendors are `forge`, `arcane`, `night`, `menagerie`; the supply sheet also offers the canonical light stock. Guild/recruiting/Clinic/Quest services live at Camp. `pixelCampGroundSvg` provides large, cached forest/path/lake art; align new services to CAMP_ANCHORS and update their world-space shadow/light definitions.
 
-The Camp Journal uses the stable questboard key and an original pixel book sprite. Keep quest acceptance, tracking, organization and claims together in that in-window surface; company management belongs to the Crossroads.
+The Camp Journal retains the stable questboard service key but has no world prop or offer catalog. It only tracks and claims accepted/reached quests. Add offers to town-npcs.js with progression requirements and map-aware acceptance. Crossroads markers use accepted tracked/pinned destination IDs.
 
 ## Maps and Tavern content
 
 See MAP_ASSETS.md for original raster backgrounds, building tiles and regeneration. Keep dynamic actors/props out of static art and shadows below their casters. Tavern stock and upgrade/bar gates live in `web/tavern.js`; use canonical hero and consumable definitions. The tutorial's first invitation must remain a choice among Common heroes and must not rotate before selection. The six-hero Guild gate belongs in model commands as well as UI.
+
+The 0.5 Camp ground uses generated terrain with cached construction-time building composition. Keep permanent trees and static environmental shadows in the terrain; maintain movable props and heroes as separate live objects. Update CAMP_ANCHORS and image provenance together when altering geography. New service sites must expose affordability dots and preserve the six-hero Guild gate. Arena belongs to its own late northwest site; daily/monthly/player challenges belong at Bram’s bar. See GENERATED_MAP_ART.md for the six generated images.

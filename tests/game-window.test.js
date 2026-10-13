@@ -4,7 +4,11 @@ import { initialGame } from "../web/data.js";
 import { seeded } from "../web/engine.js";
 import { ExpeditionSimulation } from "../web/simulation.js";
 import { validateSave } from "../web/progression.js";
-import { settleLearning } from "../web/onboarding.js";
+import {
+  settleLearning,
+  learningReady,
+  LESSON_REWARD,
+} from "../web/onboarding.js";
 import { createHomesteadUi } from "../web/homestead-ui.js";
 const now = Date.UTC(2026, 9, 12),
   fresh = () => initialGame(seeded(47), now);
@@ -15,14 +19,33 @@ function opened() {
   assert.ok(sim.action("finishOpening", { name: "Ember House" }, now).ok);
   return sim;
 }
+function acknowledge(sim) {
+  const stage = sim.g.learning.stage,
+    gold = sim.g.gold;
+  assert.ok(
+    sim.action("learningContinue", { stage }, sim.g.lastClock).ok,
+    stage,
+  );
+  assert.equal(sim.g.gold, gold + LESSON_REWARD);
+  assert.equal(
+    sim.action("learningContinue", { stage }, sim.g.lastClock).ok,
+    false,
+  );
+}
 function firstRoad(sim) {
   const id = sim.g.roster[0].id;
   sim.action("learningEvent", { event: "pan" }, now);
+  acknowledge(sim);
   sim.action("dropResident", { id, building: "tent" }, now);
+  acknowledge(sim);
   sim.action("learningEvent", { event: "profile", id }, now);
+  acknowledge(sim);
   sim.action("navigate", { screen: "crossroads" }, now);
+  acknowledge(sim);
   assert.ok(sim.action("lockRoute", {}, now).ok);
+  acknowledge(sim);
   assert.ok(sim.action("launch", {}, now).ok);
+  acknowledge(sim);
 }
 test("opening beats persist, naming is bounded and cannot bypass the fire dialogue", () => {
   const sim = new ExpeditionSimulation(fresh(), now);
@@ -45,12 +68,16 @@ test("learning requires ordered actions and genuine roster identities", () => {
     false,
   );
   assert.ok(sim.action("learningEvent", { event: "pan" }, now).ok);
+  assert.equal(sim.g.learning.stage, "pan");
+  acknowledge(sim);
   assert.equal(
     sim.action("dropResident", { id: "missing", building: "tent" }, now).ok,
     false,
   );
   assert.equal(sim.g.learning.stage, "move");
   assert.ok(sim.action("dropResident", { id, building: "tent" }, now).ok);
+  assert.equal(sim.g.learning.stage, "move");
+  acknowledge(sim);
   assert.equal(sim.g.learning.stage, "profile");
   assert.equal(
     sim.action("learningEvent", { event: "profile", id: "missing" }, now).ok,
@@ -71,15 +98,21 @@ test("the required first journey cannot be skipped, changed to a trial, unstaged
     false,
   );
   sim.action("learningEvent", { event: "pan" }, now);
+  acknowledge(sim);
   sim.action("dropResident", { id, building: "tent" }, now);
+  acknowledge(sim);
   sim.action("learningEvent", { event: "profile", id }, now);
+  acknowledge(sim);
   sim.action("navigate", { screen: "crossroads" }, now);
+  acknowledge(sim);
   assert.equal(sim.g.destination.target, "clearing");
   assert.equal(sim.action("destination", { target: "grove" }, now).ok, false);
   assert.equal(sim.action("destination", { routeIndex: 1 }, now).ok, false);
   sim.action("lockRoute", {}, now);
+  acknowledge(sim);
   assert.equal(sim.action("stage", { id }, now).ok, false);
   sim.action("launch", {}, now);
+  acknowledge(sim);
   const r = sim.g.expeditions[0];
   assert.equal(sim.g.learning.journeyId, r.id);
   assert.equal(r.auto, true);
@@ -92,7 +125,9 @@ test("a real two-road tutorial gives a win, a loss, free choice, construction an
   sim.advance(now + 600000, Infinity);
   let g = sim.snapshot().game;
   assert.equal(g.expeditions[0].reason, "complete");
-  assert.equal(g.learning.stage, "quests");
+  assert.equal(g.learning.stage, "journey");
+  acknowledge(sim);
+  g = sim.snapshot().game;
   sim = new ExpeditionSimulation(g, now + 600000);
   const at = now + 600000;
   const action = (name, args = {}) => {
@@ -107,20 +142,23 @@ test("a real two-road tutorial gives a win, a loss, free choice, construction an
     false,
   );
   action("quest", { id: "first-road" });
-  action("learningEvent", { event: "journal-read" });
+  acknowledge(sim);
   action("navigate", { screen: "crossroads" });
+  acknowledge(sim);
   assert.equal(sim.g.destination.target, "bridge");
   action("lockRoute");
+  acknowledge(sim);
   action("launch");
+  acknowledge(sim);
   sim.advance(at + 600000, Infinity);
   g = sim.snapshot().game;
   assert.equal(g.expeditions[1].reason, "defeat");
-  assert.equal(g.learning.stage, "defeat");
+  assert.equal(g.learning.stage, "recovery");
   assert.equal(g.journeyClears["greenway:bridge"], undefined);
   assert.equal(g.roster.length, 3);
   assert.equal(g.buildings.tavern, 1);
   action("navigate", { screen: "camp" });
-  action("learningEvent", { event: "defeat-read" });
+  assert.equal(learningReady(sim.g), false);
   action("navigate", { screen: "tavern" });
   assert.equal(sim.g.tavern.stock.length, 6);
   assert.ok(sim.g.tavern.stock.every((o) => o.hero.level < 20 && o.gold === 0));
@@ -130,26 +168,38 @@ test("a real two-road tutorial gives a win, a loss, free choice, construction an
   assert.equal(sim.g.roster.at(-1).id, chosen.hero.id);
   assert.equal(sim.g.gold, before);
   assert.equal(sim.action("tavernHire", { id: chosen.id }, at).ok, false);
+  assert.equal(sim.g.learning.stage, "recovery");
+  const wood = sim.g.materials.wood;
+  assert.equal(sim.action("construct", { key: "pantry" }, at).ok, false);
+  acknowledge(sim);
+  assert.equal(sim.g.materials.wood, wood + 5);
   assert.equal(sim.g.learning.stage, "build");
   action("navigate", { screen: "camp" });
   action("construct", { key: "pantry" });
-  assert.equal(sim.g.gold, before - 5);
+  assert.equal(sim.g.gold, before + LESSON_REWARD - 5);
+  acknowledge(sim);
   action("food", { count: 1 });
-  action("learningEvent", { event: "journal" });
-  action("learningEvent", { event: "journal-read" });
+  acknowledge(sim);
+  assert.equal(learningReady(sim.g), true);
+  acknowledge(sim);
   assert.equal(sim.g.learning.stage, "complete");
   assert.equal(sim.g.trackedQuest, "bridge");
   assert.ok(validateSave(sim.snapshot().game));
 });
-test("a defeated tutorial company can recover and retry instead of trapping the save", () => {
+test("legacy tutorial checkpoints migrate into the combined recovery lesson without losing progress", () => {
   const sim = opened();
-  firstRoad(sim);
-  const r = sim.g.expeditions[0];
-  r.status = "returned";
-  r.reason = "defeat";
-  settleLearning(sim.g);
-  assert.equal(sim.g.learning.stage, "crossroads");
-  assert.equal(sim.g.learning.journeyId, null);
+  sim.g.learning = {
+    version: 2,
+    stage: "recruit",
+    beat: 2,
+    required: true,
+    journeyId: "lost",
+  };
+  sim.g.expeditions = [];
+  const restored = new ExpeditionSimulation(sim.snapshot().game, now);
+  assert.equal(restored.g.learning.stage, "recovery");
+  assert.equal(restored.g.learning.secondJourneyId, "lost");
+  assert.ok(restored.g.learning.claimedStages.includes("fernparty"));
 });
 test("existing Camps and active checkpoints enter directly and old page locations migrate", () => {
   for (const screen of ["camp", "expeditions", "quests"]) {
@@ -182,7 +232,7 @@ test("existing Camps and active checkpoints enter directly and old page location
   };
   assert.equal(validateSave(bad), null);
 });
-test("the camp uses a raster map, three built landmarks and a pantry site; Journal stays in the technical bar", () => {
+test("the camp uses a raster map, three built landmarks and a pantry site; Journal stays in the camp menu", () => {
   const g = fresh(),
     id = g.roster[0].id;
   g.mapPositions.camp[id] = { x: 50, y: 53 };
@@ -195,5 +245,5 @@ test("the camp uses a raster map, three built landmarks and a pantry site; Journ
   assert.match(html, /data-prerendered-map="camp"/);
   assert.match(html, /Pantry site/);
   assert.doesNotMatch(html, /Quest Board/);
-  assert.match(html, /data-world-x="900" data-world-y="742"/);
+  assert.match(html, /data-world-x="1500" data-world-y="1166"/);
 });

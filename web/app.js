@@ -1,14 +1,15 @@
-import * as Tavern from "./tavern.js?v=18";
-import { createGameShell } from "./game-shell.js?v=18";
-import { learningLocked } from "./onboarding.js?v=18";
-import { createHomesteadUi } from "./homestead-ui.js?v=18";
-import { CAMP_VENDORS } from "./camp-world.js?v=18";
-import * as Ever from "./evernight.js?v=18";
-import { createEvernightUi } from "./evernight-ui.js?v=18";
-import { vision, revealed } from "./lighting.js?v=18";
-import * as Night from "./nightfall.js?v=18";
-import { createNightfallUi } from "./nightfall-ui.js?v=18";
-import { regionLandmarks } from "./landmarks.js?v=18";
+import { TOWN_NPCS, npcQuestOffers } from "./town-npcs.js?v=19";
+import * as Tavern from "./tavern.js?v=19";
+import { createGameShell } from "./game-shell.js?v=19";
+import { learningLocked } from "./onboarding.js?v=19";
+import { createHomesteadUi } from "./homestead-ui.js?v=19";
+import { CAMP_VENDORS } from "./camp-world.js?v=19";
+import * as Ever from "./evernight.js?v=19";
+import { createEvernightUi } from "./evernight-ui.js?v=19";
+import { vision, revealed } from "./lighting.js?v=19";
+import * as Night from "./nightfall.js?v=19";
+import { createNightfallUi } from "./nightfall-ui.js?v=19";
+import { regionLandmarks } from "./landmarks.js?v=19";
 import {
   GAME_SEASON,
   MYTHICAL_HEROES,
@@ -76,10 +77,10 @@ import {
   objectModifiers,
   modifierPool,
   petInfo,
-} from "./data.js?v=18";
-import { Battle, distance } from "./engine.js?v=18";
-import { Renderer } from "./renderer.js?v=18";
-import { icon, portraitSvg, petSvg, itemSvg, cosmeticSvg } from "./art.js?v=18";
+} from "./data.js?v=19";
+import { Battle, distance } from "./engine.js?v=19";
+import { Renderer } from "./renderer.js?v=19";
+import { icon, portraitSvg, petSvg, itemSvg, cosmeticSvg } from "./art.js?v=19";
 import {
   activeExpeditions,
   expeditionSlots,
@@ -93,8 +94,8 @@ import {
   stockResetAt,
   trialInfo,
   trialClaimKey,
-} from "./progression.js?v=18";
-import * as Camp from "./camp.js?v=18";
+} from "./progression.js?v=19";
+import * as Camp from "./camp.js?v=19";
 import {
   BUILDINGS,
   BRANCHES,
@@ -105,8 +106,8 @@ import {
   CALENDAR_BONUSES,
   COOKING,
   BREWS,
-} from "./world.js?v=18";
-import { CODEX } from "./codex.js?v=18";
+} from "./world.js?v=19";
+import { CODEX } from "./codex.js?v=19";
 import {
   REGIONS,
   REGION_ORDER,
@@ -120,22 +121,22 @@ import {
   questState,
   activeQuests,
   bossDefeated,
-} from "./journeys.js?v=18";
-import { attachResidentDragging } from "./map-interaction.js?v=18";
-import { createClient } from "./client.js?v=18";
-import { CampChatter } from "./chatter.js?v=18";
-import { exportCamp, readCampBackup } from "./saves.js?v=18";
+} from "./journeys.js?v=19";
+import { attachResidentDragging } from "./map-interaction.js?v=19";
+import { createClient } from "./client.js?v=19";
+import { CampChatter } from "./chatter.js?v=19";
+import { exportCamp, readCampBackup } from "./saves.js?v=19";
 import {
   BattleSelection,
   attachBattleGestures,
-} from "./battle-interaction.js?v=18";
+} from "./battle-interaction.js?v=19";
 import {
   pixelBuildingSvg,
   pixelTerrainSvg,
   pixelPropSvg,
-} from "./pixel-art.js?v=18";
-import { pixelMarkup } from "./pixel-markup.js?v=18";
-import { SceneLighting } from "./scene-lighting.js?v=18";
+} from "./pixel-art.js?v=19";
+import { pixelMarkup } from "./pixel-markup.js?v=19";
+import { SceneLighting } from "./scene-lighting.js?v=19";
 let sceneLights = [];
 const battleSelection = new BattleSelection();
 const campChatter = new CampChatter();
@@ -165,7 +166,7 @@ let game = null,
   renderer = null,
   observation = { id: null, visible: true, speed: 1, paused: false },
   catchingUp = false;
-let crossroadsTab = "roads";
+let crossroadsTab = "companies";
 let worldMaps = [],
   renderedExpeditionId = null;
 let focused =
@@ -273,6 +274,7 @@ function closeModal() {
   if (game?.learning?.stage === "intro") return;
   modalRefresh = null;
   $("modal").close();
+  gameShell.update();
   if (game.screen === "camp") {
     selected = null;
     $("resident-actions").hidden = true;
@@ -289,6 +291,7 @@ function openModal(name, subtitle, body, footer = "", refresh = null) {
   );
   bindActions($("modal-content"));
   if (!$("modal").open) $("modal").showModal();
+  gameShell.update();
 }
 const button = (label, attrs = "", style = "primary-button") =>
   `<button class="${style}" ${attrs}>${label}</button>`;
@@ -535,22 +538,18 @@ function difficultyControls() {
   return `<p class="modal-note">World difficulty: ${d.name} · ${d.reward}× rewards. Change it at the Bonfire.</p>`;
 }
 function crossroadsView() {
-  const count = activeExpeditions(game).length;
-  const tabs = `<div class="crossroads-tabs" role="group" aria-label="Crossroads views">${button("Roads", 'data-crossroads-tab="roads"', crossroadsTab === "roads" ? "primary-button" : "secondary-button")}${button("Companies · " + count, 'data-crossroads-tab="companies"', crossroadsTab === "companies" ? "primary-button" : "secondary-button")}</div>`;
-  return (
-    tabs +
-    (crossroadsTab === "companies"
-      ? `<section class="crossroads-companies"><div class="section-heading"><h1>The Crossroads</h1></div>${slotMeter()}<h2>On the road</h2><div class="expedition-grid">${activeExpeditions(game).map(expeditionCard).join("") || "<p>No companies are traveling.</p>"}</div><h2>Returned</h2><div class="expedition-grid">${
-          game.expeditions
-            .filter((r) => r.status === "returned")
-            .slice()
-            .reverse()
-            .map(expeditionCard)
-            .join("") || "<p>Your companies will return here.</p>"
-        }</div></section>`
-      : crossroadsV7View())
-  );
+  if (crossroadsTab === "roads") return crossroadsV7View();
+  return `<section class="crossroads-hub"><header class="planner-heading"><div><span class="eyebrow">AT THE EDGE OF THE FIRELIGHT</span><h1>The Crossroads</h1><p>Follow a traveling company or prepare the next road.</p></div>${button("Start an expedition", "data-plan-expedition")}</header>${slotMeter()}<div class="crossroads-reports"><h2>On the road</h2><div class="expedition-grid">${activeExpeditions(game).map(expeditionCard).join("") || '<p class="empty-road">Your company is resting at Camp.</p>'}</div><h2>Recently returned</h2><div class="expedition-grid">${
+    game.expeditions
+      .filter((r) => r.status === "returned")
+      .slice(-4)
+      .reverse()
+      .map(expeditionCard)
+      .join("") ||
+    '<p class="empty-road">Your first expedition starts here.</p>'
+  }</div></div></section>`;
 }
+
 function arenaView() {
   return everUi.arenaView();
 }
@@ -582,13 +581,14 @@ function countdownLabel(seconds) {
 }
 function battleView(r) {
   const enc = encounterFor(r);
-  return `<section class="battle-panel"><div class="canvas-wrap ${expanded ? "expanded" : ""}" id="canvas-wrap"><div id="fight-countdown" class="fight-countdown" role="status" aria-live="polite" ${r.phase !== "prepare" ? "hidden" : ""}>${r.phase === "prepare" ? countdownLabel(r.phaseSeconds) : ""}</div><canvas id="battlefield" role="img" aria-label="Live automatic battle. Tap a character to inspect; drag in either direction, pinch or zoom. Focus tracks the company."></canvas><div class="board-hint">${r.phase === "prepare" ? "Formation ready" : "Tap to inspect · Drag to look around"}</div></div><div class="battle-controls"><span>${icon(LOCATIONS[r.location].icon, 17)}${LOCATIONS[r.location].name}</span><div class="battle-actions">${autoControl(r)}<div class="speed-control">${[1, 2, 3].map((s) => `<button data-speed="${s}" class="${observation.speed === s ? "active" : ""}" aria-pressed="${observation.speed === s}">${s}×</button>`).join("")}</div>${button(icon(observation.paused ? "play" : "pause", 15) + (observation.paused ? "Resume" : "Pause"), 'id="pause-btn"', "secondary-button")}</div></div><div class="battle-legend"><span><i class="legend-swatch firelight"></i>Firelight</span><span><i class="legend-swatch nightsight"></i>Night vision</span><span><i class="legend-swatch blessing"></i>Blessing</span><span><i class="legend-swatch curse"></i>Curse / Gravity</span><span><i class="legend-swatch explosion"></i>Physical Explosion</span><span><i class="selection-key"></i>Selected character</span></div></section>`;
+  return `<section class="battle-panel"><div class="canvas-wrap ${expanded ? "expanded" : ""}" id="canvas-wrap"><div id="fight-countdown" class="fight-countdown" role="status" aria-live="polite" ${r.phase !== "prepare" ? "hidden" : ""}>${r.phase === "prepare" ? countdownLabel(r.phaseSeconds) : ""}</div><canvas id="battlefield" role="img" aria-label="Live automatic battle. Tap a character to inspect; drag in either direction, pinch or zoom. Focus tracks the company."></canvas><div class="board-hint">${r.phase === "prepare" ? "Formation ready" : "Tap to inspect · Drag to look around"}</div></div><div class="battle-controls"><span>${icon(LOCATIONS[r.location].icon, 17)}${LOCATIONS[r.location].name}</span><div class="battle-actions"><div class="speed-control">${[1, 2, 3].map((s) => `<button data-speed="${s}" class="${observation.speed === s ? "active" : ""}" aria-pressed="${observation.speed === s}">${s}×</button>`).join("")}</div>${button(icon(observation.paused ? "play" : "pause", 15) + (observation.paused ? "Resume" : "Pause"), 'id="pause-btn"', "secondary-button")}</div></div><div class="battle-legend"><span><i class="legend-swatch firelight"></i>Firelight</span><span><i class="legend-swatch nightsight"></i>Night vision</span><span><i class="legend-swatch blessing"></i>Blessing</span><span><i class="legend-swatch curse"></i>Curse / Gravity</span><span><i class="legend-swatch explosion"></i>Physical Explosion</span><span><i class="selection-key"></i>Selected character</span></div></section>`;
 }
 function interludeView(r) {
   const s = r.stop,
-    a = r.lastAward;
-  return `<section class="interlude-panel"><div class="wave-clear">${icon("check", 26)}<div><span class="eyebrow victory-label">VICTORY</span><h2>You won encounter ${r.stage + 1}</h2><p>+${a.gold} gold · +${a.xp} party XP · ${a.revived} characters revived</p></div></div><div class="quick-stop"><div class="stop-mark">${icon(s.type === "fountain" ? "heart" : s.type === "chest" ? "book" : "camp", 44)}</div><div><span class="eyebrow">A MOMENT ON THE ROAD</span><h2>${s.name}</h2><p>${s.done ? s.message : r.auto ? "The company is taking a short stop." : "Continue to collect this stop and set off."}</p>${!s.done ? button("Take a moment now", 'data-stop="' + r.id + '"', "secondary-button") : ""}${s.loot ? `<div class="loot-found">${rarityTag(itemRarity(s.loot))}${ITEMS[s.loot.key].name}</div>` : ""}<span class="status-badge ${r.auto ? "running" : "waiting"}">${r.auto ? "AUTO · Continuing shortly" : "Waiting for Continue"}</span>${button("Continue", 'data-continue="' + r.id + '" ' + (catchingUp ? "disabled" : ""))}</div></div><div class="battle-controls"><span>Resting before the next encounter</span><div class="battle-actions">${autoControl(r)}<div class="speed-control">${[1, 2, 3].map((v) => `<button data-speed="${v}" class="${observation.speed === v ? "active" : ""}" aria-pressed="${observation.speed === v}">${v}×</button>`).join("")}</div>${button(icon(observation.paused ? "play" : "pause", 15) + (observation.paused ? "Resume" : "Pause"), 'id="pause-btn"', "secondary-button")}</div></div></section>`;
+    a = r.lastAward || { gold: 0, xp: 0, revived: 0 };
+  return `<section class="interlude-panel"><div class="wave-clear">${icon("check", 26)}<div><span class="eyebrow victory-label">ENCOUNTER CLEARED</span><h2>The road grows quiet</h2><p>+${a.gold} gold · +${a.xp} party XP</p></div></div><div class="quick-stop"><div class="stop-mark">${icon(s.type === "fountain" ? "heart" : s.type === "chest" ? "book" : "camp", 56)}</div><div><span class="eyebrow">A MOMENT ON THE ROAD</span><h2>${esc(s.name)}</h2><p>${esc(s.message || "Your company pauses, gathers supplies and tends to one another.")}</p>${s.loot ? `<div class="loot-found">${rarityTag(itemRarity(s.loot))}${ITEMS[s.loot.key].name}</div>` : ""}<span class="status-badge running">Healing and loot collected automatically</span><p class="small">The company continues in a few seconds.</p></div></div><div class="battle-controls"><span>A short rest</span>${button(observation.paused ? "Resume" : "Pause", 'id="pause-btn"', "secondary-button")}</div></section>`;
 }
+
 function battleCompany(r) {
   return `<div class="battle-company" aria-label="Expedition company">${party(
     game,
@@ -1311,6 +1311,8 @@ function useService(service, id) {
     return;
   }
   const campServices = {
+    tradingpost: (h) => openVendor("forge", h?.id),
+    arena: () => navigate("arena"),
     market: showMarketVisit,
     guildhall: showCampGuilds,
     tavern: showCampTravelers,
@@ -1402,7 +1404,7 @@ function help() {
   openModal(
     esc(game.campName || "Your Camp"),
     "A company worth getting to know.",
-    `<div class="help-list"><p><strong>Routes and lights.</strong> Lock a road at the Crossroads, then choose three to six ready adventurers and pack supplies. Lanterns have a dedicated slot in each character profile. Firelight reveals terrain and enemies; underground races and night vision can see farther without a lamp.</p><p><strong>World difficulty.</strong> Change the world tier at the Bonfire after boss victories. It affects new departures, including NPC Challenges. Route danger still multiplies strength and rewards. Active expeditions keep their departure settings.</p><p><strong>New maps.</strong> Final regional bosses drop one Boss Sigil per successful journey. Meet the portal mage after the first forest boss and spend a Sigil to choose any unopened region. Repeating a boss requires its full journey.</p><p><strong>Background time.</strong> Expeditions run at 1× away from the battle view and catch up when this device resumes. Faster speeds require observing a focused battle. AUTO continues encounters; turn it off to use Continue.</p><p><strong>Camp.</strong> Construction and upgrades, victories, quests and earned character and equipment XP increase Camp level. Capacity begins at 40 and each cabin adds 20. Full Camps cannot acquire recruits. Retirement returns equipment and companions and grants a reward that grows with character level.</p><p><strong>Food and recovery.</strong> Each adventurer consumes one food every 12 hours and earns five XP per meal. Keeping food stocked halves recovery and attracts wanderers. Journey provisions are charged separately on departure.</p><p><strong>Services.</strong> The Bonfire teaches class trees. The Blacksmith transforms weapons; the Equipment Workshop transforms weapons, armor and companions. Eight Market guilds offer lessons, quests and discounted member goods. The Tavern hires travelers. The Arena risks your wager for gold and resource returns.</p><p><strong>Your progress.</strong> Quest pins, search and sorting live in the Quest journal. The Challenges calendar records this month's days in UTC; the Shop has twelve monthly collections. Saves are stored on this device. Use Settings to export and restore a backup.</p></div>`,
+    `<div class="help-list"><p><strong>Routes and lights.</strong> Lock a road at the Crossroads, then choose three to six ready adventurers and pack supplies. Lanterns have a dedicated slot in each character profile. Firelight reveals terrain and enemies; underground races and night vision can see farther without a lamp.</p><p><strong>World difficulty.</strong> Change the world tier at the Bonfire after boss victories. It affects new departures, including NPC Challenges. Route danger still multiplies strength and rewards. Active expeditions keep their departure settings.</p><p><strong>New maps.</strong> Final regional bosses drop one Boss Sigil per successful journey. Meet the portal mage after the first forest boss and spend a Sigil to choose any unopened region. Repeating a boss requires its full journey.</p><p><strong>Background time.</strong> Expeditions run at 1× away from the battle view and catch up when this device resumes. Faster speeds require observing a focused battle. Quiet encounters collect healing and loot automatically, then continue after a short rest.</p><p><strong>Camp.</strong> Construction and upgrades, victories, quests and earned character and equipment XP increase Camp level. Capacity begins at 40 and each cabin adds 20. Full Camps cannot acquire recruits. Retirement returns equipment and companions and grants a reward that grows with character level.</p><p><strong>Food and recovery.</strong> Each adventurer consumes one food every 12 hours and earns five XP per meal. Keeping food stocked halves recovery and attracts wanderers. Journey provisions are charged separately on departure.</p><p><strong>Services.</strong> The Bonfire teaches class trees. The Blacksmith transforms weapons; the Equipment Workshop transforms weapons, armor and companions. Eight Market guilds offer lessons, quests and discounted member goods. The Tavern hires travelers. The Arena risks your wager for gold and resource returns.</p><p><strong>Your progress.</strong> Quest pins, search and sorting live in the Quest journal. The Challenges calendar records this month's days in UTC; the Shop has twelve monthly collections. Saves are stored on this device. Use Settings to export and restore a backup.</p></div>`,
     button("Export Camp", 'id="export-camp"', "secondary-button") +
       button("Import Camp", 'id="import-camp"', "secondary-button") +
       button("Read the Codex", 'data-nav="codex"', "secondary-button"),
@@ -1458,7 +1460,8 @@ async function navigate(screen) {
   if (screen === "expeditions") {
     screen = "crossroads";
     crossroadsTab = "companies";
-  } else if (screen === "crossroads") crossroadsTab = "roads";
+  } else if (screen === "crossroads")
+    crossroadsTab = game.screen === "party" ? "roads" : "companies";
   if (
     screen === "crossroads" &&
     !["camp", "party", "crossroads"].includes(game.screen)
@@ -1869,6 +1872,21 @@ function bindActions(root = document) {
     )
       closeModal();
   });
+  bind("[data-town-npc]", (b) => showTownNpc(b.dataset.townNpc));
+  bind("[data-npc-accept]", async (b) => {
+    if (
+      await act(
+        "acceptNpcQuest",
+        { npc: b.dataset.npc, id: b.dataset.npcAccept },
+        "Quest added to your Journal.",
+      )
+    )
+      showTownNpc(b.dataset.npc);
+  });
+  bind("[data-bar-challenge]", async (b) => {
+    challengeTab = b.dataset.barChallenge;
+    await navigate("challenges");
+  });
   bind("[data-tavern-bar]", showTavernBar);
   bind("[data-tavern-buy]", (b) =>
     apply("tavernBuy", { key: b.dataset.tavernBuy }, "Packed in your stock."),
@@ -1882,15 +1900,19 @@ function bindActions(root = document) {
     await client.checkpoint();
     gameShell.showMenu();
   });
+  bind("[data-plan-expedition]", () => {
+    crossroadsTab = "roads";
+    render(true);
+  });
+  bind("[data-crossroads-overview]", () => {
+    crossroadsTab = "companies";
+    render(true);
+  });
   bind("[data-crossroads-tab]", (b) => {
     crossroadsTab = b.dataset.crossroadsTab;
     render(true);
   });
   bind("[data-open-journal]", showJournal);
-  bind("[data-finish-learning]", async () => {
-    if (await act("learningEvent", { event: "journal-read" })) closeModal();
-  });
-  bind("[data-journal-board]", () => nightUi.showQuestBoard());
   bind("[data-overview]", showCampOverview);
   bind("[data-construct]", (b) =>
     apply("construct", { key: b.dataset.construct }, "A new building at home."),
@@ -2205,13 +2227,13 @@ function render(force = false) {
   lastRender = now;
   $("main-nav").innerHTML =
     game.screen === "camp"
-      ? `${button("Journal", "data-open-journal", "technical-option")}${button("Build", "data-build-sites", "technical-option")}${button("Stock", "data-storage", "technical-option")}${button("Codex", 'data-nav="codex"', "technical-option")}${button("Trials", 'data-nav="calendar"', "technical-option")}${button("Shop", 'data-nav="shop"', "technical-option")}`
+      ? `${button("Journal", "data-open-journal", "camp-menu-option")}${button("Build", "data-build-sites", "camp-menu-option")}${button("Stock", "data-storage", "camp-menu-option")}${button("Codex", 'data-nav="codex"', "camp-menu-option")}${button("Shop", 'data-nav="shop"', "camp-menu-option")}`
       : game.screen === "tavern"
-        ? `${button("Bar", "data-tavern-bar", "technical-option")}${button("Upgrade", "data-tavern-upgrade", "technical-option")}${button("Arena", "data-camp-arena", "technical-option")}`
+        ? `${button("Bar", "data-tavern-bar", "camp-menu-option")}${button("Upgrade", "data-tavern-upgrade", "camp-menu-option")}`
         : game.screen === "expedition" &&
             currentExpedition()?.status === "active"
-          ? `<span id="battle-time">0:00</span>${button("Names", 'id="names-btn" aria-label="Toggle character names"', "technical-option")}${button("Focus", 'id="follow-btn" aria-label="Toggle camera focus" aria-pressed="true"', "technical-option")}${button("−", 'id="battle-zoom-out" aria-label="Zoom battle out"', "technical-option")}${button("+", 'id="battle-zoom-in" aria-label="Zoom battle in"', "technical-option")}`
-          : `${button("Journal", "data-open-journal", "technical-option")}`;
+          ? `<span id="battle-time">0:00</span>${button("Names", 'id="names-btn" aria-label="Toggle character names"', "camp-menu-option")}${button("Focus", 'id="follow-btn" aria-label="Toggle camera focus" aria-pressed="true"', "camp-menu-option")}${button("−", 'id="battle-zoom-out" aria-label="Zoom battle out"', "camp-menu-option")}${button("+", 'id="battle-zoom-in" aria-label="Zoom battle in"', "camp-menu-option")}`
+          : `${button("Journal", "data-open-journal", "camp-menu-option")}`;
   const retainedCamera =
     game.screen === "expedition" &&
     renderedExpeditionId === game.selectedExpedition
@@ -2533,34 +2555,50 @@ function onUpdate(data) {
   }
   if (game.screen === "expedition" && beforeSelectedUid !== selectedUid)
     renderDetail();
-  const next = [
-    game.screen,
-    JSON.stringify(game.learning),
-    game.selectedExpedition,
-    JSON.stringify(game.destination),
-    game.staging.join(),
-    r?.phase,
-    r?.stage,
-    r?.auto,
-    r?.stop?.done,
-    game.roster.length,
-    game.expeditions.map((r) => r.status).join(),
+  const mapScreen = ["camp", "tavern"].includes(game.screen);
+  const next = mapScreen
+    ? [
+        game.screen,
+        JSON.stringify(game.buildings),
+        JSON.stringify(game.campExpansions),
+        Ever.campProgress(game).level,
+        game.roster
+          .filter((h) => available(game, h))
+          .slice(0, 6)
+          .map((h) => h.id)
+          .join(),
+        game.tavern?.stock.map((o) => o.id).join(),
+        game.portalUnlocked,
+        game.roster.length >= 6,
+      ].join("|")
+    : [
+        game.screen,
+        JSON.stringify(game.learning),
+        game.selectedExpedition,
+        JSON.stringify(game.destination),
+        game.staging.join(),
+        r?.phase,
+        r?.stage,
+        r?.auto,
+        r?.stop?.done,
+        game.roster.length,
+        game.expeditions.map((r) => r.status).join(),
 
-    JSON.stringify(game.questClaims),
-    JSON.stringify(game.journeyClears),
-    game.roster.map((h) => h.level + ":" + h.classNodes.length).join(),
-    game.marketEpoch,
-    Math.floor(game.lastClock / 86400000),
-    JSON.stringify(game.buildings),
-    game.campZone,
-    game.roster
-      .map((h) => h.recoveryUntil > game.lastClock || !!Camp.heroJob(h))
-      .join(),
-  ].join("|");
+        JSON.stringify(game.questClaims),
+        JSON.stringify(game.journeyClears),
+        game.roster.map((h) => h.level + ":" + h.classNodes.length).join(),
+        game.marketEpoch,
+        Math.floor(game.lastClock / 86400000),
+        JSON.stringify(game.buildings),
+        game.campZone,
+        game.roster
+          .map((h) => h.recoveryUntil > game.lastClock || !!Camp.heroJob(h))
+          .join(),
+      ].join("|");
   if (
     next !== signature ||
     (data.requestId &&
-      !["expedition", "crossroads"].includes(game.screen) &&
+      !["camp", "tavern", "expedition", "crossroads"].includes(game.screen) &&
       !data.observationOnly)
   ) {
     const stateChanged = next !== signature;
@@ -2572,6 +2610,8 @@ function onUpdate(data) {
     lastDetail = performance.now();
     updateDetailLive();
   }
+  if (mapScreen) homeUi.sync();
+  gameShell.update();
   updateHud(!!data.requestId);
   $("save-status").textContent = data.storageFailed
     ? "Saving unavailable · keep this tab open"
@@ -3202,6 +3242,7 @@ const gameShell = createGameShell({
   render: () => render(true),
   started: () => syncObservation({ speed: 1, paused: false }),
   stopped: () => syncObservation({ speed: 1, paused: false }),
+  closeSheets: closeModal,
   help: async (key) => {
     if (key === "journey") {
       if (game.learning.journeyId) {
@@ -3209,6 +3250,10 @@ const gameShell = createGameShell({
         await syncObservation();
       }
       return;
+    }
+    if (key === "route" && game.screen === "crossroads") {
+      crossroadsTab = "roads";
+      render(true);
     }
     if (["route", "party"].includes(key)) {
       document
@@ -3287,6 +3332,7 @@ const nightUi = createNightfallUi({
   showSell,
   openVendor,
   characterSize,
+  getShoppingHero: () => heroById(marketFor),
   treeHtml: classTreeGraphic,
   growthHtml: growthTableHtml,
   render,
@@ -3515,69 +3561,48 @@ function regionMap() {
     seen = explored(game, loc),
     d = destinationInfo(game),
     routes = regionalRoutes(game, loc, d?.target),
-    tracked = QUESTS.find(
-      (q) => q.id === game.trackedQuest && q.location === loc,
+    tracked = allQuests(game).filter(
+      (q) =>
+        q.location === loc &&
+        !questState(game, q).claimed &&
+        questState(game, q).unlocked &&
+        (q.id === game.trackedQuest || game.questPins.includes(q.id)),
     );
-  return `<section class="route-map-shell"><div class="map-toolbar"><span>${LOCATIONS[loc].name} · ${seen.size} / ${region.nodes.length} discovered</span><div>${button("−", 'data-map-zoom="-1" aria-label="Zoom out"', "icon-button")}${button("+", 'data-map-zoom="1" aria-label="Zoom in"', "icon-button")}${button("Fit map", "data-map-fit", "secondary-button")}</div></div><div class="region-map-viewport" id="region-map-viewport"><div class="region-map" style="--map-scale:${mapZoom};--map-tint:${LOCATIONS[loc].color}" aria-label="${LOCATIONS[loc].name} local roads"><svg viewBox="0 0 900 1300" preserveAspectRatio="none" aria-hidden="true">${pixelTerrainSvg(loc === "greenway" ? "forest" : loc === "cinder" ? "village" : loc, 900, 1300, 541)}${regionLandmarks(loc)}${region.roads.map((e) => `<path d="${roadPath(region, e)}" fill="none" stroke="#000000" stroke-width="7" stroke-linecap="round" stroke-dasharray="${e.style === "wild" ? "3 17" : "none"}"/>`).join("")}${routes
+  return `<section class="route-map-shell"><div class="map-toolbar"><span>${LOCATIONS[loc].name} · ${seen.size} / ${region.nodes.length} discovered</span><div>${button("−", 'data-map-zoom="-1" aria-label="Zoom out"', "icon-button")}${button("+", 'data-map-zoom="1" aria-label="Zoom in"', "icon-button")}${button("Fit map", "data-map-fit", "secondary-button")}</div></div><div class="region-map-viewport" id="region-map-viewport"><div class="region-map" style="--map-scale:${mapZoom};--map-tint:${LOCATIONS[loc].color}" aria-label="${LOCATIONS[loc].name} local roads"><svg viewBox="0 0 900 1300" preserveAspectRatio="none" aria-hidden="true"><image href="/map-route-${loc}-v05.svg?v=19" width="900" height="1300" preserveAspectRatio="none"/>${region.roads.map((e) => `<path d="${roadPath(region, e)}" fill="none" stroke="#c3ab79" stroke-opacity=".65" stroke-width="5" stroke-linecap="round" stroke-dasharray="${e.style === "wild" ? "3 17" : "none"}"/>`).join("")}${routes
     .filter((r) => r.index === (d?.routeIndex ?? 0))
     .map(
       (r) =>
-        `<g class="route-path route-${r.index} ${r.index === d?.routeIndex ? "current" : ""}">${r.edges.map((e) => `<path d="${roadPath(region, e)}" fill="none" stroke="#00aaff" stroke-width="10" stroke-linecap="round" stroke-dasharray="${e.style === "wild" ? "3 17" : "none"}"/>`).join("")}</g>`,
+        `<g class="route-path route-${r.index} ${r.index === d?.routeIndex ? "current" : ""}">${r.edges.map((e) => `<path d="${roadPath(region, e)}" fill="none" stroke="#f0cb82" stroke-width="8" stroke-linecap="round" stroke-dasharray="${e.style === "wild" ? "3 17" : "none"}"/>`).join("")}</g>`,
     )
     .join("")}</svg>${region.nodes
     .map((n) => {
       const show = visible.has(n.id),
         home = n.id === region.entry;
-      return `<button class="regional-node ${show ? "" : "fogged"} ${home ? "home-node" : ""} ${n.kind === "boss" ? "boss-node" : n.kind === "miniboss" ? "miniboss-node" : ""} ${seen.has(n.id) ? "visited" : ""} ${d?.target === n.id ? "selected" : ""} ${tracked?.target === n.id && show ? "quest-target" : ""}" data-destination="${n.id}" style="left:${n.x}%;top:${n.y}%" ${!show || home ? "disabled" : ""} aria-label="${show ? n.name + " · Level " + n.level + " " + n.kind : "Unexplored location"}">${n.kind === "boss" ? castleArt() : ""}<b>${!show ? "?" : home ? (loc === "greenway" ? "★" : "◉") : seen.has(n.id) ? "✓" : n.kind === "boss" ? "♜" : n.kind === "miniboss" ? "⚔" : n.kind === "resource" ? "◆" : n.kind === "special" ? "✧" : "•"}</b><span>${show ? (home && loc === "greenway" ? esc(game.campName || "Your Camp") : n.name) : n.kind === "boss" ? n.name : "Unexplored"}</span>${tracked?.target === n.id && show ? "<small>QUEST</small>" : ""}</button>`;
+      return `<button class="regional-node ${show ? "" : "fogged"} ${home ? "home-node" : ""} ${n.kind === "boss" ? "boss-node" : n.kind === "miniboss" ? "miniboss-node" : ""} ${seen.has(n.id) ? "visited" : ""} ${d?.target === n.id ? "selected" : ""} ${tracked.some((q) => q.target === n.id) && show ? "quest-target" : ""}" data-destination="${n.id}" style="left:${n.x}%;top:${n.y}%" ${!show || home ? "disabled" : ""} aria-label="${show ? n.name + " · Level " + n.level + " " + n.kind : "Unexplored location"}">${n.kind === "boss" ? castleArt() : ""}<b>${!show ? "?" : home ? (loc === "greenway" ? "★" : "◉") : seen.has(n.id) ? "✓" : n.kind === "boss" ? "♜" : n.kind === "miniboss" ? "⚔" : n.kind === "resource" ? "◆" : n.kind === "special" ? "✧" : "•"}</b><span>${show ? (home && loc === "greenway" ? esc(game.campName || "Your Camp") : n.name) : n.kind === "boss" ? n.name : "Unexplored"}</span>${tracked.some((q) => q.target === n.id) && show ? '<small class="quest-map-marker">◆ QUEST</small>' : ""}</button>`;
     })
     .join(
       "",
-    )}</div></div><div class="region-key">${loc === "greenway" ? "★ Your only Camp" : "◉ Portal arrival · Camp stays in the forest"} · ◆ Materials · ✧ Special rewards · ⚔ Three mini-bosses · ♜ Region boss<span>Bright blue is your selected route · solid roads are open · dotted roads are wild · explore to unlock darkened nodes</span></div></section>`;
+    )}</div></div><div class="region-key">${loc === "greenway" ? "★ Your only Camp" : "◉ Portal arrival · Camp stays in the forest"} · ◆ Materials · ✧ Special rewards · ⚔ Three mini-bosses · ♜ Region boss<span>Gold is your selected route · solid roads are open · dotted roads are wild · explore to unlock darkened nodes</span></div></section>`;
 }
 function crossroadsV7View() {
   const d = destinationInfo(game),
     loc = d?.location || "greenway",
-    routes = regionalRoutes(game, loc, d?.target),
-    q = QUESTS.find((q) => q.id === game.trackedQuest),
-    region = REGIONS[loc],
-    boss = bossDefeated(game, loc);
-  return (
-    heading(
-      "STEP 1 OF 2 · CHOOSE THE ROAD",
-      "The Crossroads",
-      "Select a location, compare the highlighted roads, then lock your route.",
-      button("Back to Camp", 'data-nav="camp"', "secondary-button"),
-    ) +
-    `${
-      game.portalUnlocked
-        ? `<div class="region-tabs" aria-label="Travel regions">${REGION_ORDER.filter(
-            (id) => game.regionUnlocks.includes(id),
-          )
-            .map((id) =>
-              button(
-                `${icon(LOCATIONS[id].icon, 18)}${LOCATIONS[id].name}${!game.regionUnlocks.includes(id) ? " · Locked" : ""}`,
-                `data-region="${id}" ${!game.regionUnlocks.includes(id) ? "disabled" : ""}`,
-                "secondary-button " + (loc === id ? "selected" : ""),
-              ),
-            )
-            .join("")}</div>`
-        : ""
-    }${q ? `<div class="tracked-banner"><span>${icon("flag", 18)}<strong>${q.name}</strong> · ${q.text}</span>${button("Journal", 'data-nav="quests"', "text-button")}</div>` : ""}<div class="travel-layout">${regionMap()}<section class="route-planner" id="route-planner"><span class="eyebrow">${d?.destinationBoss ? "REGION BOSS" : "SELECTED DESTINATION"}</span><h2>${esc(d?.name || "Choose a location")}</h2><p>${d?.milestone ? rewardName(d.milestone) : "Gold, XP, materials, and discoveries along the road."}</p>${button("Review highlighted roads", "data-review-roads", "text-button")}<p class="route-level">Suggested level ${d?.level + 3 || 4} · ${LOCATIONS[loc].name}</p><div class="route-options">${
-      routes
-        .map((r) =>
-          button(
-            `<span class="eyebrow" style="color:${r.index === d?.routeIndex ? "#0079be" : "#424c46"}">${r.index === d?.routeIndex ? "●" : "○"} ROUTE ${r.index + 1}${d?.routeIndex === r.index ? " · SELECTED" : ""}</span><strong>${r.label}</strong><span class="route-counts"><b>${r.combats}</b> combat · <b>${r.events}</b> non-combat</span><span>${routeDifficulty(r, loc)} difficulty · ${(DIFFICULTIES[game.worldDifficulty || "normal"].reward * r.danger).toFixed(2)}× rewards</span><small><b>${r.foodPerHero} food per adventurer</b>${r.foodPerHero ? " · " + r.foodPerHero * 3 + " for a party of three" : " · No supplies required"}</small><small class="route-waypoints">${r.ids
-              .slice(1)
-              .map((id) => region.nodes.find((n) => n.id === id).name)
-              .join(" → ")}</small>`,
-            `data-route-index="${r.index}" aria-pressed="${d?.routeIndex === r.index}"`,
-            "route-option " + (d?.routeIndex === r.index ? "selected" : ""),
-          ),
+    routes = regionalRoutes(game, loc, d?.target);
+  return `<section class="planning-screen"><header class="planner-heading"><div><span class="eyebrow">1 / 2 · CHOOSE YOUR ROAD</span><h1>Where will you go?</h1></div>${button("Expeditions", "data-crossroads-overview", "secondary-button")}</header>${
+    game.portalUnlocked
+      ? `<div class="region-tabs">${REGION_ORDER.filter((id) =>
+          game.regionUnlocks.includes(id),
         )
-        .join("") ||
-      '<p class="locked-note">Explore neighboring roads to reveal this destination.</p>'
-    }</div>${difficultyControls()}<div class="route-confirm">${button("Lock route · Choose party " + icon("arrow", 16), "data-lock-route " + (!d?.unlocked ? "disabled" : ""))}<small>Choose your adventurers and pack supplies on the next screen.</small></div></section></div>`
-  );
+          .map((id) =>
+            button(
+              LOCATIONS[id].name,
+              `data-region="${id}"`,
+              "secondary-button " + (loc === id ? "selected" : ""),
+            ),
+          )
+          .join("")}</div>`
+      : ""
+  }<div class="travel-layout">${regionMap()}<section class="route-planner" id="route-planner"><span class="eyebrow">SELECTED DESTINATION</span><h2>${esc(d?.name || "Choose a place on the map")}</h2><p>Suggested level ${d?.level + 3 || 4} · ${LOCATIONS[loc].name}</p><div class="route-options">${routes.map((r) => button(`<strong>${r.index === d?.routeIndex ? "● " : "○ "}${r.label}</strong><span>${r.combats} battles · ${r.events} quiet stops</span><small>${routeDifficulty(r, loc)} · ${r.foodPerHero ? `${r.foodPerHero} food per hero` : "No food needed"}</small>`, `data-route-index="${r.index}" aria-pressed="${r.index === d?.routeIndex}"`, "route-option " + (r.index === d?.routeIndex ? "selected" : ""))).join("") || "<p>Explore neighboring roads to reach this place.</p>"}</div><div class="route-confirm">${button("Choose party →", "data-lock-route " + (!d?.unlocked ? "disabled" : ""))}<small>◆ marks a tracked quest destination.</small></div></section></div></section>`;
 }
 function partyView() {
   const d = game.lockedJourney,
@@ -3585,17 +3610,7 @@ function partyView() {
     req = journeyRequirements(game, d || {}, heroes),
     free = expeditionSlots(game) > activeExpeditions(game).length;
   if (!d) return crossroadsV7View();
-  return (
-    heading(
-      "STEP 2 OF 2 · ASSEMBLE YOUR COMPANY",
-      "Who is coming?",
-      d.name + " · " + LOCATIONS[d.location].name,
-      button("← Change route", 'data-nav="crossroads"', "secondary-button"),
-    ) +
-    workspace(
-      `<div class="locked-route-summary"><div><span class="eyebrow">YOUR LOCKED ROAD</span><h2>${esc(d.name)}</h2><p>${d.encounters} combat · ${d.otherEncounters || 0} non-combat · ${DIFFICULTIES[d.difficulty].name} · ${d.reward.toFixed(2)}× rewards</p></div>${icon(LOCATIONS[d.location].icon, 36)}</div>${slotMeter()}<div class="journey-provisions"><h3>${req.food ? req.food + " food reserved at departure" : "No food needed for this short road"}</h3><p>${game.food} stocked · ${game.staging.length} / 6 adventurers · minimum three</p>${req.missing.map((t) => '<p class="locked-note">' + esc(t) + "</p>").join("")}<small>Primary equipment must be equipped. Longer journeys use food; optional supplies help the party.</small></div>${suppliesView()}${collection(game.roster, "Choose three to six", "staging")}<div class="launch-bar sticky-departure"><div><strong>${game.staging.length} adventurers · ${req.food} food</strong><p>${!free ? "All expedition slots are occupied." : req.missing[0] || "Automatic formation · background 1×"}</p></div>${button("Start expedition " + icon("arrow", 15), 'id="launch-btn" ' + (req.missing.length || game.staging.length < 3 || !free || catchingUp ? "disabled" : ""))}</div>`,
-    )
-  );
+  return `<section class="party-planning"><header class="planner-heading"><div><span class="eyebrow">2 / 2 · CHOOSE YOUR COMPANY</span><h1>${esc(d.name)}</h1><p>${d.encounters} battles · ${d.otherEncounters || 0} quiet stops · ${req.food} food needed</p></div>${button("← Change road", 'data-nav="crossroads"', "secondary-button")}</header><details class="party-supplies"><summary>Optional supplies · ${game.food} food stocked</summary>${suppliesView()}</details><div class="party-roster">${collection(game.roster, "Your adventurers", "staging", true)}</div><footer class="launch-bar"><div><strong>${game.staging.length} / 6 heroes · minimum three</strong><p>${!free ? "All expedition slots are occupied." : req.missing[0] || "Your company is ready."}</p></div>${button("Start expedition →", 'id="launch-btn" ' + (req.missing.length || game.staging.length < 3 || !free || catchingUp ? "disabled" : ""))}</footer></section>`;
 }
 
 function v7Detail() {
@@ -4179,7 +4194,11 @@ function marketFocusBar() {
 }
 function openVendor(id, heroId = null) {
   marketShopVendor = id;
-  marketFor = game.marketParty.includes(heroId) ? heroId : null;
+  marketFor =
+    heroById(heroId) &&
+    (game.screen === "camp" || game.marketParty.includes(heroId))
+      ? heroId
+      : null;
   shopSearch = "";
   shopType = "all";
   shopPage = 0;
@@ -4211,7 +4230,7 @@ function showVendorShop() {
   const pages = Math.max(1, Math.ceil(stock.length / 8));
   shopPage = Math.min(shopPage, pages - 1);
   openModal(
-    v.name,
+    game.screen === "camp" && v.id === "forge" ? "Trading Post" : v.name,
     h ? "Compatible goods for " + h.name + " · " + className(h) : v.text,
     `${stockTimer()}${vendorArt(v)}${h ? `<div class="market-focus">${portraitSvg(h)}<span><strong>${esc(h.name)}</strong><small>${h.race} · ${className(h)} · ${CLASSES[h.classId].armorWeight} armor</small></span>${button("All goods", "data-shop-all", "text-button")}</div>` : ""}<div class="shop-tools"><input id="shop-search" class="modal-select" type="search" value="${esc(shopSearch)}" placeholder="Search this vendor…" aria-label="Search this vendor"><select id="shop-type" class="modal-select" aria-label="Goods type"><option value="all">All kinds</option>${[...new Set((game.market[v.id] || []).map((o) => o.kind))].map((kind) => `<option value="${kind}" ${kind === shopType ? "selected" : ""}>${title(kind)}</option>`).join("")}</select><select id="shop-sort" class="modal-select" aria-label="Sort goods">${[
       ["name", "Name"],
@@ -4311,7 +4330,15 @@ function bindMapControls() {
     viewport.scrollTop = state.y;
   } else {
     viewport.scrollLeft = 0;
-    viewport.scrollTop = 0;
+    const target = REGIONS[loc]?.nodes.find(
+      (n) => n.id === game.destination.target,
+    );
+    viewport.scrollTop = Math.max(
+      0,
+      ((target?.y || 90) / 100) *
+        (viewport.querySelector(".region-map")?.scrollHeight || 0) -
+        (viewport.clientHeight || 0) * 0.65,
+    );
   }
   viewport.addEventListener("scroll", () =>
     mapViews.set(loc, { x: viewport.scrollLeft, y: viewport.scrollTop }),
@@ -4499,8 +4526,9 @@ function challengesView() {
   return (
     heading(
       "ONE BATTLE. A CLEAR REWARD.",
-      "Challenges",
+      "The Tavern challenge board",
       "Today’s Daily Battle, themed champions, and the bosses your company has overcome.",
+      button("← Tavern", 'data-nav="tavern"', "secondary-button"),
     ) +
     challengeTabs() +
     `${everUi.calendar()}<section class="challenge-theme"><span class="eyebrow">${new Date(game.lastClock).toLocaleDateString("en", { month: "long", year: "numeric", timeZone: "UTC" })} · ${m.name}</span><h2>${m.text}</h2><p>${count} / ${m.days} victorious daily dates this month.</p></section>${
@@ -4640,11 +4668,36 @@ function showTavernHero(id) {
     ),
   );
 }
+function showTownNpc(id) {
+  const npc = TOWN_NPCS.find((n) => n.id === id);
+  if (!npc) return;
+  const offers = npcQuestOffers(game, id);
+  openModal(
+    npc.name,
+    npc.role,
+    `<p>${offers.length ? "I could use a little help on the roads." : "Nothing new just now. Come back after a few hours on the road."}</p>${offers
+      .map(
+        (q) =>
+          `<article class="quest-card"><h3>${esc(q.name)}</h3><p>${esc(q.text)}</p><p>${Object.entries(
+            q.reward,
+          )
+            .map(([k, n]) => `${n} ${k}`)
+            .join(
+              " · ",
+            )}</p>${button("Accept quest", `data-npc-accept="${q.id}" data-npc="${id}"`)}</article>`,
+      )
+      .join("")}`,
+    "",
+    () => showTownNpc(id),
+  );
+}
 function showTavernBar() {
   openModal(
     "The Last Lantern bar",
-    "Supplies for the next road",
-    `<div class="item-list">${Tavern.barStock(game)
+    "Bram’s counter · challenges and supplies",
+    `<div class="bar-challenges"><h3>Legacy challenges</h3><p>Keep a daily streak, face this month’s champions, or trade challenges with other players.</p>${button("Daily challenges", 'data-bar-challenge="daily"', "secondary-button")}${button("Monthly challenges", 'data-bar-challenge="monthly"', "secondary-button")}${button("Player challenges · Join or issue", 'data-bar-challenge="players"', "secondary-button")}</div><h3>Travel supplies</h3><div class="item-list">${Tavern.barStock(
+      game,
+    )
       .map(
         ([key, d]) =>
           `<article class="item-option"><div><strong>${d.name}</strong><p>${d.text}</p></div>${button(`Buy · ${d.price} gold`, `data-tavern-buy="${key}" ${game.gold < d.price ? "disabled" : ""}`, "secondary-button")}</article>`,
@@ -4688,16 +4741,8 @@ function showJournal() {
   openModal(
     "Journal",
     "Quests, progress and rewards",
-    `<div class="journal-tabs">${button("Available quests", "data-journal-board", "secondary-button")}</div>` +
-      everUi.questsView(),
-    ["quests", "journal"].includes(game.learning?.stage)
-      ? button(
-          game.learning.stage === "quests"
-            ? "Set out for Fernbridge"
-            : "Begin your story",
-          `data-finish-learning ${!game.learning.journalSeen || (game.learning.stage === "quests" && !game.questClaims.includes("first-road")) ? "disabled" : ""}`,
-        )
-      : "",
+    everUi.questsView(),
+    "",
     showJournal,
   );
   $("modal").dataset.sheet = "journal";

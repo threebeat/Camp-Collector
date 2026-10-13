@@ -16,7 +16,7 @@ import {
   flightType,
   objectModifiers,
   GUILD_EQUIPMENT,
-} from "./data.js?v=18";
+} from "./data.js?v=19";
 
 export const PIXEL_PALETTE = Object.freeze({
   ink: "#0a0c1a",

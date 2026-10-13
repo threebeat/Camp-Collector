@@ -1,6 +1,6 @@
-import { PixelLighting } from "./pixel-lighting.js?v=18";
-import { revealedCampAreas } from "./camp-world.js?v=18";
-import { campProgress } from "./evernight.js?v=18";
+import { PixelLighting } from "./pixel-lighting.js?v=19";
+import { revealedCampAreas } from "./camp-world.js?v=19";
+import { campProgress } from "./evernight.js?v=19";
 
 // World-space lighting survives camera transforms. Layout is sampled once, not every frame.
 export class SceneLighting {
@@ -62,7 +62,7 @@ export class SceneLighting {
     }
     this.residents = [
       ...element.querySelectorAll(
-        "[data-world-resident], [data-world-prop], [data-tavern-wander]",
+        "[data-world-resident], [data-world-prop], [data-tavern-wander], [data-town-npc], .bartender",
       ),
     ];
     if (element.dataset.localMap === "tavern")
@@ -105,7 +105,12 @@ export class SceneLighting {
         y = parseFloat(el.style.top);
       people.push({
         type: "tree",
-        id: el.dataset.hero || el.dataset.worldProp,
+        id:
+          el.dataset.hero ||
+          el.dataset.worldProp ||
+          el.dataset.tavernHero ||
+          el.dataset.townNpc ||
+          "bartender",
         x,
         y: y - 2,
         r: el.dataset.worldProp ? 13 : 9,
@@ -113,7 +118,12 @@ export class SceneLighting {
       const r = Number(el.dataset.lightRadius);
       if (r > 0)
         lights.push({
-          owner: el.dataset.hero || el.dataset.worldProp,
+          owner:
+            el.dataset.hero ||
+            el.dataset.worldProp ||
+            el.dataset.tavernHero ||
+            el.dataset.townNpc ||
+            "bartender",
           x: x + 10,
           y: y - 8,
           r,
@@ -139,15 +149,7 @@ export class SceneLighting {
     // All cast shadows stay on the ground plane, below their owner sprites.
     for (const caster of people)
       for (const source of lights) {
-        const shape = groundShadow(source, caster);
-        if (!shape) continue;
-        ctx.fillStyle = "rgba(4,7,15,0.25)";
-        ctx.beginPath();
-        shape.forEach((p, i) =>
-          i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y),
-        );
-        ctx.closePath();
-        ctx.fill();
+        paintGroundShadow(ctx, source, caster);
       }
     const fire = this.staticLights.find((l) => l.kind === "fire");
     if (fire) {
@@ -197,4 +199,27 @@ export function groundShadow(source, caster) {
       y: caster.y + uy * length + ux * r * 0.45,
     },
   ];
+}
+
+export function paintGroundShadow(ctx, source, caster, opacity = 0.26) {
+  const shape = groundShadow(source, caster);
+  if (!shape) return;
+  const tip = {
+    x: (shape[2].x + shape[3].x) / 2,
+    y: (shape[2].y + shape[3].y) / 2,
+  };
+  ctx.save();
+  const fade = ctx.createLinearGradient(caster.x, caster.y, tip.x, tip.y);
+  fade.addColorStop(0, `rgba(4,7,15,${opacity})`);
+  fade.addColorStop(0.45, `rgba(4,7,15,${opacity * 0.6})`);
+  fade.addColorStop(0.8, `rgba(4,7,15,${opacity * 0.18})`);
+  fade.addColorStop(1, "rgba(4,7,15,0)");
+  ctx.fillStyle = fade;
+  ctx.shadowColor = `rgba(4,7,15,${opacity * 0.35})`;
+  ctx.shadowBlur = 7;
+  ctx.beginPath();
+  shape.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
 }

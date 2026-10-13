@@ -14,7 +14,8 @@ const NOW = Date.UTC(2026, 9, 11, 12);
 const fresh = () => D.initialGame(seeded(13), NOW);
 function funded(guild = false) {
   const g = fresh();
-  if (guild) g.roster.push(...Array.from({ length: 3 }, () => D.generateHero()));
+  if (guild)
+    g.roster.push(...Array.from({ length: 3 }, () => D.generateHero()));
   g.gold = 10000;
   Camp.addGems(g, 100);
   g.food = 100;
@@ -31,7 +32,10 @@ test("a fresh company starts with exactly one Main and two Side quests; rewards 
   Camp.nameCamp(g, "Last Light");
   assert.ok(P.claimQuest(g, "settle-in"));
   assert.equal(P.claimQuest(g, "settle-in"), false);
-  if (!g.buildings.pantry) assert.ok(Camp.buildCamp(g, "pantry"));
+  if (!g.buildings.pantry) {
+    g.materials.wood += 5;
+    assert.ok(Camp.buildCamp(g, "pantry"));
+  }
   assert.ok(Camp.buyFood(g, 1));
   assert.ok(P.claimQuest(g, "stock-pantry"));
   assert.equal(P.claimQuest(g, "bridge"), false);
@@ -193,11 +197,15 @@ test("the Kitchen upgrades the Pantry in place, keeps food shopping and makes si
   const g = funded();
   assert.equal(BUILDINGS.kitchen.upgradeFrom, "pantry");
   assert.equal(BUILDINGS.kitchen.x, BUILDINGS.pantry.x);
+  g.materials.wood += 5;
   assert.ok(Camp.buildCamp(g, "pantry"));
   assert.ok(Camp.buildCamp(g, "kitchen"));
   assert.equal(Camp.buildCamp(g, "kitchen"), false);
   const before = g.food;
-  if (!g.buildings.pantry) assert.ok(Camp.buildCamp(g, "pantry"));
+  if (!g.buildings.pantry) {
+    g.materials.wood += 5;
+    assert.ok(Camp.buildCamp(g, "pantry"));
+  }
   assert.ok(Camp.buyFood(g, 1));
   assert.ok(Camp.cook(g, "food"));
   assert.equal(g.food, before + 7);

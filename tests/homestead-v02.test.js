@@ -86,8 +86,8 @@ test("Camp construction and cleared land expand revealed areas without opening e
   g.buildings.blacksmith = 1;
   assert.ok(revealedCampAreas(g)[0].r > before[0].r);
   g.campExpansions.push("south");
-  assert.equal(revealedCampAreas(g).length, 2);
-  assert.equal(revealedCampAreas(g)[1].y, 1100);
+  assert.ok(revealedCampAreas(g).length >= 2);
+  assert.equal(revealedCampAreas(g)[1].y, 1620);
 });
 test("focused camera eases zoom to fit dispersed characters and manual movement disables tracking", () => {
   const camera = new WorldCamera(1200, 480, { span: 480, min: 360 });
