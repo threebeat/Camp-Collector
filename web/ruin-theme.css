@@ -125,3 +125,6 @@ body[data-screen="expedition"] #app-content > .page-heading .heading-pill { disp
 
 /* Keep live combat pixels on their own compositing layer. */
 #battlefield, #challenge-field { transform: translateZ(0); }
+/* These layered bitmaps must not inherit the old vector portrait animations.
+   Animate the outer Camp sprite, not SVG groups containing raster images. */
+svg[data-survivor-art] * { animation: none !important; }
