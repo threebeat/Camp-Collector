@@ -30,6 +30,8 @@ export default defineConfig({
       },
     },
     { name: "android-chromium", use: { ...devices["Pixel 7"] } },
-    { name: "iphone-webkit", use: { ...devices["iPhone 13"] } },
+    // Concurrent software-rendered WebKit sessions distort the frame sample.
+    // Keep all assertions, but give each iPhone scenario its own render budget.
+    { name: "iphone-webkit", workers: 1, use: { ...devices["iPhone 13"] } },
   ],
 });

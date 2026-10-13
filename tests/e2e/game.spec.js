@@ -430,16 +430,6 @@ test("storage, equipment slots, Kitchen, crafting and the lake remain usable", a
 test("route and battlefield updates never open profiles; manual camera, focus and zoom persist through pause", async ({
   page,
 }) => {
-  await page.addInitScript(() => {
-    const NativeWorker = window.Worker;
-    window.qaWorkers = [];
-    window.Worker = class extends NativeWorker {
-      constructor(...args) {
-        super(...args);
-        window.qaWorkers.push(this);
-      }
-    };
-  });
   const { errors } = await start(page);
   await settleCamp(page);
   await page.locator("[data-world-resident]").first().focus();
@@ -515,52 +505,6 @@ test("route and battlefield updates never open profiles; manual camera, focus an
           timings.reduce((a, b) => a + b, 0) / Math.max(1, timings.length),
         maxDrawMs: Math.max(0, ...timings),
       };
-      if (frames <= 5) {
-        result.animations = document.getAnimations().map((a) => {
-          const el = a.effect?.target;
-          return {
-            name: a.animationName,
-            tag: el?.tagName,
-            id: el?.id,
-            class: el?.getAttribute("class"),
-            hidden: el?.closest("[hidden]")?.id,
-          };
-        });
-        // Keep the assertion on the real UI, but leave useful compositor
-        // diagnostics in CI rather than guessing from a timeout screenshot.
-        const theme = document.querySelector('link[href*="ruin-theme.css"]');
-        if (theme) {
-          theme.disabled = true;
-          try {
-            result.withoutTheme = await measure();
-          } finally {
-            theme.disabled = false;
-          }
-        }
-        Renderer.prototype.draw = () => {};
-        result.withoutRenderer = await measure();
-        const workers = window.qaWorkers.map((worker) => [
-          worker,
-          worker.onmessage,
-        ]);
-        for (const [worker] of workers) worker.onmessage = null;
-        const probe = document.createElement("style");
-        document.head.appendChild(probe);
-        try {
-          result.withoutHudUpdates = await measure();
-          probe.textContent =
-            "* , *::before, *::after {animation:none!important;transition:none!important;}";
-          result.withoutAnimations = await measure();
-          probe.textContent +=
-            "#game-window svg {visibility:hidden!important;} #brand-name {background:none!important;}";
-          result.withoutSvg = await measure();
-          probe.textContent += "#game-window {visibility:hidden!important;}";
-          result.withoutGamePaint = await measure();
-        } finally {
-          probe.remove();
-          for (const [worker, handler] of workers) worker.onmessage = handler;
-        }
-      }
       return result;
     } finally {
       Renderer.prototype.draw = draw;
