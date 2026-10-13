@@ -2283,15 +2283,15 @@ function render(force = false) {
   );
   updateHud();
   gameShell.update();
-  document.body.classList.toggle(
-    "body-reduced-motion",
-    !!game.settings.reducedMotion,
-  );
   document.title = `${game.screen === "camp" ? "The Camp" : game.screen === "crossroads" ? "Local map" : game.screen === "party" ? "Assemble your party" : game.screen === "market" ? "The Market" : game.screen === "tavern" ? "The Tavern" : game.screen === "arena" ? "The Arena" : game.screen === "shop" ? "The Gem Shop" : game.screen === "calendar" ? "Challenges" : game.screen === "challenges" ? "Challenges" : game.screen === "codex" ? "The Codex" : game.screen === "expedition" ? currentExpedition()?.name || "Expedition" : "Expeditions"} · ${game.campName || "Your Camp"} · Evernight`;
 }
 let lastHudAt = -Infinity;
 function updateHud(force = false) {
   if (!game) return;
+  document.body.classList.toggle(
+    "body-reduced-motion",
+    !!game.settings.reducedMotion,
+  );
   const at = performance.now();
   if (!force && at - lastHudAt < 150) return;
   lastHudAt = at;
@@ -2595,17 +2595,22 @@ function onUpdate(data) {
           .map((h) => h.recoveryUntil > game.lastClock || !!Camp.heroJob(h))
           .join(),
       ].join("|");
+  const stateChanged = next !== signature;
   if (
-    next !== signature ||
+    stateChanged ||
     (data.requestId &&
       !["camp", "tavern", "expedition", "crossroads"].includes(game.screen) &&
       !data.observationOnly)
   ) {
-    const stateChanged = next !== signature;
     signature = next;
     render(true);
-    if (stateChanged && $("modal").open && modalRefresh) modalRefresh();
   }
+  if (
+    $("modal").open &&
+    modalRefresh &&
+    (stateChanged || (data.requestId && !data.observationOnly))
+  )
+    modalRefresh();
   if (game.screen === "expedition" && performance.now() - lastDetail > 600) {
     lastDetail = performance.now();
     updateDetailLive();

@@ -1709,6 +1709,23 @@ body[data-screen="party"] #game-window[data-locked="true"] #app-content {
 #game-window .party-planning .hero-card {
   min-width: 0;
 }
+#game-window .hero-card .hero-name {
+  color: #f0dfb8;
+}
+#game-window .hero-card .hero-class,
+#game-window .hero-card .hero-card-top,
+#game-window .hero-card .card-health > span,
+#game-window .hero-card .card-xp > span,
+#game-window .hero-card .character-status small {
+  color: #b9c6d3;
+}
+#game-window .hero-card .character-status,
+#game-window .hero-card .deploy-toggle[aria-pressed="true"] {
+  color: #a1d3a3;
+}
+#game-window .hero-card .deploy-toggle {
+  color: #e4d5b3;
+}
 #game-window .interlude-panel {
   flex: 1;
   min-height: 0;

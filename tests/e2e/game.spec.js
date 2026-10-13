@@ -387,7 +387,7 @@ test("route and battlefield updates never open profiles; manual camera, focus an
   await page.locator("[data-plan-expedition]").click();
   await page.locator('[data-destination="clearing"]').click();
   await page.locator("[data-lock-route]").click();
-  await expect(page.locator("#hero-detail")).toBeEmpty();
+  await expect(page.locator("#hero-detail")).toHaveCount(0);
   await page.locator("#launch-btn").click();
   await expect(page.locator("#hero-detail")).toBeEmpty();
   await page.locator("#pause-btn").click();
@@ -482,6 +482,7 @@ test("lights, class choices, global difficulty, chosen portals and Codex retain 
   await modal(page).locator("[data-equip-light]").first().click();
   await close(page);
   await building(page, "bonfire");
+  await shot(page, "bonfire-skill-tree");
   await modal(page).locator('[data-class-node="vanguard:foundation"]').click();
   await modal(page).locator("#confirm-class-node").click();
   await modal(page).locator('[data-class-node="breaker:0"]').click();

@@ -58,9 +58,15 @@ export function createHomesteadUi(c) {
               : BUILDINGS[key]?.name || key;
         const attrs =
           key === "market" ? "data-market-visit" : `data-building="${key}"`;
-        const art = key === "tent" && g.buildings.tent > 1 ? "cabins" : key;
+        const upgrades = Object.entries(BUILDINGS)
+          .filter(([id, d]) => d.upgradeFrom === key && !g.buildings[id])
+          .map(
+            ([id]) =>
+              `<span class="build-ready-dot" data-build-dot="${id}" hidden aria-label="Upgrade available"></span>`,
+          )
+          .join("");
         return button(
-          `${key === "bonfire" ? pixelBuildingSvg("bonfire") : `<span class="building-hit-area" aria-hidden="true"></span>`}<strong>${name}</strong>`,
+          `${key === "bonfire" ? pixelBuildingSvg("bonfire") : `<span class="building-hit-area" aria-hidden="true"></span>`}<strong>${name}</strong>${upgrades}`,
           `${attrs} data-drop-target="building:${key}" data-scene-key="${key}" data-world-x="${x}" data-world-y="${y}" style="left:${x}px!important;top:${y}px!important" aria-label="Open ${name}"`,
           "world-building camp-building built " +
             (key !== "bonfire" ? "baked-building " : "") +
@@ -124,6 +130,7 @@ export function createHomesteadUi(c) {
         return (
           d?.cost &&
           !d.legacy &&
+          !d.upgradeFrom &&
           !g.buildings[key] &&
           !(key === "pantry" && g.buildings.kitchen) &&
           buildingAllowed(g, d) &&

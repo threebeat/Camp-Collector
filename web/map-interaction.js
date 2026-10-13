@@ -25,6 +25,8 @@ export function attachResidentDragging(
       if (held || (event.button !== undefined && event.button !== 0)) return;
       const map = el.closest("[data-local-map]");
       if (!map) return;
+      // A new press is deliberate; only suppress the synthetic click from the drop.
+      delete el.dataset.ignoreClick;
       const rect = map.getBoundingClientRect(),
         pos = el.getBoundingClientRect();
       held = {
