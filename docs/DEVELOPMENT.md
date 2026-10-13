@@ -22,9 +22,9 @@ The `Game checks` workflow runs on main pushes, pull requests and manual dispatc
 
 | Check | Evidence |
 | --- | --- |
-| 187 Node tests | Combat, service costs/restrictions, worker transport, save/checkpoint migration, UI command flows and challenge transactions |
+| 193 Node tests | Combat, service costs/restrictions, worker transport, save/checkpoint migration, UI command flows, challenge transactions, cached scenery updates, water masks and firelight/shadow rendering |
 | Build + validation | The actual bundled ESM Worker serves embedded assets, routes and the expected auth/storage contract |
-| Playwright | Desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit emulation; live Worker transport, ten flows per project: opening/naming, tutorial/settings, light equipment, class/world-tier/portal persistence, guild/Tavern/Quest/Arena flows, calendar/monthly collections and retained profiles/services; horizontal fit and reduced motion |
+| Playwright | Thirteen flows per project on desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit: live Worker transport, opening/tutorial, drag/drop, retained scenery, lighting/water, profile sections, construction, expeditions and services; viewport fit and reduced motion |
 | Screenshots/report | Every browser project saves scene snapshots; failures retain screenshots, DOM context and traces in `browser-report` |
 | Native art sheets | SVG validity and consistent shared equipment/race/map artwork; these do not prove browser layout |
 

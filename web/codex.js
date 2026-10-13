@@ -413,7 +413,7 @@ CODEX.push(
   {
     name: "The tent and neutral travelers",
     category: "Camp",
-    text: "Click a character inside the tent to open their detailed life: companions, friends, memories and growth. The smaller inspector is green for friends, red for enemies and blue for neutral arrivals. Plus markers are recruitable wanderers; question marks are scripted quests; red exclamation marks are challengers. Arrivals rotate every three hours.",
+    text: "Drag a character onto the tent to open their information, equipment and companions, with separate Attributes and Talents sections. The smaller inspector is green for allies, red for enemies and blue for neutral arrivals. Plus markers are recruitable wanderers; question marks mark quest offers; red exclamation marks are challengers. Arrivals rotate every three hours.",
   },
   {
     name: "The Bell Beneath",

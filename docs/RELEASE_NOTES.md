@@ -6,6 +6,7 @@
 - Removed character memories and friendships, including commands and automatic accumulation. Attributes/professions and Talents have separate profile sections. Old social records remain inert in compatible backups.
 - Darkened Camp terrain and buildings. Baked the bonfire hearth, embers and surrounding illumination into the environment; construction/upgrades repaint only affected pieces while preserving the scene and camera.
 - Added clipped lake/stream ripples and waterfalls, synchronized scenery/actor firelight flicker and visible, diffused bonfire shadows from character feet. Reduced motion freezes decorative animation.
+- Camera easing now settles exactly, keeping focused character targets stable in WebKit.
 - Preserved current-season v12 saves, active expeditions, Site URL/audience and database history. Asset cache revision is 20; no reset or SQL migration.
 
 ## 0.5.0 — Roads and stories

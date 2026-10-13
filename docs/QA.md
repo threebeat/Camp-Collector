@@ -1,5 +1,15 @@
 # Verification record
 
+## 0.6 verification
+
+The local gate passes **193 model/integration tests**, build and bundled Worker validation. Added coverage verifies removal/migration of the duplicate profile lesson without reward replay, separate Attribute/Talent output, retired social commands and inert legacy records, local construction invalidation with unchanged distant pixels, darker terrain, firelight radius changes, water movement/exclusion masks/reduced motion, visible fading bonfire shadows and exact camera settling.
+
+The browser suite contains **39 scenarios**, thirteen each on desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit. It checks the fourteen-lesson tutorial and saves, profile sections, retained Camp/ground/firelight nodes during a cabin upgrade, water animation, synchronized light changes and reduced motion, alongside the existing service, expedition and drag/drop flows. Browser QA fixed the camera’s endless subpixel easing tail and made raw-coordinate drag checks wait for the opening camera move, verify pointer capture and compare actual saved positions.
+
+All **39 scenarios passed without retries** in [Game checks run 38346019242](https://github.com/threebeat/Evernight/actions/runs/38346019242), GitHub source `2c22954f1b3908671b9645aeb9875f63fc594b57`. Both verification and browser jobs succeeded; browser scenarios took 3.1 minutes. The local and remote gates pass **193 model/integration tests**, build and artifact validation. Publication adds this verification record and corrected Codex wording about character profiles.
+
+Screenshots cover darker terrain, the baked hearth/flame, character/prop shadows, lake water and desktop/phone profiles. Native raster checks separately verify shadow/illumination geometry and dry-land clipping. Physical-device frame rate, battery use, touch ergonomics and hosted multi-account behavior remain unverified.
+
 ## 0.5 verification
 
 The local suite contains 187 model/integration tests, including persistent tutorial acknowledgement/rewards, NPC visit and acceptance guards, Journal exclusion of unaccepted quests, Trading Post purchase permissions, late Arena construction, once-only coordinate migration and actual raster shadow falloff. Existing save/checkpoint, combat, economy, Worker and connected DOM flows remain covered. Build validation now verifies all six generated WebP SVG envelopes through the bundled Worker.
