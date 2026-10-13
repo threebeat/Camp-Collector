@@ -234,3 +234,16 @@ test("a constructed Travelers lodge offers recruits immediately and refreshes wi
   );
   assert.equal(sim.g.screen, "camp");
 });
+
+test("camera easing settles exactly so focused map targets stop drifting in WebKit", () => {
+  const camera = new WorldCamera(3000, 2200, { x: 1700, y: 1100, span: 360 });
+  camera.viewport(390, 664);
+  camera.target = { x: 1700, y: 1100, width: 720 };
+  for (let i = 0; i < 180; i++) camera.update(i / 60);
+  assert.equal(camera.width, 720);
+  assert.equal(camera.cx, 1700);
+  assert.equal(camera.cy, 1100);
+  const before = [camera.cx, camera.cy, camera.width];
+  camera.update(4);
+  assert.deepEqual([camera.cx, camera.cy, camera.width], before);
+});

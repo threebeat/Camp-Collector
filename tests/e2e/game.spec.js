@@ -886,6 +886,19 @@ test("baked bonfire, water motion and object lighting share a stable scene and r
   expect(
     await page.locator(".baked-camp-map").getAttribute("data-revision"),
   ).toBe(await page.evaluate(() => window.qaGroundRevision));
+  await expect(page.locator("#game-window")).not.toHaveClass(/revealing-world/);
+  await expect
+    .poll(async () => {
+      const before = await page
+        .locator(".camp-map")
+        .evaluate((el) => el.style.transform);
+      await page.waitForTimeout(100);
+      return (
+        before ===
+        (await page.locator(".camp-map").evaluate((el) => el.style.transform))
+      );
+    })
+    .toBe(true);
   await shot(page, "bonfire-night-shadows");
   await page.locator('[data-map-camera="camp"]').focus();
   for (let i = 0; i < 6; i++) await page.keyboard.press("ArrowDown");

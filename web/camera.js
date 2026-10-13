@@ -100,6 +100,15 @@ export class WorldCamera {
       this.cx += (this.target.x - this.cx) * a;
       this.cy += (this.target.y - this.cy) * a;
       this.width += (this.target.width - this.width) * a;
+      // Stop the asymptotic subpixel tail. WebKit otherwise keeps focused map
+      // controls moving by tiny fractions forever, preventing stable taps.
+      for (const [value, target] of [
+        ["cx", "x"],
+        ["cy", "y"],
+        ["width", "width"],
+      ])
+        if (Math.abs(this[value] - this.target[target]) < 0.01)
+          this[value] = this.target[target];
       this.constrain();
     }
   }
