@@ -73,6 +73,23 @@ async function resume(page) {
   );
   await expect(page.locator('[data-map-camera="camp"]')).toBeVisible();
 }
+async function settleCamp(page) {
+  await expect(page.locator("#game-window")).not.toHaveClass(/revealing-world/);
+  // Raw pointer coordinates lack locator actionability checks. Wait for the
+  // opening camera move to finish before measuring a drag target or screenshot.
+  await expect
+    .poll(async () => {
+      const before = await page
+        .locator(".camp-map")
+        .evaluate((el) => el.style.transform);
+      await page.waitForTimeout(100);
+      return (
+        before ===
+        (await page.locator(".camp-map").evaluate((el) => el.style.transform))
+      );
+    })
+    .toBe(true);
+}
 async function close(page) {
   if (await modal(page).isVisible()) {
     try {
@@ -721,13 +738,14 @@ test("saved Camp opens at an empty main menu and movable props retain their posi
   page,
 }) => {
   const { errors } = await start(page);
+  await settleCamp(page);
   const prop = page.locator('[data-world-prop="supply-crate"]');
   const ids = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("camp-collector-v12")).roster.map(
       (h) => h.id,
     ),
   );
-  const old = await prop.getAttribute("style");
+  const old = await prop.evaluate((el) => [el.style.left, el.style.top]);
   const oldPosition = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("camp-collector-v12")).campProps.find(
       (p) => p.id === "supply-crate",
@@ -736,13 +754,16 @@ test("saved Camp opens at an empty main menu and movable props retain their posi
   const box = await prop.boundingBox();
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down();
+  await expect(prop).toHaveClass(/pointer-held/);
   await page.mouse.move(
     box.x + box.width / 2 + 30,
     box.y + box.height / 2 + 35,
     { steps: 8 },
   );
   await page.mouse.up();
-  await expect.poll(() => prop.getAttribute("style")).not.toBe(old);
+  await expect
+    .poll(() => prop.evaluate((el) => [el.style.left, el.style.top]))
+    .not.toEqual(old);
   await expect
     .poll(() =>
       page.evaluate(() =>
@@ -788,7 +809,7 @@ test("dragging retains the lit scene, profiles use the right panel, and Trading 
 }) => {
   const { g, errors } = await start(page);
   await expect(page.locator(".baked-camp-map")).toBeVisible();
-  await expect(page.locator("#game-window")).not.toHaveClass(/revealing-world/);
+  await settleCamp(page);
   await page.evaluate(() => {
     window.qaWorld = document.querySelector(".camp-map");
     window.qaLight = document.querySelector(".scene-lightfield");
@@ -886,19 +907,7 @@ test("baked bonfire, water motion and object lighting share a stable scene and r
   expect(
     await page.locator(".baked-camp-map").getAttribute("data-revision"),
   ).toBe(await page.evaluate(() => window.qaGroundRevision));
-  await expect(page.locator("#game-window")).not.toHaveClass(/revealing-world/);
-  await expect
-    .poll(async () => {
-      const before = await page
-        .locator(".camp-map")
-        .evaluate((el) => el.style.transform);
-      await page.waitForTimeout(100);
-      return (
-        before ===
-        (await page.locator(".camp-map").evaluate((el) => el.style.transform))
-      );
-    })
-    .toBe(true);
+  await settleCamp(page);
   await shot(page, "bonfire-night-shadows");
   await page.locator('[data-map-camera="camp"]').focus();
   for (let i = 0; i < 6; i++) await page.keyboard.press("ArrowDown");
