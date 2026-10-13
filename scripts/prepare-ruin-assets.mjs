@@ -56,3 +56,10 @@ for(const [key,rect] of Object.entries(buildingRects)){
  await writeFile(resolve(out,'ruin-building-'+key+'.svg'),envelope(bytes,320,320));
 }
 console.log('Packed two environments, wordmark, 26 survivor bodies and 12 modular structures.');
+// A tiny bitmap retains the authored nine-slice frame without repeated SVG
+// border painting when the live battlefield underneath changes in WebKit.
+const frame=await loadImage(resolve(out,'ruin-frame.svg')), frameCanvas=createCanvas(96,96);
+frameCanvas.getContext('2d').drawImage(frame,0,0,96,96);
+const frameUri=uri(await frameCanvas.encode('png'));
+const themePath=resolve(out,'ruin-theme.css');
+await writeFile(themePath,(await readFile(themePath,'utf8')).replace(/--ruin-frame: url\("[^"]*"\);/,`--ruin-frame: url("${frameUri}");`));

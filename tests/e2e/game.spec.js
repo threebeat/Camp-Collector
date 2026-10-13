@@ -486,8 +486,8 @@ test("route and battlefield updates never open profiles; manual camera, focus an
       timings.push(performance.now() - before);
       return result;
     };
-    try {
-      const frames = await new Promise((resolve) => {
+    const measure = () =>
+      new Promise((resolve) => {
         let n = 0,
           start = performance.now();
         function tick(at) {
@@ -497,12 +497,30 @@ test("route and battlefield updates never open profiles; manual camera, focus an
         }
         requestAnimationFrame(tick);
       });
-      return {
+    try {
+      const frames = await measure();
+      const result = {
         frames,
         meanDrawMs:
           timings.reduce((a, b) => a + b, 0) / Math.max(1, timings.length),
         maxDrawMs: Math.max(0, ...timings),
       };
+      if (frames <= 5) {
+        // Keep the assertion on the real UI, but leave useful compositor
+        // diagnostics in CI rather than guessing from a timeout screenshot.
+        const theme = document.querySelector('link[href*="ruin-theme.css"]');
+        if (theme) {
+          theme.disabled = true;
+          try {
+            result.withoutTheme = await measure();
+          } finally {
+            theme.disabled = false;
+          }
+        }
+        Renderer.prototype.draw = () => {};
+        result.withoutRenderer = await measure();
+      }
+      return result;
     } finally {
       Renderer.prototype.draw = draw;
     }
