@@ -3,7 +3,7 @@
 The visual direction now mixes fantasy survivors with the remains of an advanced civilization. Overgrown machinery, conduits, broken relays and reclaimed ruins appear across the Camp and expedition environments.
 
 - New Camp terrain, twelve modular structures, five expedition backdrops, a violet gothic wordmark and bronze-framed interface.
-- Renewed start screen with ruined forest scenery, blue/amber fire, drifting embers, responsive controls and revised opening lore.
+- Renewed start screen with ruined forest scenery, drifting embers, responsive controls and revised opening lore. The Camp's Eternal Bonfire burns with blue and amber flame.
 - Shared generated survivor bodies for fourteen races and twelve classes, with actual equipped gear, modifier overlays, lights, wings and mounts across Camp, profiles, recruitment and battles.
 - Chitin, Gnoll, Naga, Myconoid, Voidborn and Barbarian join the concept roster. Older collected characters and authored Mythicals remain playable.
 - Construction patches, water geometry, route planning, combat timing, tutorial receipts and saved expeditions retain their existing behavior.

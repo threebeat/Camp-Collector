@@ -286,9 +286,33 @@ function closeModal() {
 function openModal(name, subtitle, body, footer = "", refresh = null) {
   modalRefresh = refresh;
   $("modal").dataset.sheet = "service";
-  $("modal-content").innerHTML = pixelMarkup(
-    `<div class="modal-header"><div><span class="eyebrow">${esc(game.campName || "Your Camp")} · ${title(game.screen)}</span><h2>${name}</h2><p>${subtitle}</p></div><button class="icon-button" data-close aria-label="Close dialog">${icon("close")}</button></div><div class="modal-body">${body}</div>${footer ? `<div class="modal-footer">${footer}</div>` : ""}`,
-  );
+  const content = $("modal-content"),
+    heading = `<span class="eyebrow">${esc(game.campName || "Your Camp")} · ${title(game.screen)}</span><h2>${name}</h2><p>${subtitle}</p>`,
+    header = content.querySelector(".modal-header"),
+    bodyNode = content.querySelector(".modal-body");
+  if (
+    $("modal").open &&
+    header &&
+    header.dataset.modalTitle === name &&
+    bodyNode &&
+    header.querySelector("[data-close]")
+  ) {
+    // A command can refresh a sheet during a tap. Keep its close control and
+    // header attached instead of replacing the button under the pointer.
+    header.children[0].innerHTML = heading;
+    bodyNode.innerHTML = pixelMarkup(body);
+    content.querySelector(".modal-footer")?.remove();
+    if (footer) {
+      const node = document.createElement("div");
+      node.className = "modal-footer";
+      node.innerHTML = pixelMarkup(footer);
+      content.appendChild(node);
+    }
+  } else {
+    content.innerHTML = pixelMarkup(
+      `<div class="modal-header" data-modal-title="${esc(name)}"><div>${heading}</div><button class="icon-button" data-close aria-label="Close dialog">${icon("close")}</button></div><div class="modal-body">${body}</div>${footer ? `<div class="modal-footer">${footer}</div>` : ""}`,
+    );
+  }
   bindActions($("modal-content"));
   if (!$("modal").open) $("modal").showModal();
   gameShell.update();

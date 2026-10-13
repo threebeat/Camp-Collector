@@ -42,6 +42,17 @@ function sprite(key, svg, ready) {
   const image = new Image();
   image._ready = ready ? [ready] : [];
   image.onload = () => {
+    // WebKit otherwise rerasterizes embedded survivor SVGs for every unit on
+    // every frame. Decode each appearance once, then blit a small bitmap.
+    if (key.startsWith("hero:")) {
+      const bitmap = document.createElement("canvas");
+      bitmap.width = 192;
+      bitmap.height = 240;
+      const context = bitmap.getContext("2d");
+      context.imageSmoothingEnabled = false;
+      context.drawImage(image, 0, 0, bitmap.width, bitmap.height);
+      image._bitmap = bitmap;
+    }
     for (const callback of image._ready.splice(0)) callback();
   };
   image.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg());
@@ -541,7 +552,7 @@ export class Renderer {
               );
         if (image.complete && image.naturalWidth)
           ctx.drawImage(
-            image,
+            image._bitmap || image,
             unit.x - 32 * size[1],
             Math.round((y - 68 * size[0] - (unit.mounted ? 14 : 0)) / GRID) *
               GRID,

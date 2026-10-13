@@ -86,6 +86,14 @@ export class SceneLighting {
     this.game = game;
     if (!this.camp || !game) return;
     this.staticLights = [bonfireLight(game)];
+    const reduced =
+      !!game.settings?.reducedMotion ||
+      !!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    // Settings must repaint once even when an open dialog suspends animation.
+    if (this.waterReduced !== undefined && this.waterReduced !== reduced) {
+      this.at = -Infinity;
+      this.draw(performance.now() / 1000);
+    }
     const areas = revealedCampAreas(game),
       key = JSON.stringify(areas);
     if (key === this.fogKey) return;

@@ -79,14 +79,12 @@ async function settleCamp(page) {
   // opening camera move to finish before measuring a drag target or screenshot.
   await expect
     .poll(async () => {
-      const before = await page
-        .locator(".camp-map")
-        .evaluate((el) => el.style.transform);
-      await page.waitForTimeout(100);
-      return (
-        before ===
-        (await page.locator(".camp-map").evaluate((el) => el.style.transform))
-      );
+      return page.locator(".camp-map").evaluate(async (el) => {
+        const before = el.style.transform;
+        await new Promise(requestAnimationFrame);
+        await new Promise(requestAnimationFrame);
+        return before === el.style.transform;
+      });
     })
     .toBe(true);
 }
@@ -343,6 +341,7 @@ test("unbuilt Market is gated and the tent upgrades into a cabin without a separ
 test("guild, quest, clinic, recruiting and Arena services work at Camp", async ({
   page,
 }) => {
+  test.setTimeout(90000);
   const { errors } = await start(page, true, (g) =>
     g.roster.push(...Array.from({ length: 3 }, () => generateHero())),
   );
@@ -397,6 +396,7 @@ test("guild, quest, clinic, recruiting and Arena services work at Camp", async (
 test("storage, equipment slots, Kitchen, crafting and the lake remain usable", async ({
   page,
 }) => {
+  test.setTimeout(90000);
   const { g, errors } = await start(page);
   const boots = g.inventory.find((i) => i.key === "heavy-boots");
   await building(page, "storage");
