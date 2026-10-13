@@ -143,6 +143,10 @@ async function fits(page) {
     .toBe(true);
 }
 async function shot(page, name) {
+  if (await page.locator("#learning-coach").isVisible())
+    await expect(page.locator("[data-lesson-continue]")).toBeInViewport({
+      ratio: 1,
+    });
   await page.screenshot({
     path: test.info().outputPath(name + ".png"),
     fullPage: true,

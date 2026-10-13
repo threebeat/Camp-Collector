@@ -391,7 +391,8 @@ body[data-screen="market"] #app-content > .world-map-shell {
   left: 12px;
   right: 12px;
   bottom: 12px;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 90px;
   gap: 12px;
   align-items: center;
   max-width: 720px;
@@ -1359,6 +1360,8 @@ body[data-dragging="yes"] #game-window .baked-building strong {
 }
 #learning-coach .lesson-actions {
   flex: 0 0 auto;
+  width: 90px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -1807,7 +1810,7 @@ body[data-screen="party"] #game-window[data-locked="true"] #app-content {
     bottom: 6px;
   }
   #learning-coach .lesson-actions {
-    max-width: 98px;
+    max-width: 90px;
   }
   #learning-coach p {
     font-size: 10px;
