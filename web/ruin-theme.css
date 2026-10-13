@@ -40,7 +40,6 @@ body { background: radial-gradient(ellipse at 50% 0%, #272031, #080a0e 72%); }
 #game-window .world-plot { background: #171922e8; border: 1px solid #6b614f; color: #d8c9ae; }
 #game-window .map-camera-tools { background: #1a1c27ef; border-color: #8b7758; }
 #game-window .world-resident strong, #game-window .town-npc strong { color: #f7e7c2; text-shadow: -1px -1px #080b10, 1px 1px #080b10, 0 2px #080b10; }
-#game-window .world-resident > svg { overflow: visible; }
 #game-window .baked-building strong { color: #eee0ba; background: #11141de6; border-color: #75674d; }
 #game-window .build-ready-dot { box-shadow: 0 0 0 2px #182017, 0 0 13px #d7b06570; }
 /* The title is a window into the same broken world as the expedition. */

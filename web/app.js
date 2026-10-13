@@ -783,14 +783,19 @@ function marketView() {
   );
 }
 function codexView() {
-  const cats = ["All", ...new Set(CODEX.map((e) => e.category))],
+  const query = codexSearch.trim().toLowerCase(),
+    matchRank = (e) =>
+      e.name.toLowerCase() === query
+        ? 0
+        : e.name.toLowerCase().startsWith(query)
+          ? 1
+          : 2,
+    cats = ["All", ...new Set(CODEX.map((e) => e.category))],
     list = CODEX.filter(
       (e) =>
         (codexCategory === "All" || e.category === codexCategory) &&
-        `${e.name} ${e.text} ${e.category}`
-          .toLowerCase()
-          .includes(codexSearch.toLowerCase()),
-    ),
+        `${e.name} ${e.text} ${e.category}`.toLowerCase().includes(query),
+    ).sort((a, b) => (query ? matchRank(a) - matchRank(b) : 0)),
     entry = list.find((e) => e.name === codexSelected) || list[0];
   return (
     heading(
@@ -2149,7 +2154,10 @@ function bind() {
       set(v);
       marketPage = 0;
     });
-  input("codex-search", (v) => (codexSearch = v));
+  input("codex-search", (v) => {
+    codexSearch = v;
+    codexSelected = "";
+  });
   change("codex-category", (v) => (codexCategory = v));
   $("restock-btn")?.addEventListener("click", () => act("restock", { vendor }));
   $("launch-btn")?.addEventListener("click", async () => {
@@ -3450,7 +3458,14 @@ function frame(now) {
     requestAnimationFrame(frame);
     return;
   }
-  if (["camp", "market", "tavern"].includes(game?.screen) && !document.hidden) {
+  // Dialogs make the world inert. Avoid repainting the large scene behind a
+  // sheet so touch input stays responsive; simulation continues independently.
+  const worldVisible = !$("modal").open;
+  if (
+    worldVisible &&
+    ["camp", "market", "tavern"].includes(game?.screen) &&
+    !document.hidden
+  ) {
     for (const map of worldMaps) {
       map.camera.update(now / 1000);
       map.apply();
@@ -3497,7 +3512,7 @@ function frame(now) {
       u.y = y;
     }
   }
-  if (!document.hidden && focused && !closing)
+  if (worldVisible && !document.hidden && focused && !closing)
     for (const light of sceneLights) light.draw(now / 1000);
   requestAnimationFrame(frame);
 }

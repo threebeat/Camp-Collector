@@ -93,10 +93,7 @@ async function settleCamp(page) {
 async function close(page) {
   if (await modal(page).isVisible()) {
     try {
-      await modal(page)
-        .locator("[data-close]:visible")
-        .first()
-        .click({ timeout: 1500 });
+      await modal(page).locator("[data-close]:visible").first().click();
     } catch (error) {
       if (await modal(page).isVisible()) throw error;
     }
@@ -434,6 +431,7 @@ test("route and battlefield updates never open profiles; manual camera, focus an
   page,
 }) => {
   const { errors } = await start(page);
+  await settleCamp(page);
   await page.locator("[data-world-resident]").first().focus();
   await page.locator("[data-world-resident]").first().click();
   await building(page, "crossroads");
@@ -939,33 +937,59 @@ test("baked bonfire, water motion and object lighting share a stable scene and r
   expect(errors).toEqual([]);
 });
 
-
-test("ruin-world sprites decode in browser canvas and the title stays usable in portrait and landscape", async ({page}) => {
-  const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('/');
-  await expect(page.locator('#main-menu')).toBeVisible();
-  await expect(page.locator('#new-game')).toBeEnabled();
-  await page.emulateMedia({reducedMotion:'reduce'});
+test("ruin-world sprites decode in browser canvas and the title stays usable in portrait and landscape", async ({
+  page,
+}) => {
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/");
+  await expect(page.locator("#main-menu")).toBeVisible();
+  await expect(page.locator("#new-game")).toBeEnabled();
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await fits(page);
-  await shot(page,'ruin-title');
-  const result=await page.evaluate(async()=>{
-    const {portraitSvg}=await import('/art.js?v=21');
-    const {PLAYABLE_RACES,PLAYABLE_CLASSES}=await import('/data.js?v=21');
-    const variants=[...PLAYABLE_RACES.map(race=>({race,classId:'vanguard'})),...PLAYABLE_CLASSES.map(classId=>({race:'Human',classId}))];
-    const canvas=document.createElement('canvas');canvas.width=96;canvas.height=120;
-    const ctx=canvas.getContext('2d');const result=[];
-    for(const h of variants){
-      const svg=portraitSvg({...h,items:[],armor:[],attributes:[],level:1}),im=new Image();
-      await new Promise((resolve,reject)=>{im.onload=resolve;im.onerror=reject;im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);});
-      ctx.clearRect(0,0,96,120);ctx.drawImage(im,0,0,96,120);
-      const pixels=ctx.getImageData(0,0,96,120).data;
-      result.push({id:h.race+':'+h.classId,opaque:Array.from(pixels).filter((v,i)=>i%4===3&&v>128).length});
+  await shot(page, "ruin-title");
+  const result = await page.evaluate(async () => {
+    const { portraitSvg } = await import("/art.js?v=21");
+    const { PLAYABLE_RACES, PLAYABLE_CLASSES } = await import("/data.js?v=21");
+    const variants = [
+      ...PLAYABLE_RACES.map((race) => ({ race, classId: "vanguard" })),
+      ...PLAYABLE_CLASSES.map((classId) => ({ race: "Human", classId })),
+    ];
+    const canvas = document.createElement("canvas");
+    canvas.width = 96;
+    canvas.height = 120;
+    const ctx = canvas.getContext("2d");
+    const result = [];
+    for (const h of variants) {
+      const svg = portraitSvg({
+          ...h,
+          items: [],
+          armor: [],
+          attributes: [],
+          level: 1,
+        }),
+        im = new Image();
+      await new Promise((resolve, reject) => {
+        im.onload = resolve;
+        im.onerror = reject;
+        im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      });
+      ctx.clearRect(0, 0, 96, 120);
+      ctx.drawImage(im, 0, 0, 96, 120);
+      const pixels = ctx.getImageData(0, 0, 96, 120).data;
+      result.push({
+        id: h.race + ":" + h.classId,
+        opaque: Array.from(pixels).filter((v, i) => i % 4 === 3 && v > 128)
+          .length,
+      });
     }
     return result;
   });
-  for(const variant of result)expect(variant.opaque,variant.id).toBeGreaterThan(900);
-  await page.setViewportSize({width:844,height:390});
-  await fits(page);await expect(page.locator('#new-game')).toBeInViewport({ratio:1});
-  await shot(page,'ruin-title-landscape');
+  for (const variant of result)
+    expect(variant.opaque, variant.id).toBeGreaterThan(900);
+  await page.setViewportSize({ width: 844, height: 390 });
+  await fits(page);
+  await expect(page.locator("#new-game")).toBeInViewport({ ratio: 1 });
+  await shot(page, "ruin-title-landscape");
   expect(errors).toEqual([]);
 });
