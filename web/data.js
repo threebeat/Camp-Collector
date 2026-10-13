@@ -1,3 +1,5 @@
+import { PLAYABLE_RACES, PLAYABLE_CLASSES, installFallenWorld } from "./fallen-world.js?v=21";
+export { PLAYABLE_RACES, PLAYABLE_CLASSES };
 import {
   WEAPONS,
   WEAPON_KINDS,
@@ -6,7 +8,7 @@ import {
   ENCHANTMENTS,
   WEAPON_MODIFIERS,
   weaponModifiers,
-} from "./weapons.js?v=20";
+} from "./weapons.js?v=21";
 export {
   WEAPONS,
   WEAPON_KINDS,
@@ -23,7 +25,7 @@ import {
   modifierFits,
   objectModifiers,
   validModifiers,
-} from "./modifiers.js?v=20";
+} from "./modifiers.js?v=21";
 export {
   ARMOR_MODIFIERS,
   PET_MODIFIERS,
@@ -1932,10 +1934,8 @@ function starterKey(h, def) {
   return "pendant";
 }
 export function generateHero(options = {}, random = Math.random) {
-  const playable = Object.keys(CLASSES).filter(
-      (id) => !["witch", "stormcaller"].includes(id),
-    ),
-    race = options.race || pick(Object.keys(RACES), random),
+  const playable = PLAYABLE_CLASSES,
+    race = options.race || pick(PLAYABLE_RACES, random),
     classId = options.classId || pick(playable, random);
   const h = {
     schema: 7,
@@ -2378,7 +2378,7 @@ export function enemyCompany(stage = 0, run = null) {
       r.location === "greenway" &&
       ((r.mode === "journey" && r.target === "clearing") ||
         (r.mode === "campaign" && r.node === 0));
-    const race = pick(early ? ["Elf", "Myconid"] : l.races, random);
+    const race = pick(early ? ["Elf", "Myconoid"] : l.races, random);
     const h = generateHero(
       {
         id: `foe-${r.id || r.seed}-${stage}-${i}`,
@@ -2540,21 +2540,7 @@ export function initialGame(random = Math.random, now = Date.now()) {
     inventory: [],
     companions: [],
     scrolls: [],
-    recipes: [
-      "Human",
-      "Elf",
-      "Dwarf",
-      "Gnome",
-      "Orc",
-      "Fae",
-      "Shade",
-      "Nereid",
-      "Kobold",
-      "Myconid",
-      "Sylph",
-      "Drakeling",
-      "Celestial",
-    ],
+    recipes: [...PLAYABLE_RACES],
     cosmetics: [],
     consumables: {
       ration: 1,
@@ -4190,3 +4176,6 @@ for (const [guild, [base, name, stat]] of Object.entries(GUILD_EQUIPMENT)) {
       ". Available only to guild members.",
   };
 }
+
+// Current roster is installed after compatibility tables have been initialized.
+installFallenWorld({ RACES, CLASSES, SCHOOLS, LINEAGES, RACE_SIZES, CLASS_WEAPONS, LOCATIONS, growthTable });

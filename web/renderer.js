@@ -1,12 +1,12 @@
-import { MAP_ASSETS } from "./map-assets.js?v=20";
-import { paintGroundShadow } from "./scene-lighting.js?v=20";
-import { WorldCamera } from "./camera.js?v=20";
+import { MAP_ASSETS } from "./map-assets.js?v=21";
+import { paintGroundShadow } from "./scene-lighting.js?v=21";
+import { WorldCamera } from "./camera.js?v=21";
 import {
   vision,
   lightSources,
   environmentLights,
   revealed,
-} from "./lighting.js?v=20";
+} from "./lighting.js?v=21";
 import {
   W,
   H,
@@ -16,14 +16,14 @@ import {
   ITEMS,
   allGear,
   itemRarity,
-} from "./data.js?v=20";
-import { portraitSvg, petSvg, creatureSvg } from "./art.js?v=20";
+} from "./data.js?v=21";
+import { portraitSvg, petSvg, creatureSvg } from "./art.js?v=21";
 import {
   pixelTerrainSvg,
   pixelPropSvg,
   pixelCreatureSvg,
-} from "./pixel-art.js?v=20";
-import { PixelLighting } from "./pixel-lighting.js?v=20";
+} from "./pixel-art.js?v=21";
+import { PixelLighting } from "./pixel-lighting.js?v=21";
 
 const PAD_X = 600,
   PAD_Y = 480,
@@ -42,6 +42,17 @@ function sprite(key, svg, ready) {
   const image = new Image();
   image._ready = ready ? [ready] : [];
   image.onload = () => {
+    // WebKit otherwise rerasterizes embedded survivor SVGs for every unit on
+    // every frame. Decode each appearance once, then blit a small bitmap.
+    if (key.startsWith("hero:")) {
+      const bitmap = document.createElement("canvas");
+      bitmap.width = 192;
+      bitmap.height = 240;
+      const context = bitmap.getContext("2d");
+      context.imageSmoothingEnabled = false;
+      context.drawImage(image, 0, 0, bitmap.width, bitmap.height);
+      image._bitmap = bitmap;
+    }
     for (const callback of image._ready.splice(0)) callback();
   };
   image.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg());
@@ -232,7 +243,7 @@ export class Renderer {
     );
     if (ground.complete && ground.naturalWidth)
       ctx.drawImage(ground, -PAD_X, -PAD_Y, BACK_W, BACK_H);
-    const biome = map.biome === "river" ? "forest" : map.biome;
+    const biome = map.biome === "river" ? "marsh" : map.biome;
     if (MAP_ASSETS[biome] && !this.terrainImages.has(biome)) {
       const im = new Image();
       im.onload = ready;
@@ -242,7 +253,7 @@ export class Renderer {
     const terrain = this.terrainImages.get(biome);
     if (terrain?.complete && terrain.naturalWidth)
       ctx.drawImage(terrain, -PAD_X, -PAD_Y, BACK_W, BACK_H);
-    for (let x = -PAD_X; x < W + PAD_X; x += 12) {
+    for (let x = -PAD_X; !MAP_ASSETS[biome] && x < W + PAD_X; x += 12) {
       const y =
         Math.round((H * 0.5 + Math.sin(x / 160 + (map.seed % 5)) * 35) / 4) * 4;
       rect(
@@ -541,7 +552,7 @@ export class Renderer {
               );
         if (image.complete && image.naturalWidth)
           ctx.drawImage(
-            image,
+            image._bitmap || image,
             unit.x - 32 * size[1],
             Math.round((y - 68 * size[0] - (unit.mounted ? 14 : 0)) / GRID) *
               GRID,
@@ -667,13 +678,27 @@ export class Renderer {
     display.imageSmoothingEnabled = false;
     display.fillStyle = "#0a0c1a";
     display.fillRect(0, 0, canvas.width, canvas.height);
-    display.drawImage(
-      this.world,
-      (-PAD_X - this.camera.x) * scale,
-      offsetY - PAD_Y * scale,
-      BACK_W * scale,
-      BACK_H * scale,
-    );
+    // Crop before scaling. At phone zoom, scaling the whole padded world can
+    // create a 16-megapixel temporary surface even though most is offscreen.
+    const sourceX = Math.max(0, PAD_X + this.camera.x),
+      sourceY = Math.max(0, PAD_Y + this.camera.y),
+      sourceRight = Math.min(BACK_W, PAD_X + this.camera.x + this.camera.width),
+      sourceBottom = Math.min(
+        BACK_H,
+        PAD_Y + this.camera.y + this.camera.height,
+      );
+    if (sourceRight > sourceX && sourceBottom > sourceY)
+      display.drawImage(
+        this.world,
+        sourceX,
+        sourceY,
+        sourceRight - sourceX,
+        sourceBottom - sourceY,
+        (sourceX - PAD_X - this.camera.x) * scale,
+        (sourceY - PAD_Y - this.camera.y) * scale,
+        (sourceRight - sourceX) * scale,
+        (sourceBottom - sourceY) * scale,
+      );
     // Text uses display resolution so HP and names stay readable at phone sizes.
     display.setTransform(scale, 0, 0, scale, -this.camera.x * scale, offsetY);
     display.font = "bold 17px system-ui";

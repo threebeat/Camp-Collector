@@ -1,5 +1,5 @@
-import * as Ever from "./evernight.js?v=20";
-import { gatherProfessions } from "./nightfall.js?v=20";
+import * as Ever from "./evernight.js?v=21";
+import { gatherProfessions } from "./nightfall.js?v=21";
 import {
   gatheringFacets,
   CORE_STATS,
@@ -33,8 +33,8 @@ import {
   PETS,
   makePet,
   EVOLUTIONS,
-} from "./data.js?v=20";
-import { BUILDINGS, COOKING, BREWS } from "./world.js?v=20";
+} from "./data.js?v=21";
+import { BUILDINGS, COOKING, BREWS } from "./world.js?v=21";
 export const gemsTotal = (g) =>
   g.gemstones.reduce((sum, v) => sum + gemValue(v), 0);
 export function addGems(g, value, kind = "ruby") {

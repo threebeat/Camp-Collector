@@ -1,5 +1,17 @@
 # Verification record
 
+## 0.7 verification
+
+The local gate passes **196 model/integration tests**, build and bundled Worker validation. New coverage validates all 168 current race/class combinations, legal starter equipment and authenticated challenge transport, generation/stock restricted to the concept roster, preserved legacy collections, and deterministic Barbarian combat across checkpoints. It caught a Strength-gated starter weapon, which was replaced with the legal Hatchet.
+
+The browser suite now contains **42 scenarios**, fourteen each on desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit. It adds actual browser-canvas decoding for all 26 survivor bodies and title-screen portrait/landscape fit, alongside the retained tutorial, saves, Camp construction, water/light animation, services, gestures, profiles and expedition flows. All **42 scenarios passed without retries** in [Game checks run 38373841554](https://github.com/threebeat/Evernight/actions/runs/38373841554), GitHub source `c18e05ef4b254e6cae63977264839fb0175e7898`. Both verification and browser jobs succeeded; browser scenarios took 5.9 minutes. Desktop and phone screenshots were reviewed. The final publication adds this verification record and art-rendering notes without changing tested game code.
+
+Browser review corrected an opening-scene layer intercepting Continue, oversized framing over the HUD, the phone battle plaque, exact-title Codex search ranking, moving character hit targets, dialog refresh stability, and reduced-motion changes behind an open sheet. Combat now caches decoded survivor SVGs into small bitmaps. Camera-coordinate checks wait for actual animation frames; the two long multi-service scenarios have a 90-second overall budget while individual actions keep their 10-second limit.
+
+The focused iPhone route/combat scenario passed in run 38373162582. Its 500 ms frame sample recorded seven frames in isolation; two concurrent software-rendered WebKit sessions produced only two to four. The full suite is restored unchanged, with one worker for the iPhone project so its rendering sample has an independent runner budget. The frame assertion is retained. These measurements are CI diagnostics, not a physical-device frame-rate claim.
+
+Physical-device performance, battery use, touch ergonomics and hosted multi-account behavior remain unverified.
+
 ## 0.6 verification
 
 The local gate passes **193 model/integration tests**, build and bundled Worker validation. Added coverage verifies removal/migration of the duplicate profile lesson without reward replay, separate Attribute/Talent output, retired social commands and inert legacy records, local construction invalidation with unchanged distant pixels, darker terrain, firelight radius changes, water movement/exclusion masks/reduced motion, visible fading bonfire shadows and exact camera settling.

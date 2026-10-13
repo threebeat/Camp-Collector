@@ -1,7 +1,8 @@
-import { validLearning } from "./onboarding.js?v=20";
-import * as Ever from "./evernight.js?v=20";
-import { questById } from "./journeys.js?v=20";
-import * as Night from "./nightfall.js?v=20";
+import { PLAYABLE_RACES, PLAYABLE_CLASSES } from "./fallen-world.js?v=21";
+import { validLearning } from "./onboarding.js?v=21";
+import * as Ever from "./evernight.js?v=21";
+import { questById } from "./journeys.js?v=21";
+import * as Night from "./nightfall.js?v=21";
 import {
   GAME_SEASON,
   MYTHICAL_HEROES,
@@ -63,14 +64,14 @@ import {
   modifierFits,
   validModifiers,
   petInfo,
-} from "./data.js?v=20";
-import * as Camp from "./camp.js?v=20";
+} from "./data.js?v=21";
+import * as Camp from "./camp.js?v=21";
 import {
   BRANCHES,
   calendarDay,
   calendarMonth,
   CALENDAR_BONUSES,
-} from "./world.js?v=20";
+} from "./world.js?v=21";
 import {
   journeyInfo,
   journeyRequirements,
@@ -82,8 +83,8 @@ import {
   trackQuest,
   difficultyAllowed,
   REGION_CHAMPIONS,
-} from "./journeys.js?v=20";
-import { seeded } from "./engine.js?v=20";
+} from "./journeys.js?v=21";
+import { seeded } from "./engine.js?v=21";
 export const SLOT_MILESTONES = [0, 12, 35, 75];
 export const activeExpeditions = (g) =>
   g.expeditions.filter((r) => r.status === "active");
@@ -347,7 +348,7 @@ export function startExpedition(g, options = {}, now = g.lastClock) {
         heroes.reduce((a, h) => a + h.level, 0) / heroes.length,
       ),
       guest = generateHero({
-        classId: "guardian",
+        classId: "paladin",
         race: "Human",
         level,
         name: "Guest wayfarer",
@@ -502,7 +503,7 @@ export function buildHero(g, race, classId, scrollId) {
     !scroll ||
     !RACES[race] ||
     !CLASSES[classId] ||
-    ["witch", "stormcaller"].includes(classId) ||
+    !PLAYABLE_CLASSES.includes(classId) ||
     g.gold < 160 ||
     g.gems < 6
   )
@@ -620,21 +621,8 @@ function makeStock(vendor, epoch = 0) {
       ),
     );
   if (vendor === "guild") {
-    const classes = Object.keys(CLASSES).filter(
-        (k) => !["witch", "stormcaller"].includes(k),
-      ),
-      races = [
-        "Human",
-        "Elf",
-        "Gnome",
-        "Dwarf",
-        "Orc",
-        "Nereid",
-        "Kobold",
-        "Owlkin",
-        "Bearkin",
-      ];
-    return classes
+    const classes = PLAYABLE_CLASSES, races = PLAYABLE_RACES;
+    return Array.from({length: 20}, (_, i) => classes[i % classes.length])
       .map((classId, i) => {
         const level = 1 + Math.floor(random() * 8),
           hero = generateHero(
@@ -696,17 +684,7 @@ function makeStock(vendor, epoch = 0) {
       );
   }
   if (vendor === "arcane")
-    return [
-      "Human",
-      "Elf",
-      "Dwarf",
-      "Drakeling",
-      "Automaton",
-      "Ent",
-      "Celestial",
-      "Owlkin",
-      "Bearkin",
-    ]
+    return PLAYABLE_RACES
       .map((race) =>
         offer("scroll", { scroll: makeScroll(race), gold: 65, gems: 0 }),
       )
@@ -1226,7 +1204,7 @@ function milestone(g, r) {
     } else if (first && RACES[reward]) {
       const h = generateHero({
         race: reward,
-        classId: reward === "Ent" ? "guardian" : "engineer",
+        classId: reward === "Ent" ? "paladin" : "alchemist",
         level: 5,
       });
       if (welcomeHero(g, h))
@@ -1315,7 +1293,7 @@ function milestone(g, r) {
       } else if (RACES[r.milestone]) {
         const h = generateHero({
           race: r.milestone,
-          classId: r.milestone === "Ent" ? "guardian" : "engineer",
+          classId: r.milestone === "Ent" ? "paladin" : "alchemist",
           level: 5,
         });
         if (welcomeHero(g, h))
@@ -1555,8 +1533,8 @@ export function useStop(g, r) {
       greenway: "Ent",
       marsh: "Automaton",
       cinder: "Human",
-      volcano: "Drakeling",
-      jungle: "Drakeling",
+      volcano: "Chitin",
+      jungle: "Naga",
     }[r.location];
     g.scrolls.push(makeScroll(race));
     r.earned.scrolls = (r.earned.scrolls || 0) + 1;

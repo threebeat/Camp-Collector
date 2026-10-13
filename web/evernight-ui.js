@@ -1,6 +1,6 @@
-import { pixelTerrainSvg, pixelBuildingSvg } from "./pixel-art.js?v=20";
-import * as E from "./evernight.js?v=20";
-import { vision } from "./lighting.js?v=20";
+import { pixelTerrainSvg, pixelBuildingSvg } from "./pixel-art.js?v=21";
+import * as E from "./evernight.js?v=21";
+import { vision } from "./lighting.js?v=21";
 import {
   CLASSES,
   ITEMS,
@@ -11,12 +11,12 @@ import {
   classNodeState,
   classPoints,
   itemInfo,
-} from "./data.js?v=20";
+} from "./data.js?v=21";
 import {
   activeExpeditions,
   available,
   expeditionSlots,
-} from "./progression.js?v=20";
+} from "./progression.js?v=21";
 import {
   allQuests,
   questState,
@@ -24,9 +24,9 @@ import {
   activeQuests,
   REGION_ORDER,
   REGIONS,
-} from "./journeys.js?v=20";
-import { MATERIALS, calendarMonth, MONTH_THEMES } from "./world.js?v=20";
-import { portraitSvg, itemSvg, icon } from "./art.js?v=20";
+} from "./journeys.js?v=21";
+import { MATERIALS, calendarMonth, MONTH_THEMES } from "./world.js?v=21";
+import { portraitSvg, itemSvg, icon } from "./art.js?v=21";
 export function createEvernightUi(c) {
   const {
       getGame,

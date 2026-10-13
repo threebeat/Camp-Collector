@@ -1,6 +1,6 @@
-import { CAMP_WORLD, CAMP_ANCHORS } from "./camp-world.js?v=20";
-import { PRERENDERED_BUILDINGS } from "./map-assets.js?v=20";
-import { campProgress } from "./evernight.js?v=20";
+import { CAMP_WORLD, CAMP_ANCHORS } from "./camp-world.js?v=21";
+import { PRERENDERED_BUILDINGS, buildingAssetUrl } from "./map-assets.js?v=21";
+import { campProgress } from "./evernight.js?v=21";
 
 const images = new Map(),
   mounted = new WeakMap();
@@ -237,7 +237,7 @@ export async function mountCampBackground(world, g) {
   state.requested = key;
   state.queue = state.queue
     .then(async () => {
-      const base = await image("/map-camp-v05.svg?v=20"),
+      const base = await image("/map-camp-v07.svg?v=21"),
         art = new Map(
           await Promise.all(
             [
@@ -246,7 +246,7 @@ export async function mountCampBackground(world, g) {
                   .map((t) => t.art)
                   .filter((k) => PRERENDERED_BUILDINGS.includes(k)),
               ),
-            ].map(async (k) => [k, await image(`/map-building-${k}.svg?v=20`)]),
+            ].map(async (k) => [k, await image(buildingAssetUrl(k))]),
           ),
         );
       if (!world.isConnected) return;

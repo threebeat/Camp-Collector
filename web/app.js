@@ -1,15 +1,15 @@
-import { TOWN_NPCS, npcQuestOffers } from "./town-npcs.js?v=20";
-import * as Tavern from "./tavern.js?v=20";
-import { createGameShell } from "./game-shell.js?v=20";
-import { learningLocked } from "./onboarding.js?v=20";
-import { createHomesteadUi } from "./homestead-ui.js?v=20";
-import { CAMP_VENDORS } from "./camp-world.js?v=20";
-import * as Ever from "./evernight.js?v=20";
-import { createEvernightUi } from "./evernight-ui.js?v=20";
-import { vision, revealed } from "./lighting.js?v=20";
-import * as Night from "./nightfall.js?v=20";
-import { createNightfallUi } from "./nightfall-ui.js?v=20";
-import { regionLandmarks } from "./landmarks.js?v=20";
+import { TOWN_NPCS, npcQuestOffers } from "./town-npcs.js?v=21";
+import * as Tavern from "./tavern.js?v=21";
+import { createGameShell } from "./game-shell.js?v=21";
+import { learningLocked } from "./onboarding.js?v=21";
+import { createHomesteadUi } from "./homestead-ui.js?v=21";
+import { CAMP_VENDORS } from "./camp-world.js?v=21";
+import * as Ever from "./evernight.js?v=21";
+import { createEvernightUi } from "./evernight-ui.js?v=21";
+import { vision, revealed } from "./lighting.js?v=21";
+import * as Night from "./nightfall.js?v=21";
+import { createNightfallUi } from "./nightfall-ui.js?v=21";
+import { regionLandmarks } from "./landmarks.js?v=21";
 import {
   GAME_SEASON,
   MYTHICAL_HEROES,
@@ -77,10 +77,10 @@ import {
   objectModifiers,
   modifierPool,
   petInfo,
-} from "./data.js?v=20";
-import { Battle, distance } from "./engine.js?v=20";
-import { Renderer } from "./renderer.js?v=20";
-import { icon, portraitSvg, petSvg, itemSvg, cosmeticSvg } from "./art.js?v=20";
+} from "./data.js?v=21";
+import { Battle, distance } from "./engine.js?v=21";
+import { Renderer } from "./renderer.js?v=21";
+import { icon, portraitSvg, petSvg, itemSvg, cosmeticSvg } from "./art.js?v=21";
 import {
   activeExpeditions,
   expeditionSlots,
@@ -94,8 +94,8 @@ import {
   stockResetAt,
   trialInfo,
   trialClaimKey,
-} from "./progression.js?v=20";
-import * as Camp from "./camp.js?v=20";
+} from "./progression.js?v=21";
+import * as Camp from "./camp.js?v=21";
 import {
   BUILDINGS,
   BRANCHES,
@@ -106,8 +106,8 @@ import {
   CALENDAR_BONUSES,
   COOKING,
   BREWS,
-} from "./world.js?v=20";
-import { CODEX } from "./codex.js?v=20";
+} from "./world.js?v=21";
+import { CODEX } from "./codex.js?v=21";
 import {
   REGIONS,
   REGION_ORDER,
@@ -121,22 +121,22 @@ import {
   questState,
   activeQuests,
   bossDefeated,
-} from "./journeys.js?v=20";
-import { attachResidentDragging } from "./map-interaction.js?v=20";
-import { createClient } from "./client.js?v=20";
-import { CampChatter } from "./chatter.js?v=20";
-import { exportCamp, readCampBackup } from "./saves.js?v=20";
+} from "./journeys.js?v=21";
+import { attachResidentDragging } from "./map-interaction.js?v=21";
+import { createClient } from "./client.js?v=21";
+import { CampChatter } from "./chatter.js?v=21";
+import { exportCamp, readCampBackup } from "./saves.js?v=21";
 import {
   BattleSelection,
   attachBattleGestures,
-} from "./battle-interaction.js?v=20";
+} from "./battle-interaction.js?v=21";
 import {
   pixelBuildingSvg,
   pixelTerrainSvg,
   pixelPropSvg,
-} from "./pixel-art.js?v=20";
-import { pixelMarkup } from "./pixel-markup.js?v=20";
-import { SceneLighting } from "./scene-lighting.js?v=20";
+} from "./pixel-art.js?v=21";
+import { pixelMarkup } from "./pixel-markup.js?v=21";
+import { SceneLighting } from "./scene-lighting.js?v=21";
 let sceneLights = [];
 const battleSelection = new BattleSelection();
 const campChatter = new CampChatter();
@@ -286,9 +286,33 @@ function closeModal() {
 function openModal(name, subtitle, body, footer = "", refresh = null) {
   modalRefresh = refresh;
   $("modal").dataset.sheet = "service";
-  $("modal-content").innerHTML = pixelMarkup(
-    `<div class="modal-header"><div><span class="eyebrow">${esc(game.campName || "Your Camp")} · ${title(game.screen)}</span><h2>${name}</h2><p>${subtitle}</p></div><button class="icon-button" data-close aria-label="Close dialog">${icon("close")}</button></div><div class="modal-body">${body}</div>${footer ? `<div class="modal-footer">${footer}</div>` : ""}`,
-  );
+  const content = $("modal-content"),
+    heading = `<span class="eyebrow">${esc(game.campName || "Your Camp")} · ${title(game.screen)}</span><h2>${name}</h2><p>${subtitle}</p>`,
+    header = content.querySelector(".modal-header"),
+    bodyNode = content.querySelector(".modal-body");
+  if (
+    $("modal").open &&
+    header &&
+    header.dataset.modalTitle === name &&
+    bodyNode &&
+    header.querySelector("[data-close]")
+  ) {
+    // A command can refresh a sheet during a tap. Keep its close control and
+    // header attached instead of replacing the button under the pointer.
+    header.children[0].innerHTML = heading;
+    bodyNode.innerHTML = pixelMarkup(body);
+    content.querySelector(".modal-footer")?.remove();
+    if (footer) {
+      const node = document.createElement("div");
+      node.className = "modal-footer";
+      node.innerHTML = pixelMarkup(footer);
+      content.appendChild(node);
+    }
+  } else {
+    content.innerHTML = pixelMarkup(
+      `<div class="modal-header" data-modal-title="${esc(name)}"><div>${heading}</div><button class="icon-button" data-close aria-label="Close dialog">${icon("close")}</button></div><div class="modal-body">${body}</div>${footer ? `<div class="modal-footer">${footer}</div>` : ""}`,
+    );
+  }
   bindActions($("modal-content"));
   if (!$("modal").open) $("modal").showModal();
   gameShell.update();
@@ -608,7 +632,7 @@ function expeditionView() {
   const r = currentExpedition();
   if (!r) return expeditionsView();
   const active = r.status === "active";
-  return `<div class="page-heading"><div><span class="eyebrow">${LOCATIONS[r.location].name} · ${active ? "EXPEDITION IN PROGRESS" : "EXPEDITION REPORT"}</span><h1>${esc(r.name)} <span class="heading-pill">${active ? "Encounter " + (r.stage + 1) + " / " + r.encounters : "Returned"}</span></h1><p>${active ? "Leave this view whenever you like. The company will keep going at 1×." : r.reason === "defeat" ? "A tough encounter brought the company home. Your permanent characters, items, and earned rewards are safe. Recruits only join after a completed expedition." : r.completion || "The company is back at Camp, ready for its next chapter."}</p></div><div class="heading-actions">${button("The Camp", 'data-nav="camp"', "secondary-button")}${active ? button("Recall company", 'data-recall="' + r.id + '" ' + (catchingUp ? "disabled" : ""), "text-button") : button("Plan another at Camp", 'data-nav="camp"')}</div></div><div class="run-status"><span>${icon("flag", 17)}<strong>${r.history.filter((h) => h.survived).length}</strong> cleared</span><div class="earned-loot" id="earned-loot">${lootMetrics(r)}</div><span id="exp-time">${time(r.elapsedSeconds)} elapsed</span></div><div class="workspace expedition-workspace"><div class="main-column">${active ? (r.phase === "interlude" ? interludeView(r) : battleView(r)) : `<section class="report-panel ${r.reason === "defeat" ? "defeat-report" : "victory-report"}"><span class="result-emblem">${icon(r.reason === "defeat" ? "skull" : "check", 52)}</span><span class="eyebrow">${r.reason === "recall" ? "COMPANY RECALLED" : r.reason === "defeat" ? "DEFEAT" : "VICTORY"}</span><h2>${r.reason === "defeat" ? "You lost encounter " + (r.stage + 1) : r.reason === "recall" ? "Company recalled" : "Expedition won"}</h2><p>${r.reason === "defeat" ? "The company recovers in 90 seconds. Stocked food halves recovery time." : "Equipment and characters kept their levels. Bonds strengthened with every cleared encounter."}</p><div class="report-numbers"><span><strong>${r.earned.gold}</strong> Gold earned</span><span><strong>${r.earned.items}</strong> Items collected</span><span><strong>${time(r.elapsedSeconds)}</strong> Time together</span></div>${button("Meet them at Camp", 'data-nav="camp"')}</section>`}${battleCompany(r)}<details class="battle-journal" id="expedition-journal" ${active ? "" : "open"}><summary>${active ? "Battle activity" : "Encounter history"}</summary><div id="battle-log">${
+  return `<div class="page-heading"><div><span class="eyebrow">${LOCATIONS[r.location].name} · ${active ? "EXPEDITION IN PROGRESS" : "EXPEDITION REPORT"}</span><h1>${esc(r.name)} <span class="heading-pill">${active ? "Encounter " + (r.stage + 1) + " / " + r.encounters : "Returned"}</span></h1><p>${active ? "Leave this view whenever you like. The company will keep going at 1×." : r.reason === "defeat" ? "A tough encounter brought the company home. Your permanent characters, items, and earned rewards are safe. Recruits only join after a completed expedition." : r.completion || "The company is back at Camp, ready for its next chapter."}</p></div><div class="heading-actions">${button("The Camp", 'data-nav="camp"', "secondary-button")}${active ? button("Recall company", 'data-recall="' + r.id + '" ' + (catchingUp ? "disabled" : ""), "text-button") : button("Plan another at Camp", 'data-nav="camp"')}</div></div><div class="run-status"><span>${icon("flag", 17)}<strong>${r.history.filter((h) => h.survived).length}</strong> cleared</span><div class="earned-loot" id="earned-loot">${lootMetrics(r)}</div><span id="exp-time">${time(r.elapsedSeconds)} elapsed</span></div><div class="workspace expedition-workspace"><div class="main-column">${active ? (r.phase === "interlude" ? interludeView(r) : battleView(r)) : `<section class="report-panel ${r.reason === "defeat" ? "defeat-report" : "victory-report"}"><span class="result-emblem">${icon(r.reason === "defeat" ? "skull" : "check", 52)}</span><span class="eyebrow">${r.reason === "recall" ? "COMPANY RECALLED" : r.reason === "defeat" ? "DEFEAT" : "VICTORY"}</span><h2>${r.reason === "defeat" ? "You lost encounter " + (r.stage + 1) : r.reason === "recall" ? "Company recalled" : "Expedition won"}</h2><p>${r.reason === "defeat" ? "The company recovers in 90 seconds. Stocked food halves recovery time." : "Your survivors and their equipment kept the experience earned along the road."}</p><div class="report-numbers"><span><strong>${r.earned.gold}</strong> Gold earned</span><span><strong>${r.earned.items}</strong> Items collected</span><span><strong>${time(r.elapsedSeconds)}</strong> Time together</span></div>${button("Meet them at Camp", 'data-nav="camp"')}</section>`}${battleCompany(r)}<details class="battle-journal" id="expedition-journal" ${active ? "" : "open"}><summary>${active ? "Battle activity" : "Encounter history"}</summary><div id="battle-log">${
     !active
       ? r.history
           .slice(-15)
@@ -783,14 +807,19 @@ function marketView() {
   );
 }
 function codexView() {
-  const cats = ["All", ...new Set(CODEX.map((e) => e.category))],
+  const query = codexSearch.trim().toLowerCase(),
+    matchRank = (e) =>
+      e.name.toLowerCase() === query
+        ? 0
+        : e.name.toLowerCase().startsWith(query)
+          ? 1
+          : 2,
+    cats = ["All", ...new Set(CODEX.map((e) => e.category))],
     list = CODEX.filter(
       (e) =>
         (codexCategory === "All" || e.category === codexCategory) &&
-        `${e.name} ${e.text} ${e.category}`
-          .toLowerCase()
-          .includes(codexSearch.toLowerCase()),
-    ),
+        `${e.name} ${e.text} ${e.category}`.toLowerCase().includes(query),
+    ).sort((a, b) => (query ? matchRank(a) - matchRank(b) : 0)),
     entry = list.find((e) => e.name === codexSelected) || list[0];
   return (
     heading(
@@ -1165,7 +1194,7 @@ function showCreate() {
     `<label class="field-label" for="create-scroll">Creation scroll</label><select class="modal-select" id="create-scroll">${scrolls.map((s) => `<option value="${s.id}">${s.race} · one use</option>`).join("") || '<option value="">No analyzed scrolls</option>'}</select><label class="field-label" for="create-class">Class</label><select class="modal-select" id="create-class">${Object.entries(
       CLASSES,
     )
-      .filter(([k]) => !["witch", "stormcaller"].includes(k))
+      .filter(([, c]) => !c.legacy)
       .map(
         ([k, c]) =>
           `<option value="${k}">${c.label} · ${c.slots.length} equipment slots</option>`,
@@ -2149,7 +2178,10 @@ function bind() {
       set(v);
       marketPage = 0;
     });
-  input("codex-search", (v) => (codexSearch = v));
+  input("codex-search", (v) => {
+    codexSearch = v;
+    codexSelected = "";
+  });
   change("codex-category", (v) => (codexCategory = v));
   $("restock-btn")?.addEventListener("click", () => act("restock", { vendor }));
   $("launch-btn")?.addEventListener("click", async () => {
@@ -3450,7 +3482,14 @@ function frame(now) {
     requestAnimationFrame(frame);
     return;
   }
-  if (["camp", "market", "tavern"].includes(game?.screen) && !document.hidden) {
+  // Dialogs make the world inert. Avoid repainting the large scene behind a
+  // sheet so touch input stays responsive; simulation continues independently.
+  const worldVisible = !$("modal").open;
+  if (
+    worldVisible &&
+    ["camp", "market", "tavern"].includes(game?.screen) &&
+    !document.hidden
+  ) {
     for (const map of worldMaps) {
       map.camera.update(now / 1000);
       map.apply();
@@ -3497,7 +3536,7 @@ function frame(now) {
       u.y = y;
     }
   }
-  if (!document.hidden && focused && !closing)
+  if (worldVisible && !document.hidden && focused && !closing)
     for (const light of sceneLights) light.draw(now / 1000);
   requestAnimationFrame(frame);
 }
@@ -3570,7 +3609,7 @@ function regionMap() {
         questState(game, q).unlocked &&
         (q.id === game.trackedQuest || game.questPins.includes(q.id)),
     );
-  return `<section class="route-map-shell"><div class="map-toolbar"><span>${LOCATIONS[loc].name} · ${seen.size} / ${region.nodes.length} discovered</span><div>${button("−", 'data-map-zoom="-1" aria-label="Zoom out"', "icon-button")}${button("+", 'data-map-zoom="1" aria-label="Zoom in"', "icon-button")}${button("Fit map", "data-map-fit", "secondary-button")}</div></div><div class="region-map-viewport" id="region-map-viewport"><div class="region-map" style="--map-scale:${mapZoom};--map-tint:${LOCATIONS[loc].color}" aria-label="${LOCATIONS[loc].name} local roads"><svg viewBox="0 0 900 1300" preserveAspectRatio="none" aria-hidden="true"><image href="/map-route-${loc}-v05.svg?v=20" width="900" height="1300" preserveAspectRatio="none"/>${region.roads.map((e) => `<path d="${roadPath(region, e)}" fill="none" stroke="#c3ab79" stroke-opacity=".65" stroke-width="5" stroke-linecap="round" stroke-dasharray="${e.style === "wild" ? "3 17" : "none"}"/>`).join("")}${routes
+  return `<section class="route-map-shell"><div class="map-toolbar"><span>${LOCATIONS[loc].name} · ${seen.size} / ${region.nodes.length} discovered</span><div>${button("−", 'data-map-zoom="-1" aria-label="Zoom out"', "icon-button")}${button("+", 'data-map-zoom="1" aria-label="Zoom in"', "icon-button")}${button("Fit map", "data-map-fit", "secondary-button")}</div></div><div class="region-map-viewport" id="region-map-viewport"><div class="region-map" style="--map-scale:${mapZoom};--map-tint:${LOCATIONS[loc].color}" aria-label="${LOCATIONS[loc].name} local roads"><svg viewBox="0 0 900 1300" preserveAspectRatio="none" aria-hidden="true"><image href="/map-route-${loc}-v05.svg?v=21" width="900" height="1300" preserveAspectRatio="none"/>${region.roads.map((e) => `<path d="${roadPath(region, e)}" fill="none" stroke="#c3ab79" stroke-opacity=".65" stroke-width="5" stroke-linecap="round" stroke-dasharray="${e.style === "wild" ? "3 17" : "none"}"/>`).join("")}${routes
     .filter((r) => r.index === (d?.routeIndex ?? 0))
     .map(
       (r) =>

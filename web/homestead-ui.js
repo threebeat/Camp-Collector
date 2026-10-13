@@ -1,35 +1,35 @@
-import { mountCampBackground } from "./camp-background.js?v=20";
+import { mountCampBackground } from "./camp-background.js?v=21";
 import {
   TOWN_NPCS,
   BARTENDER,
   npcHero,
   npcQuestOffers,
-} from "./town-npcs.js?v=20";
-import { hasCost, buildingAllowed } from "./camp.js?v=20";
-import { campProgress } from "./evernight.js?v=20";
-import { learningLocked } from "./onboarding.js?v=20";
-import { mapAssetMarkup, prerenderedBuildingSvg } from "./map-assets.js?v=20";
+} from "./town-npcs.js?v=21";
+import { hasCost, buildingAllowed } from "./camp.js?v=21";
+import { campProgress } from "./evernight.js?v=21";
+import { learningLocked } from "./onboarding.js?v=21";
+import { mapAssetMarkup, prerenderedBuildingSvg } from "./map-assets.js?v=21";
 import {
   CAMP_WORLD,
   CAMP_ANCHORS,
   CAMP_PLOTS,
   CAMP_VENDORS,
   revealedCampAreas,
-} from "./camp-world.js?v=20";
-import { BUILDINGS } from "./world.js?v=20";
-import { VENDORS } from "./data.js?v=20";
-import { available } from "./progression.js?v=20";
-import { vision } from "./lighting.js?v=20";
+} from "./camp-world.js?v=21";
+import { BUILDINGS } from "./world.js?v=21";
+import { VENDORS } from "./data.js?v=21";
+import { available } from "./progression.js?v=21";
+import { vision } from "./lighting.js?v=21";
 import {
   pixelPropSvg,
   pixelJournalSvg,
   pixelCampGroundSvg,
   pixelBuildingSvg,
   pixelTerrainSvg,
-} from "./pixel-art.js?v=20";
-import { portraitSvg } from "./art.js?v=20";
-import { pixelMarkup } from "./pixel-markup.js?v=20";
-import { WorldCamera, attachCameraInput } from "./camera.js?v=20";
+} from "./pixel-art.js?v=21";
+import { portraitSvg } from "./art.js?v=21";
+import { pixelMarkup } from "./pixel-markup.js?v=21";
+import { WorldCamera, attachCameraInput } from "./camera.js?v=21";
 const views = new Map();
 let ground = null;
 export function createHomesteadUi(c) {

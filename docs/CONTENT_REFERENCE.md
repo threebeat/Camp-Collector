@@ -1,6 +1,6 @@
 # Current content reference
 
-Generated with `node scripts/generate-content-reference.mjs` for version 0.6.0. These tables describe current content; all names, counts, balance and progression choices may change. Stable IDs are useful save references, not a requirement to keep every design forever.
+Generated with `node scripts/generate-content-reference.mjs` for version 0.7.0. These tables describe current content; all names, counts, balance and progression choices may change. Stable IDs are useful save references, not a requirement to keep every design forever.
 
 ## Races
 
@@ -11,47 +11,36 @@ Race foundation values precede class, levels and equipment. Growth tables are in
 | Human | 12 | 1 | 8 | 8 | 10 | 8 | Adaptable · earns 20% more experience |
 | Dwarf | 16 | 3 | 10 | 6 | 6 | 12 | Stoneborn · resists knockback Sees 220 units in darkness. |
 | Elf | 10 | 1 | 7 | 11 | 14 | 7 | Keen eyes · +25 ranged reach |
-| Orc | 16 | 2 | 13 | 4 | 9 | 11 | Heavy hands · +3 attack, stronger knockback |
 | Gnome | 9 | 1 | 6 | 12 | 12 | 8 | Quick thinking · abilities recharge 15% faster Sees 200 units in darkness. |
-| Shade | 10 | 0 | 8 | 11 | 16 | 6 | Elusive · 12% chance to evade attacks Sees 280 units in darkness. |
 | Fae | 8 | 0 | 5 | 14 | 17 | 5 | Winged · flies over water and obstacles |
-| Sylph | 9 | 0 | 6 | 12 | 17 | 6 | Slipstream · +8 speed and 8% evasion |
 | Automaton | 17 | 3 | 11 | 7 | 6 | 14 | Alloy body · 40% heavier |
 | Nereid | 11 | 1 | 7 | 12 | 12 | 9 | Tidal memory · regenerates 1 HP per second |
-| Kobold | 10 | 1 | 9 | 6 | 15 | 8 | Nimble hands · abilities recharge 10% faster Sees 240 units in darkness. |
-| Myconid | 15 | 2 | 7 | 10 | 6 | 12 | Spore shelter · nearby allies regenerate 1 HP per second Sees 210 units in darkness. |
-| Drakeling | 15 | 2 | 12 | 8 | 10 | 10 | Dragon spark · +3 attack and stronger pushes |
 | Celestial | 10 | 1 | 6 | 15 | 11 | 8 | Starlight · 15% stronger healing |
 | Ent | 20 | 4 | 12 | 7 | 4 | 15 | Old roots · heavy body resists knockback |
-| Owlkin | 11 | 1 | 8 | 14 | 14 | 8 | Watchful wings · +35 ranged reach and 6% evasion Feather wings carry them over ground obstacles. |
-| Bearkin | 19 | 3 | 16 | 7 | 6 | 15 | Hibernal heart · 65% heavier; a sturdy natural constitution |
+| Chitin | 15 | 4 | 10 | 6 | 8 | 13 | Carapace · armored foundation, 45% more mass and 200-range night sight |
+| Gnoll | 13 | 1 | 12 | 5 | 14 | 10 | Scrap runner · +7 movement speed |
+| Naga | 14 | 2 | 10 | 9 | 10 | 11 | Coiled guard · 30% more mass and 5% evasion |
+| Myconoid | 15 | 2 | 7 | 10 | 6 | 12 | Spore shelter · nearby allies regenerate 1 HP per second Sees 210 units in darkness. |
+| Voidborn | 10 | 0 | 8 | 11 | 16 | 6 | Elusive · 12% chance to evade attacks Sees 280 units in darkness. |
 
 ## Playable classes
 
-Internal IDs can differ from player-facing names. Hexweaver (`witch`) and Stormwing (`stormcaller`) are retained internally as technique definitions, not separately generated playable classes.
+Internal IDs can differ from player-facing names. Twelve current classes and fourteen races form the new recruitment pools. Legacy identities remain valid in saves and challenge snapshots, and have separate Codex categories.
 
 | ID / name | Starting stat additions | Armor | Equipment slots | Active technique |
 | --- | --- | --- | --- | --- |
-| vanguard / Vanguard | vitality +3, strength +5 | heavy | Weapon (blade, heavy, blunt, polearm); Boots (feet) | Earthshaker — Cleave nearby enemies for 32 damage and push them back. |
-| guardian / Guardian | vitality +6, armor +3 | heavy | Weapon (blade, blunt, polearm); Shield (offhand); Charm (charm) | Hold the line — Grant a 42-point shield to itself and allies within 140 steps. |
+| vanguard / Fighter | vitality +3, strength +5 | heavy | Weapon (blade, heavy, blunt, polearm); Boots (feet) | Earthshaker — Cleave nearby enemies for 32 damage and push them back. |
 | ranger / Ranger | strength +4, agility +3 | medium | Ranged weapon (bow, crossbow, longarm, sidearm); Quiver (offhand); Boots (feet) | Split shot — Loose arrows at up to three nearby enemies. |
 | healer / Cleric | mind +6, endurance +2 | light | Focus (wand, staff) | Sanctuary — Spend mana to create a modest healing Blessing. Healing is limited by each encounter’s mana pool. |
-| engineer / Tinker | mind +3, endurance +4 | medium | Weapon (blunt, sidearm, longarm); Tool (tool); Tool (tool) | Fieldworks — Build a 70-HP turret and a 100-HP barricade. Up to two turrets at once. |
-| assassin / Veilblade | strength +3, agility +5 | light | Weapon (blade, sidearm); Weapon (blade, sidearm) | Shadow step — Teleport beside a backline enemy, become invisible for 2 seconds, and strike. |
-| summoner / Summoner | mind +7 | light | Focus (wand, staff) | Call the pack — Summon two spirit wolves for 20 seconds. Up to four wolves at once. |
-| mage / Mage | mind +7 | light | Focus (wand, staff) | Arcane ground — Create an arcane Curse that damages enemies on the ground for 5 seconds. |
+| assassin / Rogue | strength +3, agility +5 | light | Weapon (blade, sidearm); Weapon (blade, sidearm) | Shadow step — Teleport beside a backline enemy, become invisible for 2 seconds, and strike. |
+| mage / Wizard | mind +7 | light | Focus (wand, staff) | Arcane ground — Create an arcane Curse that damages enemies on the ground for 5 seconds. |
 | bard / Bard | mind +4, endurance +3 | light | Tool (tool) | Heartstring — Charm a wounded, susceptible opponent. Complete the expedition to recruit them permanently. |
-| artillery / Artillerist | strength +7 | heavy | Artillery (artillery, longarm, crossbow); Tool (tool) | Heavy shell — Launch an explosive shell for 48 area damage and powerful knockback. |
-| envoy / Envoy | mind +6 | light | Focus (wand, staff) | Change of heart — Convert a non-boss enemy below 45% health within range. Mind must overcome their resolve. |
-| trapper / Trapper | agility +4, strength +3 | medium | Ranged weapon (bow, crossbow, sidearm); Quiver (offhand); Tool (tool) | Snare field — Sets two snares before combat. Activates a scatter shot during the wave. |
-| minelayer / Minelayer | strength +4, endurance +3 | medium | Weapon (blunt, sidearm, longarm); Tool (tool) | Remote blast — Places blast mines before combat; triggers a physical Explosion in battle. |
 | alchemist / Alchemist | strength +4, mind +3 | light | Tool (tool) | Volatile flask — Throws physical explosions into crowded groups. |
-| druid / Druid | mind +5, vitality +2 | light | Focus (wand, staff) | Living spring — Creates a healing Blessing under an injured ally. |
 | paladin / Paladin | armor +3, mind +3 | heavy | Weapon (blade, blunt, polearm); Shield (offhand); Charm (charm) | Aegis — Protects nearby allies with a durable shield. |
 | necromancer / Necromancer | mind +7 | light | Focus (wand, staff) | Echo legion — Summons spectral companions to hold the frontline. |
 | psion / Psion | mind +7 | light | Focus (wand, staff) | Gravity well — Crushes groups with a Gravity Curse that pulls units together. |
-| duelist / Duelist | strength +5, agility +3 | medium | Weapon (blade, sidearm); Weapon (blade, sidearm) | Crescent strike — Sweeps nearby enemies with a physical Explosion. |
 | monk / Monk | strength +4, mind +3 | light | Weapon (blunt, polearm); Tool (tool) | Quiet thunder — Strikes nearby opponents with a physical Explosion and strong knockback. |
+| berserker / Barbarian | vitality +4, strength +7 | medium | Weapon (heavy, blunt, polearm, blade); Charm (charm) | Ruin cleaver — Sweep nearby grounded enemies for 32 base damage and heavy knockback; Strength and class growth amplify the strike. |
 
 ## Class point sequence and subclasses
 
@@ -59,26 +48,18 @@ Points at 10 / 20 / 40 / 60 / 80 alternate talent, subclass, talent, advanced su
 
 | Class | First subclasses (20) | Advanced subclasses (60) |
 | --- | --- | --- |
-| Vanguard | Earthbreaker; Duelist | Earthbreaker Ascendant; Earthbreaker Warden; Duelist Ascendant; Duelist Warden |
-| Guardian | Warden; Bulwark | Warden Ascendant; Warden Warden; Bulwark Ascendant; Bulwark Warden |
+| Fighter | Earthbreaker; Duelist | Earthbreaker Ascendant; Earthbreaker Warden; Duelist Ascendant; Duelist Warden |
 | Ranger | Deadeye; Outrider | Deadeye Ascendant; Deadeye Warden; Outrider Ascendant; Outrider Warden |
 | Cleric | Dawnkeeper; Lightwarden | Dawnkeeper Ascendant; Dawnkeeper Warden; Lightwarden Ascendant; Lightwarden Warden |
-| Tinker | Machinist; Siegewright | Machinist Ascendant; Machinist Warden; Siegewright Ascendant; Siegewright Warden |
-| Veilblade | Nightblade; Phantom | Nightblade Ascendant; Nightblade Warden; Phantom Ascendant; Phantom Warden |
-| Summoner | Packkeeper; Grovecaller | Packkeeper Ascendant; Packkeeper Warden; Grovecaller Ascendant; Grovecaller Warden |
-| Mage | Embermage; Gravitist; Frostweaver; Hexweaver; Stormcaller | Embermage Ascendant; Embermage Warden; Gravitist Ascendant; Gravitist Warden; Frostweaver Ascendant; Frostweaver Warden; Hexweaver Ascendant; Hexweaver Warden; Stormcaller Ascendant; Stormcaller Warden |
+| Rogue | Nightblade; Phantom | Nightblade Ascendant; Nightblade Warden; Phantom Ascendant; Phantom Warden |
+| Wizard | Embermage; Gravitist; Frostweaver; Hexweaver; Stormcaller | Embermage Ascendant; Embermage Warden; Gravitist Ascendant; Gravitist Warden; Frostweaver Ascendant; Frostweaver Warden; Hexweaver Ascendant; Hexweaver Warden; Stormcaller Ascendant; Stormcaller Warden |
 | Bard | Anthemist; Battle Skald | Anthemist Ascendant; Anthemist Warden; Battle Skald Ascendant; Battle Skald Warden |
-| Artillerist | Bombardier; Longshot | Bombardier Ascendant; Bombardier Warden; Longshot Ascendant; Longshot Warden |
-| Envoy | Diplomat; Heartbinder | Diplomat Ascendant; Diplomat Warden; Heartbinder Ascendant; Heartbinder Warden |
-| Trapper | Snarewright; Trailwarden | Snarewright Ascendant; Snarewright Warden; Trailwarden Ascendant; Trailwarden Warden |
-| Minelayer | Demolitionist; Sapper | Demolitionist Ascendant; Demolitionist Warden; Sapper Ascendant; Sapper Warden |
 | Alchemist | Pyrochemist; Wardchemist | Pyrochemist Ascendant; Pyrochemist Warden; Wardchemist Ascendant; Wardchemist Warden |
-| Druid | Thornkeeper; Vinewarden | Thornkeeper Ascendant; Thornkeeper Warden; Vinewarden Ascendant; Vinewarden Warden |
 | Paladin | Dawnblade; Beacon | Dawnblade Ascendant; Dawnblade Warden; Beacon Ascendant; Beacon Warden |
 | Necromancer | Echo caller; Gravewarden | Echo caller Ascendant; Echo caller Warden; Gravewarden Ascendant; Gravewarden Warden |
 | Psion | Singularist; Repulsor | Singularist Ascendant; Singularist Warden; Repulsor Ascendant; Repulsor Warden |
-| Duelist | Bladedancer; Riposter | Bladedancer Ascendant; Bladedancer Warden; Riposter Ascendant; Riposter Warden |
 | Monk | Monk Master; Monk Keeper | Monk Master Ascendant; Monk Master Warden; Monk Keeper Ascendant; Monk Keeper Warden |
+| Barbarian | Scrapbreaker; Ashguard | Scrapbreaker Ascendant; Scrapbreaker Warden; Ashguard Ascendant; Ashguard Warden |
 
 ## Camp, food and world tiers
 
@@ -100,7 +81,10 @@ Utility lights are separate from the eight general equipment slots. Terrain occl
 | Gnome | 200 |
 | Kobold | 240 |
 | Myconid | 210 |
+| Myconoid | 210 |
+| Chitin | 200 |
 | Shade | 280 |
+| Voidborn | 280 |
 | Elf | 95 |
 | Nereid | 95 |
 
@@ -357,7 +341,7 @@ These are original in-game identities. Normal generation does not roll them.
 | ID | Name | Race / class | Signature weapon | Gem price | Theme |
 | --- | --- | --- | --- | --- | --- |
 | sunwarden | Sol, the Sunwarden | Human / Guardian | dawncore | 90 | A copper-armored defender carrying the last ember of a fallen sun. Shields allies and plants restorative light. |
-| skyrift | Vela, the Skyrift | Owlkin / Mage | riftfocus | 105 | A masked storm navigator who stitches torn skies together. A star-metal focus casts pulling gravity wells. |
+| skyrift | Vela, the Skyrift | Owlkin / Wizard | riftfocus | 105 | A masked storm navigator who stitches torn skies together. A star-metal focus casts pulling gravity wells. |
 | ironcomet | Cairn, the Iron Comet | Automaton / Artillerist | cometarm | 120 | A rescued observatory engine, rebuilt as a wandering protector. Blue vents, brass plates, and explosive comet rounds. |
 
 ## Maps

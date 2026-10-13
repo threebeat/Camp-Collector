@@ -19,8 +19,8 @@ import {
   WEAPON_MODIFIERS,
   ARMOR_MODIFIERS,
   PET_MODIFIERS,
-} from "./data.js?v=20";
-import { CONTEXT, BUILDINGS, MATERIALS } from "./world.js?v=20";
+} from "./data.js?v=21";
+import { CONTEXT, BUILDINGS, MATERIALS } from "./world.js?v=21";
 const mechanics = [
   [
     "Living Camp and Market",
@@ -149,12 +149,14 @@ const mechanics = [
   ],
 ];
 export const CODEX = [
+  {name: "Before the dark", category: "World", text: "An advanced civilization once threaded these lands with transit lines, observatories and immense engines. When the light was taken, its cities fell silent. Forests now grow through concrete, bronze machines sleep beneath medieval ruins, and survivors make tools from what remains. Nobody at the Bonfire knows what ended the old world."},
+  {name: "Survivors of Evernight", category: "World", text: "Fourteen peoples gather at the Eternal Bonfire: Human, Elf, Dwarf, Nereid, Fae, Chitin, Gnome, Gnoll, Naga, Myconoid, Automaton, Ent, Celestial and Voidborn. Each may follow any of twelve callings: Fighter, Ranger, Rogue, Wizard, Cleric, Barbarian, Paladin, Bard, Monk, Necromancer, Alchemist or Psion. Earlier collected races and classes remain playable, with their rules recorded in the legacy categories."},
   ...mechanics.map(([name, category, text]) => ({ name, category, text })),
   ...Object.entries(RACES).map(([name, r]) => ({
     name,
-    category: "Races",
+    category: r.legacy ? "Legacy races" : "Races",
     text:
-      r.text +
+      (r.lore ? r.lore + " " : "") + r.text +
       ". Base stats: " +
       CORE_STATS.map((k) => k + " " + r.base[k]).join(", ") +
       (r.uncharmable
@@ -166,7 +168,7 @@ export const CODEX = [
     .filter(([k]) => !["witch", "stormcaller"].includes(k))
     .map(([key, c]) => ({
       name: c.label,
-      category: "Classes",
+      category: c.legacy ? "Legacy classes" : "Classes",
       key,
       text:
         c.behavior +
