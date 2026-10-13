@@ -1,12 +1,12 @@
-import { MAP_ASSETS } from "./map-assets.js?v=20";
-import { paintGroundShadow } from "./scene-lighting.js?v=20";
-import { WorldCamera } from "./camera.js?v=20";
+import { MAP_ASSETS } from "./map-assets.js?v=21";
+import { paintGroundShadow } from "./scene-lighting.js?v=21";
+import { WorldCamera } from "./camera.js?v=21";
 import {
   vision,
   lightSources,
   environmentLights,
   revealed,
-} from "./lighting.js?v=20";
+} from "./lighting.js?v=21";
 import {
   W,
   H,
@@ -16,14 +16,14 @@ import {
   ITEMS,
   allGear,
   itemRarity,
-} from "./data.js?v=20";
-import { portraitSvg, petSvg, creatureSvg } from "./art.js?v=20";
+} from "./data.js?v=21";
+import { portraitSvg, petSvg, creatureSvg } from "./art.js?v=21";
 import {
   pixelTerrainSvg,
   pixelPropSvg,
   pixelCreatureSvg,
-} from "./pixel-art.js?v=20";
-import { PixelLighting } from "./pixel-lighting.js?v=20";
+} from "./pixel-art.js?v=21";
+import { PixelLighting } from "./pixel-lighting.js?v=21";
 
 const PAD_X = 600,
   PAD_Y = 480,
@@ -232,7 +232,7 @@ export class Renderer {
     );
     if (ground.complete && ground.naturalWidth)
       ctx.drawImage(ground, -PAD_X, -PAD_Y, BACK_W, BACK_H);
-    const biome = map.biome === "river" ? "forest" : map.biome;
+    const biome = map.biome === "river" ? "marsh" : map.biome;
     if (MAP_ASSETS[biome] && !this.terrainImages.has(biome)) {
       const im = new Image();
       im.onload = ready;
@@ -242,7 +242,7 @@ export class Renderer {
     const terrain = this.terrainImages.get(biome);
     if (terrain?.complete && terrain.naturalWidth)
       ctx.drawImage(terrain, -PAD_X, -PAD_Y, BACK_W, BACK_H);
-    for (let x = -PAD_X; x < W + PAD_X; x += 12) {
+    for (let x = -PAD_X; !MAP_ASSETS[biome] && x < W + PAD_X; x += 12) {
       const y =
         Math.round((H * 0.5 + Math.sin(x / 160 + (map.seed % 5)) * 35) / 4) * 4;
       rect(

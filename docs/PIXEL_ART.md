@@ -1,5 +1,7 @@
 # Evernight pixel art
 
+Current 0.7 character bodies and core environments use generated pixel-art atlases; see [RUIN_ART.md](RUIN_ART.md). The grids described below remain the equipment/creature/legacy fallback layer. `art.js` is the public surface; use it for portraits so current races receive the shared survivor composition.
+
 Evernight 0.1 uses original, code-authored pixel sprites. `web/pixel-art.js` draws
 integer cells onto small grids, then serializes equal cells as crisp SVG
 rectangles. It does not downsample or filter the previous smooth illustrations.

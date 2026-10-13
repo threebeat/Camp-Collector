@@ -1,4 +1,4 @@
-import { CAMP_WORLD } from "./camp-world.js?v=20";
+import { CAMP_WORLD } from "./camp-world.js?v=21";
 // Coordinates refer to the 1468 × 1071 generated painting. Inset banks and
 // exclusion islands keep moving highlights off rocks, reeds, trees and bridges.
 export const WATER_AREAS = [

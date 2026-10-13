@@ -104,11 +104,11 @@ test('Camp expansions charge escalating costs and unlock real farms, gardens and
  assert.ok(Camp.expandCamp(g,'west'));assert.ok(Camp.buildCamp(g,'cabins'));assert.equal(Camp.campCapacity(g),60);assert.equal(g.buildings.tent,2);assert.ok(Camp.buildCamp(g,'cabins'));assert.equal(Camp.campCapacity(g),80);const h=generateHero({classId:'bard',level:40});g.roster.push(h);const belongings=h.items[0];assert.ok(Camp.releaseHero(g,h));assert.ok(!g.roster.includes(h));assert.ok(g.inventory.includes(belongings));
  assert.ok(Camp.expandCamp(g,'south'));assert.ok(Camp.buildCamp(g,'garden'));g.lastClock+=300000;const herbs=g.materials.herbs;assert.ok(Camp.harvestCamp(g,'garden'));assert.equal(g.materials.herbs,herbs+1);g.screen='market';assert.equal(Camp.setCampZone(g,'east'),false);
 });
-test('Owlkin and Bearkin have full growth tables, unique racial attributes, silhouettes, and Market recruitment',()=>{
+test('legacy Owlkin and Bearkin retain growth, racial attributes and silhouettes but leave new recruitment',()=>{
  const owl=generateHero({race:'Owlkin',classId:'mage'}),bear=generateHero({race:'Bearkin',classId:'guardian'});
  for(const h of [owl,bear]){assert.ok(RACES[h.race].passive);assert.equal(h.attributes.length,1);for(const k of ['vitality','armor','strength','mind','agility','endurance'])assert.ok(Number.isFinite(stats(h)[k]));assert.ok(portraitSvg(h).length>2000);}
  assert.ok(characterSize(bear)[0]>characterSize(owl)[0]);assert.notEqual(portraitSvg(owl),portraitSvg(bear));
- const g=funded();assert.ok(P.marketStock(g,'guild').some(o=>o.hero.race==='Owlkin'));assert.ok(P.marketStock(g,'guild').some(o=>o.hero.race==='Bearkin'));
+ const g=funded();assert.ok(!P.marketStock(g,'guild').some(o=>['Owlkin','Bearkin'].includes(o.hero.race)));g.roster.push(owl,bear);const restored=P.migrateSave(JSON.parse(JSON.stringify(g)));assert.deepEqual(restored.roster.slice(-2).map(h=>[h.id,h.race,h.classId,h.items.map(i=>[i.id,i.key,i.level])]),[owl,bear].map(h=>[h.id,h.race,h.classId,h.items.map(i=>[i.id,i.key,i.level])]));
 });
 test('old v8 collections are reset, while shared snapshot equipment remains validated',()=>{const old=JSON.parse(readFileSync(new URL('./fixtures/v8-save.json',import.meta.url)));assert.equal(P.migrateSave(old),null);const g=fresh(),bad=structuredClone(g.roster);bad[0].level=40;bad[0].classNodes=['breaker:0','duelist:1'];assert.throws(()=>cleanTeam(bad,'bad-legacy'),/Invalid class branch/);const cleaned=cleanItem({...makeItem('musket',40),evolution:2,prefix:'flaming',enchantment:'gravity',attack:999999});assert.equal(cleaned.attack,undefined);assert.equal(weaponModifiers(cleaned).length,2);assert.equal(cleaned.level,40);});
 

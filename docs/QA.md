@@ -1,5 +1,13 @@
 # Verification record
 
+## 0.7 verification
+
+The local gate passes **196 model/integration tests**, build and bundled Worker validation. New coverage validates all 168 current race/class combinations, legal starter equipment and authenticated challenge transport, generation/stock restricted to the concept roster, preserved legacy collections, and deterministic Barbarian combat across checkpoints. It caught a Strength-gated starter weapon, which was replaced with the legal Hatchet.
+
+The browser suite now contains **42 scenarios**, fourteen each on desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit. It adds actual browser-canvas decoding for all 26 survivor bodies and title-screen portrait/landscape fit, alongside the retained tutorial, saves, Camp construction, water/light animation, services, gestures, profiles and expedition flows. Remote execution and screenshot review are pending for this source state.
+
+Physical-device performance, battery use, touch ergonomics and hosted multi-account behavior remain unverified.
+
 ## 0.6 verification
 
 The local gate passes **193 model/integration tests**, build and bundled Worker validation. Added coverage verifies removal/migration of the duplicate profile lesson without reward replay, separate Attribute/Talent output, retired social commands and inert legacy records, local construction invalidation with unchanged distant pixels, darker terrain, firelight radius changes, water movement/exclusion masks/reduced motion, visible fading bonfire shadows and exact camera settling.

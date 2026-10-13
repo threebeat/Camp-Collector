@@ -71,3 +71,8 @@ Preserve immersion when moving people and belongings: scene updates must not fla
 ## A darker home — 0.6
 
 The owner wants static scenery to feel alive through restrained water and synchronized firelight. Buildings and bonfire belong to the ground, with only affected environment pieces replaced when the Camp changes. Live actors cast readable, fading shadows. Tutorial guidance should not repeat information already opened by a taught action. Character attachment comes through identity, equipment, attributes and talents; memories and friendship features are removed.
+
+
+## The world after the light — Evernight 0.7
+
+The owner now wants post-apocalypse mixed with standard fantasy. An advanced civilization ruled before an unknown force took the light. Its concrete, bronze mechanisms, broken transmission lines and relays survive inside forest and medieval ruins. Camp is a warm refuge made from reclaimed materials, and survivors wear practical salvage alongside cloaks, plate and magical regalia. The provided concept sheets establish fourteen current races and twelve classes. Violet gothic branding, muted blue night, warm brass and amber/cyan fire unify the experience. This direction supersedes the earlier deferred pixel-art statement; preserve its detailed pixel treatment while keeping controls and gear readable on phones.

@@ -1,7 +1,7 @@
-import { PixelLighting } from "./pixel-lighting.js?v=20";
-import { revealedCampAreas } from "./camp-world.js?v=20";
-import { bonfireLight, fireFlicker } from "./camp-background.js?v=20";
-import { createCampWater, paintCampWater } from "./camp-water.js?v=20";
+import { PixelLighting } from "./pixel-lighting.js?v=21";
+import { revealedCampAreas } from "./camp-world.js?v=21";
+import { bonfireLight, fireFlicker } from "./camp-background.js?v=21";
+import { createCampWater, paintCampWater } from "./camp-water.js?v=21";
 
 // World-space lighting survives camera transforms. Layout is sampled once, not every frame.
 export class SceneLighting {
@@ -292,9 +292,9 @@ export class SceneLighting {
     if (reduced) time = 0;
     for (let i = 0; i < 5; i++) {
       const x = 64 + i * 8,
-        height = (33 + Math.sin(i * 11) * 13) * flicker,
+        height = (62 + Math.sin(i * 11) * 18) * flicker,
         sway = Math.sin(time * 4 + i) * 4;
-      ctx.fillStyle = ["#9c421b", "#d36c22", "#e89432", "#f1b959", "#ffdb8d"][
+      ctx.fillStyle = ["#c76126", "#f49839", "#f9d078", "#67c9e4", "#fff0ba"][
         i
       ];
       ctx.beginPath();

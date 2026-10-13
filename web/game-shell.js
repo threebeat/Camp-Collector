@@ -1,24 +1,24 @@
-import { pixelBuildingSvg } from "./pixel-art.js?v=20";
-import { portraitSvg, icon } from "./art.js?v=20";
-import { pixelMarkup } from "./pixel-markup.js?v=20";
+import { pixelBuildingSvg } from "./pixel-art.js?v=21";
+import { portraitSvg, icon } from "./art.js?v=21";
+import { pixelMarkup } from "./pixel-markup.js?v=21";
 import {
   learningLocked,
   learningReady,
   LESSON_REWARD,
-} from "./onboarding.js?v=20";
+} from "./onboarding.js?v=21";
 
 const story = [
   [
     "Stay near the flame.",
-    "In Evernight, the light is a promise. Hold it close.",
+    "The old civilization raised towers that touched the stars. Now its engines sleep beneath the forest.",
   ],
   [
     "Three adventurers have just arrived.",
-    "They have agreed to help you face this new world.",
+    "With scavenged steel and remembered magic, they have found their way to your Eternal Bonfire.",
   ],
   [
     "The curse of eternal darkness takes more than light from the world.",
-    "You must break it. Give us sunlight back.",
+    "Gather the lost. Reclaim the ruins. Find what took the light — and bring it back.",
   ],
 ];
 const lessons = {
@@ -186,7 +186,7 @@ export function createGameShell(c) {
       if (menuRevision !== menuKey) {
         menuRevision = menuKey;
         menu.innerHTML = pixelMarkup(
-          `<div class="cinema-world ${menuReady ? "fire-already-lit" : ""}"><div class="cinema-glow">${glow()}</div><div class="cinema-fire">${pixelBuildingSvg("bonfire")}</div></div><div class="cinema-dialogue ${menuReady ? "ready" : ""}"><span class="cinema-title">A FIRE IN THE NIGHT</span><h1 class="menu-title">EVERNIGHT</h1><div class="main-menu-choices"><button id="continue-game" ${!hasProgress() ? "disabled" : ""}>Continue Game</button><button id="new-game">Start New Game</button></div><p id="menu-confirmation" hidden>Starting a new game replaces this device’s current Camp.</p></div>`,
+          `<div class="cinema-world ${menuReady ? "fire-already-lit" : ""}"><div class="cinema-glow">${glow()}</div><div class="cinema-fire">${pixelBuildingSvg("bonfire")}</div><div class="cinema-motes" aria-hidden="true">${Array.from({length: 11}, (_, i) => `<i style="--i:${i}"></i>`).join("")}</div></div><div class="cinema-dialogue ${menuReady ? "ready" : ""}"><span class="cinema-title">A FIRE IN THE NIGHT</span><h1 class="menu-title">EVERNIGHT</h1><p class="menu-worldline">Gather the lost. Reclaim the ruins.</p><div class="main-menu-choices"><button id="continue-game" ${!hasProgress() ? "disabled" : ""}>Continue Game</button><button id="new-game">Start New Game</button></div><p id="menu-confirmation" hidden>Starting a new game replaces this device’s current Camp.</p></div><div class="menu-footnote">A FALLEN WORLD · AN ETERNAL FLAME</div>`,
         );
         menu.querySelector("#continue-game").onclick = () => enter(false);
         menu.querySelector("#new-game").onclick = () => {

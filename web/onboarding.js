@@ -1,4 +1,4 @@
-import { stats } from "./data.js?v=20";
+import { stats } from "./data.js?v=21";
 export const LESSON_REWARD = 3;
 export const LEARNING_STAGES = [
   "intro",

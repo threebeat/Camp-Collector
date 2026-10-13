@@ -1,10 +1,13 @@
-import { ITEMS, hasAttribute } from "./data.js?v=20";
+import { ITEMS, hasAttribute } from "./data.js?v=21";
 export const NIGHT_SIGHT = {
   Dwarf: 220,
   Gnome: 200,
   Kobold: 240,
   Myconid: 210,
+  Myconoid: 210,
+  Chitin: 200,
   Shade: 280,
+  Voidborn: 280,
   Elf: 95,
   Nereid: 95,
 };

@@ -63,7 +63,7 @@ These guards make the board functional, but do not prove the caller actually ear
 
 ## Build and deployment
 
-`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=20` cache URLs. Generated output is excluded from source control.
+`scripts/build.mjs` embeds all supported `web/` assets into `dist/server/index.js` and bundles the real backend ES module dependency graph using pinned esbuild into one Worker module. It also copies `.openai/hosting.json`. `scripts/validate-artifact.mjs` imports that exact Worker and checks assets, module routes, health, auth and bindings. Imports are resolved by the bundler rather than stripped by regular expressions. Browser modules retain native ESM and coherent `?v=21` cache URLs. Generated output is excluded from source control.
 
 The hosting manifest binds the existing Sites project with `d1: 'DB'` and no R2 bucket. Sites applies committed `drizzle/` migrations before uploading the Worker. The original source origin and owner-private audience must be preserved when publishing unless the owner directs otherwise. A separate GitHub remote can coexist; it is not a replacement deployment ID.
 
@@ -141,3 +141,12 @@ Crossroads now has overview, fixed map/route planning and fixed party planning. 
 `SceneLighting.sync` refreshes progression fog and the canonical bonfire source without replacing the scene. Camp skips the old second PixelLighting ambient pass. Moving lamps draw local live light, then character/prop projections and contact shadows draw below sprites. A shared `fireFlicker` modulates cached scenery opacity, actor brightness and shadows; a small flame canvas supplies flames and embers. `camp-water.js` registers clipped ripples and waterfalls to the 1468×1071 painting, excluding banks and islands. Water renders at ten Hz; the dynamic light pass at twenty Hz. Reduced motion freezes decorative animation. These budgets are not a physical-device frame-rate guarantee.
 
 Learning version 4 removes `profile` from the fourteen acknowledgements, migrating that old stage directly to `crossroads` without adding/replaying rewards. New tent drops already open character information. Social commands, profile sections and automatic memory/bond accumulation are removed. Version-12 legacy `journal` and `bonds` fields remain inert and round-trip existing saves; they do not drive gameplay. Attributes/professions and learned talents are distinct profile sections. Save key/season/schema, expedition checkpoints and SQL migrations stay unchanged.
+
+
+## Fallen-world assets and canon (0.7)
+
+`fallen-world.js` supplies the current recruitment pools and installs additions after the historical data overlays. Legacy definitions remain valid for saves and authenticated challenge snapshots. Do not replace historical IDs or change the save season as part of art work.
+
+`art.js` routes character output through `survivor-art.js`; it composes self-contained raster bodies from `survivor-sprites.js` with the real vector equipment/modifier/flight/mount layers. Creatures and legacy races fall back to `pixel-art.js`. Self-contained images are essential for SVGs decoded into battle canvas: external image resources inside those SVGs will not load. PNG body data avoids codec-specific alpha issues; actual browser decode is tested.
+
+`prepare-ruin-assets.mjs` slices checked-in generated source atlases into bodies/buildings and packages environments in SVG envelopes for the text-asset Worker. `ruin-theme.css` is the final stylesheet. Camp dimensions, registered water masks, light caching, patch-only construction and camera geometry remain unchanged. See RUIN_ART.md for provenance.

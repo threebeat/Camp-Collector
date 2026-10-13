@@ -1,11 +1,11 @@
 import {
   generateHero,
-  CLASSES,
+  PLAYABLE_CLASSES,
   CONSUMABLES,
   heroRarity,
   stats,
-} from "./data.js?v=20";
-import { campCapacity, payCost } from "./camp.js?v=20";
+} from "./data.js?v=21";
+import { campCapacity, payCost } from "./camp.js?v=21";
 export const TAVERN_UPGRADES = [
   null,
   { gold: 140, wood: 12, stone: 6 },
@@ -41,9 +41,7 @@ export function normalizeTavern(g) {
     seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
     return seed / 4294967296;
   };
-  const classes = Object.keys(CLASSES).filter(
-    (k) => !["witch", "stormcaller"].includes(k),
-  );
+  const classes = PLAYABLE_CLASSES;
   const tiers = tutorial
     ? [0, 0, 0, 0, 0, 0]
     : tier === 1
@@ -54,7 +52,7 @@ export function normalizeTavern(g) {
   t.stock = tiers.map((rarity, i) => {
     const level = [5, 20, 40, 60][rarity];
     const hero = generateHero(
-      { classId: classes[(epoch + i * 3) % classes.length], level },
+      { classId: classes[(epoch + i * 5) % classes.length], level },
       random,
     );
     return {

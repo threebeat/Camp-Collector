@@ -1,0 +1,123 @@
+/* Evernight: the world after the light. Shared surfaces are worn violet metal,
+   warm brass and clear parchment text. World interactions keep their geometry. */
+:root {
+  --paper: #0b0c13; --panel: #20202b; --ink: #eee4ce; --muted: #b8b2ad;
+  --line: #665b54; --gold: #e6c68a; --green: #a8c5a4;
+  --game-ink: #090c12; --game-panel: #20202e; --game-edge: #817057;
+  --game-gold: #eed09a; --shadow: 0 3px 0 #05060a;
+}
+body { background: radial-gradient(ellipse at 50% 0%, #272031, #080a0e 72%); }
+#game-window { border-color: #75664f; background: #101018; box-shadow: 0 0 0 3px #111218, 0 0 0 5px #554938, 0 24px 100px #0009; }
+#game-window::after { content: ""; position: absolute; inset: 0; z-index: 91; pointer-events: none; border: 22px solid transparent; border-image: url('/ruin-frame.svg?v=21') 26 stretch; }
+#game-window h1, #game-window h2, #game-window h3 { color: #ecd6a8; letter-spacing: -.025em; }
+#game-window button:not(.world-resident):not(.world-building):not(.world-prop):not(.town-npc):not(.tavern-wanderer):not(.brand) {
+  border-color: #746451; background-color: #282734; color: #ead9b7;
+  box-shadow: inset 0 1px #6b6477, inset 0 -2px #12121c, 0 2px 0 #090b10;
+}
+#game-window button:hover:not(:disabled):not(.world-resident):not(.world-building):not(.world-prop):not(.town-npc):not(.tavern-wanderer):not(.brand) { background-color: #3b3449; border-color: #d3b37b; }
+#game-window button:disabled { opacity: .45; }
+#game-window button.primary-button, #game-window .primary-button { background: linear-gradient(#6a5135, #403222); color: #fff0bf; border-color: #b9955d; }
+#game-window .game-hud { background: linear-gradient(90deg, #191820, #171821 65%, #1e1926); border-bottom: 2px solid #857254; padding-inline: 14px; }
+#game-window .game-hud .brand { min-width: 150px; gap: 0; justify-content: center; }
+#game-window #brand-name { width: 147px; height: 34px; overflow: hidden; font-size: 0; background: url('/evernight-wordmark.svg?v=21') center / contain no-repeat; }
+#game-window #window-context { align-self: center; color: #c5ae84; font-size: 9px; max-width: 150px; }
+#game-window .resources { color: #ead09c; }
+#main-nav .camp-menu-option { min-height: 36px; border: 1px solid #746651; padding-inline: 12px; }
+#game-window input, #game-window select, #game-window textarea { background: #11121d; border-color: #655967; color: #efe5d2; }
+#game-window .modal { border-color: #9c815f; background: #181923; box-shadow: 0 0 0 2px #0c0e13, 0 0 0 4px #514435, 0 24px 80px #000b; }
+#game-window .modal-header { background: linear-gradient(100deg, #28232e, #191a22); border-bottom-color: #7b664e; }
+#game-window .modal-footer { background: #14161e; border-top: 1px solid #625341; }
+#game-window .modal-note, #game-window .empty-note, #game-window .small { color: #bcb7af; }
+#game-window .hero-card, #game-window .item-option, #game-window .inventory-card,
+#game-window .quest-card, #game-window .class-node, #game-window .service-card {
+  background: linear-gradient(145deg, #292735, #181b24); border-color: #62584c;
+}
+#game-window .hero-portrait, #game-window .profile-portrait, #game-window .detail-portrait,
+#game-window .character-preview { background: radial-gradient(ellipse at 50% 75%, #4c3b32, #171c24 65%); }
+#game-window .rarity-tag { border-color: currentColor; background: #12141aaa; }
+#game-window .health-track { height: 7px; background: #12141b; border: 1px solid #736b55; box-shadow: inset 0 1px #000; }
+#game-window .health-track > i { background: linear-gradient(#bdd08b, #698e69); box-shadow: inset 0 1px #d8e1a4; }
+#game-window .world-plot { background: #171922e8; border: 1px solid #6b614f; color: #d8c9ae; }
+#game-window .map-camera-tools { background: #1a1c27ef; border-color: #8b7758; }
+#game-window .world-resident strong, #game-window .town-npc strong { color: #f7e7c2; text-shadow: -1px -1px #080b10, 1px 1px #080b10, 0 2px #080b10; }
+#game-window .world-resident > svg { overflow: visible; }
+#game-window .baked-building strong { color: #eee0ba; background: #11141de6; border-color: #75674d; }
+#game-window .build-ready-dot { box-shadow: 0 0 0 2px #182017, 0 0 13px #d7b06570; }
+/* The title is a window into the same broken world as the expedition. */
+#main-menu { background: #080b10; }
+#main-menu::before, #opening-scene::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(#05071030, #05070905 38%, #05070bf0 100%), url('/map-expedition-reclaimed.svg?v=21') center / cover;
+  opacity: .7;
+}
+#main-menu::after { content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 150px 70px #0009; }
+#main-menu .cinema-world, #opening-scene .cinema-world { z-index: 1; }
+#main-menu .cinema-fire { top: 36%; width: 132px; height: 132px; filter: drop-shadow(0 0 15px #ed923a55); }
+#main-menu .cinema-glow { top: 36%; width: min(680px, 140vw); }
+#main-menu .cinema-dialogue { z-index: 3; bottom: 12%; width: min(670px, calc(100% - 36px)); }
+#main-menu .cinema-title { color: #e1c38e; font-size: 11px; font-weight: 700; letter-spacing: .34em; margin-bottom: 0; }
+#game-window #main-menu .menu-title { height: clamp(85px, 14vw, 158px); font-size: 0; margin: 2px 0 0; background: url('/evernight-wordmark.svg?v=21') center / contain no-repeat; filter: drop-shadow(0 0 18px #7b3bb530); }
+#main-menu .menu-worldline { color: #bcb4ad; font-size: 12px; letter-spacing: .1em; margin: 8px auto 22px; line-height: 1.5; }
+#game-window .main-menu-choices { gap: 14px; justify-content: center; }
+#game-window .main-menu-choices button { min-width: 198px; min-height: 48px; border: 5px solid transparent; border-image: url('/ruin-frame.svg?v=21') 26 stretch; background: linear-gradient(#393548, #222330); padding: 10px 18px; font-size: 14px; color: #f5d99c; }
+#game-window .main-menu-choices #new-game { background: linear-gradient(#675038, #3d3024); }
+.menu-footnote { position: absolute; z-index: 3; left: 20px; right: 20px; bottom: 24px; color: #8a8790; text-align: center; font-size: 9px; letter-spacing: .14em; }
+.cinema-motes { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.cinema-motes i { position: absolute; width: 3px; height: 3px; background: #ffd992; box-shadow: 0 0 8px #dd905b; left: calc(42% + var(--i) * 1.5%); top: 40%; opacity: 0; animation: ruin-ember calc(4s + var(--i) * .3s) linear infinite; animation-delay: calc(var(--i) * -.7s); }
+.cinema-motes i:nth-child(3n) { background: #8ac7d9; box-shadow: 0 0 9px #4ac9dd; }
+@keyframes ruin-ember { 0% { opacity: 0; transform: translate(0, 20px); } 20% { opacity: .8; } 100% { opacity: 0; transform: translate(calc(var(--i) * 3px - 15px), -145px); } }
+/* The battlefield keeps its full canvas and places the location in a compact plaque. */
+body[data-screen="expedition"] #app-content > .page-heading { position: absolute; z-index: 6; left: 50%; top: 63px; transform: translateX(-50%); width: max-content; max-width: 54%; padding: 8px 28px 10px; text-align: center; pointer-events: none; background: linear-gradient(#242431f0, #191c26ef); border: 1px solid #8b795c; clip-path: polygon(0 0, 100% 0, 100% 78%, 94% 100%, 6% 100%, 0 78%); }
+body[data-screen="expedition"] #app-content > .page-heading h1 { color: #efd6a0; font-size: 16px; line-height: 1.25; }
+body[data-screen="expedition"] #app-content > .page-heading .heading-pill { display: block; width: max-content; margin: 3px auto 0; background: transparent; padding: 0; border: 0; color: #bdad92; font-size: 10px; }
+#game-window .battle-controls { background: linear-gradient(90deg, #20242b, #23232f); border-top: 3px solid #887352; box-shadow: inset 0 1px #d1b581; min-height: 53px; }
+#game-window .battle-controls > span { color: #ccd7b0; font-family: Georgia, serif; font-size: 14px; }
+#game-window #pause-btn { min-width: 105px; color: #f9d58d; }
+#game-window .speed-control button { min-height: 34px; }
+#game-window .speed-control button.active { color: #fff2c6; border-color: #c9a86b; background: #574934; }
+#game-window .battle-company { gap: 7px; padding: 6px 10px; background: #0e1118; border-top: 1px solid #4d453b; }
+#game-window .battle-company-member { border: 4px solid transparent !important; border-image: url('/ruin-frame.svg?v=21') 26 stretch; background: linear-gradient(130deg, #363141, #1d2230); min-height: 62px; }
+#game-window .battle-company-member > span { width: 45px; height: 49px; }
+#game-window .battle-company-member strong { color: #f0d39b; font-size: 12px; }
+#game-window .battle-company-member small { color: #d4cfbd; }
+#game-window .battle-journal { background: #161821; border-color: #75634d; }
+#game-window .battle-journal summary { font-size: 11px; color: #c0b7af; }
+#game-window .board-hint { color: #c6c5c5; font-size: 10px; text-shadow: 0 1px #000; }
+#game-window .route-planner, #game-window .crossroads-overview, #game-window .party-planner { background-color: #171a24; border-color: #79674f; }
+#game-window .region-map-viewport { border: 3px solid #75644e; box-shadow: inset 0 0 20px #000; }
+#game-window .modal.profile-panel .modal-body { background: linear-gradient(165deg, #292330, #131923 55%); }
+#game-window .profile-attributes, #game-window .profile-talents { border-bottom-color: #5b5048; }
+.body-reduced-motion .cinema-motes i { animation: none; opacity: .45; }
+@media (prefers-reduced-motion: reduce) { .cinema-motes i { animation: none; opacity: .45; } }
+@media (max-width: 850px) {
+  #game-window::after { border-width: 12px; }
+  #game-window .game-hud { padding-inline: 7px; }
+  #game-window .game-hud .brand { min-width: 78px; max-width: 90px; }
+  #game-window #brand-name { width: 84px; height: 24px; }
+  #game-window #window-context { font-size: 8px; max-width: 82px; }
+  #main-nav .camp-menu-option { padding: 4px 6px; min-width: 35px; font-size: 10px; }
+  #main-menu .cinema-dialogue { bottom: 16%; }
+  #game-window #main-menu .menu-title { height: clamp(85px, 25vw, 135px); }
+  #main-menu .menu-worldline { max-width: 280px; font-size: 10px; margin: 10px auto 20px; }
+  #game-window .main-menu-choices { display: grid; grid-template-columns: 1fr; gap: 10px; width: min(280px, 100%); margin: auto; }
+  #game-window .main-menu-choices button { min-height: 48px; width: 100%; }
+  #main-menu .cinema-fire, #main-menu .cinema-glow { top: 31%; }
+  #main-menu .cinema-fire { width: 108px; height: 108px; }
+  .menu-footnote { bottom: max(20px, env(safe-area-inset-bottom)); font-size: 8px; }
+  body[data-screen="expedition"] #app-content > .page-heading { top: calc(55px + env(safe-area-inset-top)); max-width: 68%; padding: 7px 18px; }
+  body[data-screen="expedition"] #app-content > .page-heading h1 { font-size: 13px; }
+  #game-window .battle-company { padding: 4px; gap: 4px; }
+  #game-window .battle-company-member { min-height: 57px; }
+  #game-window .battle-company-member > span { width: 32px; height: 42px; }
+  #game-window .battle-company-member strong { font-size: 10px; }
+  #game-window .battle-controls { min-height: 49px; }
+}
+@media (max-height: 510px) and (orientation: landscape) {
+  #main-menu .cinema-dialogue { left: 67%; width: 58%; bottom: 16%; }
+  #main-menu .cinema-glow, #main-menu .cinema-fire { left: 25%; top: 48%; }
+  #game-window #main-menu .menu-title { height: 85px; }
+  #game-window .main-menu-choices { display: flex; width: auto; gap: 8px; }
+  #game-window .main-menu-choices button { min-width: 130px; padding: 7px; font-size: 11px; }
+  #main-menu .menu-worldline { margin-block: 2px 12px; }
+  .menu-footnote { bottom: 12px; }
+}

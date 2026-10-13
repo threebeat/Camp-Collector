@@ -22,7 +22,7 @@ const stats = (obj) =>
     .map(([key, value]) => `${key} +${value}`)
     .join(", ") || "—";
 let out =
-  "# Current content reference\n\nGenerated with `node scripts/generate-content-reference.mjs` for version 0.6.0. These tables describe current content; all names, counts, balance and progression choices may change. Stable IDs are useful save references, not a requirement to keep every design forever.\n\n";
+  "# Current content reference\n\nGenerated with `node scripts/generate-content-reference.mjs` for version 0.7.0. These tables describe current content; all names, counts, balance and progression choices may change. Stable IDs are useful save references, not a requirement to keep every design forever.\n\n";
 out +=
   "## Races\n\nRace foundation values precede class, levels and equipment. Growth tables are in `web/data.js`.\n\n" +
   table(
@@ -36,14 +36,14 @@ out +=
       "Endurance",
       "Racial trait",
     ],
-    Object.entries(D.RACES).map(([name, r]) => [
+    Object.entries(D.RACES).filter(([, r]) => !r.legacy).map(([name, r]) => [
       name,
       ...D.CORE_STATS.map((k) => r.base[k]),
       r.text,
     ]),
   );
 out +=
-  "\n## Playable classes\n\nInternal IDs can differ from player-facing names. Hexweaver (`witch`) and Stormwing (`stormcaller`) are retained internally as technique definitions, not separately generated playable classes.\n\n" +
+  "\n## Playable classes\n\nInternal IDs can differ from player-facing names. Twelve current classes and fourteen races form the new recruitment pools. Legacy identities remain valid in saves and challenge snapshots, and have separate Codex categories.\n\n" +
   table(
     [
       "ID / name",
@@ -53,7 +53,7 @@ out +=
       "Active technique",
     ],
     Object.entries(D.CLASSES)
-      .filter(([key]) => !["witch", "stormcaller"].includes(key))
+      .filter(([, c]) => !c.legacy)
       .map(([key, c]) => [
         key + " / " + c.label,
         stats(c.base),
@@ -71,7 +71,7 @@ out +=
   table(
     ["Class", "First subclasses (20)", "Advanced subclasses (60)"],
     Object.entries(D.CLASSES)
-      .filter(([key]) => !["witch", "stormcaller"].includes(key))
+      .filter(([, c]) => !c.legacy)
       .map(([key, c]) => {
         const nodes = D.classTree({
           classId: key,
