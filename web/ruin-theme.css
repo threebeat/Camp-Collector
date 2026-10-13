@@ -8,7 +8,7 @@
 }
 body { background: radial-gradient(ellipse at 50% 0%, #272031, #080a0e 72%); }
 #game-window { border-color: #75664f; background: #101018; box-shadow: 0 0 0 3px #111218, 0 0 0 5px #554938, 0 24px 100px #0009; }
-#game-window::after { content: ""; position: absolute; inset: 0; z-index: 91; pointer-events: none; border: 22px solid transparent; border-image: url('/ruin-frame.svg?v=21') 26 stretch; }
+#game-window::after { content: ""; position: absolute; inset: 0; z-index: 91; pointer-events: none; border: 12px solid transparent; border-image: url('/ruin-frame.svg?v=21') 26 stretch; }
 #game-window h1, #game-window h2, #game-window h3 { color: #ecd6a8; letter-spacing: -.025em; }
 #game-window button:not(.world-resident):not(.world-building):not(.world-prop):not(.town-npc):not(.tavern-wanderer):not(.brand) {
   border-color: #746451; background-color: #282734; color: #ead9b7;
@@ -51,7 +51,8 @@ body { background: radial-gradient(ellipse at 50% 0%, #272031, #080a0e 72%); }
   opacity: .7;
 }
 #main-menu::after { content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 150px 70px #0009; }
-#main-menu .cinema-world, #opening-scene .cinema-world { z-index: 1; }
+#main-menu .cinema-world, #opening-scene .cinema-world { z-index: 1; pointer-events: none; }
+#opening-scene .cinema-dialogue { z-index: 3; }
 #main-menu .cinema-fire { top: 36%; width: 132px; height: 132px; filter: drop-shadow(0 0 15px #ed923a55); }
 #main-menu .cinema-glow { top: 36%; width: min(680px, 140vw); }
 #main-menu .cinema-dialogue { z-index: 3; bottom: 12%; width: min(670px, calc(100% - 36px)); }
@@ -90,7 +91,7 @@ body[data-screen="expedition"] #app-content > .page-heading .heading-pill { disp
 .body-reduced-motion .cinema-motes i { animation: none; opacity: .45; }
 @media (prefers-reduced-motion: reduce) { .cinema-motes i { animation: none; opacity: .45; } }
 @media (max-width: 850px) {
-  #game-window::after { border-width: 12px; }
+  #game-window::after { border-width: 8px; }
   #game-window .game-hud { padding-inline: 7px; }
   #game-window .game-hud .brand { min-width: 78px; max-width: 90px; }
   #game-window #brand-name { width: 84px; height: 24px; }
@@ -104,7 +105,7 @@ body[data-screen="expedition"] #app-content > .page-heading .heading-pill { disp
   #main-menu .cinema-fire, #main-menu .cinema-glow { top: 31%; }
   #main-menu .cinema-fire { width: 108px; height: 108px; }
   .menu-footnote { bottom: max(20px, env(safe-area-inset-bottom)); font-size: 8px; }
-  body[data-screen="expedition"] #app-content > .page-heading { top: calc(55px + env(safe-area-inset-top)); max-width: 68%; padding: 7px 18px; }
+  body[data-screen="expedition"] #app-content > .page-heading { top: calc(100px + env(safe-area-inset-top)); max-width: 68%; padding: 7px 18px; }
   body[data-screen="expedition"] #app-content > .page-heading h1 { font-size: 13px; }
   #game-window .battle-company { padding: 4px; gap: 4px; }
   #game-window .battle-company-member { min-height: 57px; }

@@ -18,7 +18,7 @@ export function survivorPortraitSvg(hero = {}, small = false, pose = 0) {
   if(!body)return pixelPortraitSvg(hero,small,pose);
   const tone=livery[h.classId]||'#9c8b73', tier=heroRarity(h), flight=flightType(h);
   let layers='', details='';
-  if(flight)layers+=`<g transform="translate(0 4) scale(.64)">${pixelWingArt(flight,pose)}</g>`;
+  if(flight && !(h.race==='Fae' && flight==='insect'))layers+=`<g transform="translate(0 4) scale(.64)">${pixelWingArt(flight,pose)}</g>`;
   const filter=cosmetic?.hue!==undefined?`<defs><filter id="palette" color-interpolation-filters="sRGB"><feColorMatrix type="hueRotate" values="${cosmetic.hue-245}"/></filter></defs>`:'';
   layers+=filter+`<image x="4" y="0" width="56" height="75" href="${body}" ${filter?'filter="url(#palette)"':''}/>`;
   // Race anatomy stays readable. Small cloth tabs and actual equipment convey
@@ -40,12 +40,12 @@ export function survivorPortraitSvg(hero = {}, small = false, pose = 0) {
   }
   const gear=h.items.filter(i=>ITEMS[i?.key]);
   const held=gear.filter(i=>ITEMS[i.key].weaponKind||['tool','mining','woodcutting','focus'].includes(ITEMS[i.key].type)).slice(0,2);
-  for(let i=0;i<held.length;i++)layers+=nested(pixelItemSvg(held[i]),i?42:0,30,i?20:24,39);
+  for(let i=0;i<held.length;i++)layers+=nested(pixelItemSvg(held[i]),i?36:9,30,i?20:24,39);
   const offhand=gear.find(i=>ITEMS[i.key].type==='offhand');
-  if(offhand)layers+=nested(pixelItemSvg(offhand),41,38,21,29);
+  if(offhand)layers+=nested(pixelItemSvg(offhand),34,38,21,29);
   const charm=gear.find(i=>ITEMS[i.key].type==='charm');
   if(charm)layers+=nested(pixelItemSvg(charm),28,43,10,13);
-  if(h.light){layers+=nested(pixelItemSvg(h.light),46,52,13,20);details+=`<g data-light-art="${esc(h.light.key)}"/>`;}
+  if(h.light){layers+=nested(pixelItemSvg(h.light),41,52,13,20);details+=`<g data-light-art="${esc(h.light.key)}"/>`;}
   if(hasAttribute(h,'Vampire'))layers+='<rect x="32" y="21" width="2" height="1" fill="#f87591"/>';
   if(hasAttribute(h,'Cursed')||h.race==='Voidborn'){
     const drift=(Math.round(pose+h.appearance?.smokePose||0)%4)*2;

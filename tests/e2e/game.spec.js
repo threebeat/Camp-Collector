@@ -551,7 +551,7 @@ test("lights, class choices, global difficulty, chosen portals and Codex retain 
   await modal(page).locator('[data-open-portal="jungle"]').click();
   await close(page);
   await nav(page, "codex");
-  await page.locator("#codex-search").fill("Vanguard");
+  await page.locator("#codex-search").fill("Fighter");
   await expect(page.locator(".codex-page")).toContainText(
     "Class tree & subclasses",
   );
