@@ -24,6 +24,12 @@ Bodies are packed into 96×128 transparent PNGs and composed in a 64×80 SVG. Ac
 
 All body image bytes are embedded in the portrait SVG. External subresources cannot load when an SVG is itself decoded as a canvas image. The browser suite checks decoded opaque pixels for all 26 body variants in Chromium and WebKit. The native canvas SVG backend does not decode these embedded raster images and must not be used as proof that bodies are missing or present in browser combat.
 
+Combat caches each decoded survivor appearance into a 192×240 bitmap, so WebKit does not rerasterize the layered SVG on every frame. Preserve this cache when changing equipment or pose rendering. Camp animation pauses behind open dialogs; changing reduced motion still repaints the frozen scene immediately.
+
+The camera crops its visible rectangle before scaling the battle canvas. The editable `ruin-frame.svg` is rasterized into a 96×96 PNG CSS variable by the preparation script, retaining the same nine-slice frame with a cheap static image. The combat canvas and outer frame have independent compositing layers.
+
+Keep the interior of `data-survivor-art` SVGs static. The old `.portrait-body`/spark rules animate internal vector groups; the new layered bitmaps use a separate `.survivor-body` class and animate the outer Camp sprite instead.
+
 Environment SVG envelopes contain embedded WebP; modular building envelopes contain PNG with alpha. The Worker serves these as text assets, so no image CDN or network dependency is needed. Source atlases and companion WebP files are not separately embedded into the Worker.
 
 ## Invariants
