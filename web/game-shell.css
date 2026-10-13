@@ -887,6 +887,10 @@ body[data-screen="camp"] #game-window #app-content {
 .map-world .world-resident {
   z-index: 7;
 }
+.map-world .world-resident > svg {
+  animation: idle-breathe 3.6s ease-in-out infinite;
+  transform-origin: 50% 95%;
+}
 
 /* Evernight 0.4: every visit begins at the fire, inside the same game window. */
 #main-menu {
@@ -1326,6 +1330,24 @@ body[data-dragging="yes"] #game-window .baked-building strong {
   white-space: nowrap;
   color: #dcc79b;
 }
+.map-world .bartender {
+  clip-path: inset(0 0 42% 0);
+}
+.bartender strong {
+  display: none;
+}
+#game-window .equipment-comparison th,
+#game-window .equipment-comparison td,
+#game-window .stat-six small,
+#game-window .equipment-slot > span {
+  color: #c5d0dc;
+}
+#game-window .equipment-comparison .positive {
+  color: #9bddac;
+}
+#game-window .equipment-comparison .negative {
+  color: #efa3a0;
+}
 .npc-quest-mark {
   position: absolute;
   top: -31px;
@@ -1606,9 +1628,19 @@ body[data-screen="party"] #game-window[data-locked="true"] #app-content {
   position: static;
   display: flex;
   flex-direction: column;
-  overflow: auto;
+  overflow: hidden;
   min-height: 0;
   border-color: #455770;
+}
+#game-window .planning-screen .route-planner > :not(.route-options) {
+  flex-shrink: 0;
+}
+#game-window .planning-screen .route-options {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  align-content: start;
+  margin: 8px 0;
 }
 #game-window .planning-screen .route-planner h2 {
   color: #ecd29a;
@@ -1639,7 +1671,9 @@ body[data-screen="party"] #game-window[data-locked="true"] #app-content {
   color: #b5c3ca;
 }
 #game-window .route-confirm {
-  margin-top: auto;
+  position: static;
+  bottom: auto;
+  margin-top: 0;
   padding-top: 14px;
 }
 #game-window .route-confirm button {
@@ -1706,6 +1740,16 @@ body[data-screen="party"] #game-window[data-locked="true"] #app-content {
 #game-window .party-planning .company-section {
   margin: 0;
 }
+#game-window .party-planning .section-heading {
+  margin: 0 0 8px;
+}
+#game-window .party-planning .section-heading > div:first-child {
+  display: none;
+}
+#game-window .party-planning .collection-controls {
+  width: 100%;
+  justify-content: flex-end;
+}
 #game-window .party-planning .hero-card {
   min-width: 0;
 }
@@ -1771,7 +1815,7 @@ body[data-screen="party"] #game-window[data-locked="true"] #app-content {
   }
   #game-window .planning-screen .travel-layout {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(140px, 1fr) minmax(180px, 0.9fr);
+    grid-template-rows: minmax(100px, 1fr) minmax(230px, 1fr);
     gap: 7px;
   }
   #game-window .planner-heading h1 {
@@ -1805,7 +1849,7 @@ body[data-screen="party"] #game-window[data-locked="true"] #app-content {
     display: flex;
     gap: 7px;
     overflow-x: auto;
-    flex-shrink: 0;
+    flex-shrink: 1;
   }
   #game-window .planning-screen .route-option {
     flex: 1 0 145px;
@@ -1820,13 +1864,27 @@ body[data-screen="party"] #game-window[data-locked="true"] #app-content {
     font-size: 10px;
   }
   #game-window .route-confirm {
-    padding-top: 8px;
+    padding-top: 4px;
+  }
+  #game-window .route-confirm button {
+    min-height: 44px;
   }
   #game-window .route-confirm small {
     display: none;
   }
   #game-window .party-planning .launch-bar {
     gap: 8px;
+  }
+  #game-window .party-planning .card-portrait {
+    height: 90px;
+    margin: 5px 0;
+  }
+  #game-window .party-planning .card-portrait > svg {
+    max-height: 90px;
+  }
+  #game-window .party-planning .card-xp,
+  #game-window .party-planning .character-status small {
+    display: none;
   }
   #game-window .party-planning .launch-bar p {
     font-size: 10px;

@@ -32,8 +32,6 @@ import { pixelMarkup } from "./pixel-markup.js?v=19";
 import { WorldCamera, attachCameraInput } from "./camera.js?v=19";
 const views = new Map();
 let ground = null;
-const residentPositions = new Map();
-let lastActorAt = null;
 export function createHomesteadUi(c) {
   const { getGame, button, esc } = c;
   function viewport(key, content, width, height, center) {
@@ -107,7 +105,6 @@ export function createHomesteadUi(c) {
           y = 1280 + Math.floor(i / 3) * 72;
         }
         const position = { x, y };
-        residentPositions.set(h.id, position);
         return button(
           portraitSvg(h, true),
           `data-hero="${h.id}" data-world-resident="${i}" data-world-x="${x}" data-world-y="${y}" data-light-radius="${vision(h).light}" style="left:${position.x}px;top:${position.y}px" aria-label="Adventurer ${esc(h.name)}"`,
@@ -458,34 +455,16 @@ export function createHomesteadUi(c) {
       camera.easing = 7;
     }, 3500);
   }
-  function animate(now) {
-    const dt =
-      lastActorAt === null ? 1 / 60 : Math.min(0.1, (now - lastActorAt) / 1000);
-    lastActorAt = now;
+  function animate() {
     document.querySelectorAll("[data-world-resident]").forEach((el) => {
       if (
         el.classList.contains("picked-up") ||
         el.classList.contains("pointer-held")
       )
         return;
-      const id = el.dataset.hero,
-        target = { x: +el.dataset.worldX, y: +el.dataset.worldY };
-      const pos = residentPositions.get(id) || { ...target };
-      const distance = Math.hypot(target.x - pos.x, target.y - pos.y),
-        amount = Math.min(1, (85 * dt) / Math.max(1, distance));
-      pos.x = target.x;
-      pos.y = target.y;
-      residentPositions.set(id, pos);
-      const moving = distance > 1;
-
-      const idle =
-        getGame().settings.reducedMotion ||
-        moving ||
-        el.matches?.(":hover") ||
-        document.activeElement === el;
-      const i = +el.dataset.worldResident;
-      el.style.left = pos.x + (idle ? 0 : Math.sin(now / 9000 + i) * 8) + "px";
-      el.style.top = pos.y + (idle ? 0 : Math.cos(now / 12000 + i) * 6) + "px";
+      // Sprite animation supplies the idle motion; the hit target stays placed.
+      el.style.left = el.dataset.worldX + "px";
+      el.style.top = el.dataset.worldY + "px";
     });
   }
   const animateCamp = animate;

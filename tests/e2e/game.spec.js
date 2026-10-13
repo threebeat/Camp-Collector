@@ -547,6 +547,11 @@ test("tutorial prompts persist, pay once, combine recovery and finish without a 
   await stage("route");
   await page.locator("[data-plan-expedition]").click();
   await shot(page, "route-planner");
+  const routeOptions = await page.locator(".route-options").boundingBox();
+  const routeFooter = await page.locator(".route-confirm").boundingBox();
+  expect(routeFooter.y).toBeGreaterThanOrEqual(
+    routeOptions.y + routeOptions.height - 1,
+  );
   await expect(page.locator("#app-content")).toHaveCSS("overflow", "hidden");
   await page.locator("[data-lock-route]").click();
   await next();
