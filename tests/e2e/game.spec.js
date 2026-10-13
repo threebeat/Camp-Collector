@@ -476,9 +476,18 @@ test("route and battlefield updates never open profiles; manual camera, focus an
     "aria-pressed",
     "true",
   );
-  const frames = await page.evaluate(
-    () =>
-      new Promise((resolve) => {
+  const sample = await page.evaluate(async () => {
+    const { Renderer } = await import("/renderer.js?v=21"),
+      draw = Renderer.prototype.draw,
+      timings = [];
+    Renderer.prototype.draw = function (...args) {
+      const before = performance.now();
+      const result = draw.apply(this, args);
+      timings.push(performance.now() - before);
+      return result;
+    };
+    try {
+      const frames = await new Promise((resolve) => {
         let n = 0,
           start = performance.now();
         function tick(at) {
@@ -487,10 +496,19 @@ test("route and battlefield updates never open profiles; manual camera, focus an
           else requestAnimationFrame(tick);
         }
         requestAnimationFrame(tick);
-      }),
-  );
-  console.log("paused battlefield animation frames / 500ms:", frames);
-  expect(frames).toBeGreaterThan(5);
+      });
+      return {
+        frames,
+        meanDrawMs:
+          timings.reduce((a, b) => a + b, 0) / Math.max(1, timings.length),
+        maxDrawMs: Math.max(0, ...timings),
+      };
+    } finally {
+      Renderer.prototype.draw = draw;
+    }
+  });
+  console.log("paused battlefield / 500ms:", JSON.stringify(sample));
+  expect(sample.frames).toBeGreaterThan(5);
   await fits(page);
   await shot(page, "battlefield");
   await page.reload();

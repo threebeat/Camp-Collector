@@ -678,13 +678,27 @@ export class Renderer {
     display.imageSmoothingEnabled = false;
     display.fillStyle = "#0a0c1a";
     display.fillRect(0, 0, canvas.width, canvas.height);
-    display.drawImage(
-      this.world,
-      (-PAD_X - this.camera.x) * scale,
-      offsetY - PAD_Y * scale,
-      BACK_W * scale,
-      BACK_H * scale,
-    );
+    // Crop before scaling. At phone zoom, scaling the whole padded world can
+    // create a 16-megapixel temporary surface even though most is offscreen.
+    const sourceX = Math.max(0, PAD_X + this.camera.x),
+      sourceY = Math.max(0, PAD_Y + this.camera.y),
+      sourceRight = Math.min(BACK_W, PAD_X + this.camera.x + this.camera.width),
+      sourceBottom = Math.min(
+        BACK_H,
+        PAD_Y + this.camera.y + this.camera.height,
+      );
+    if (sourceRight > sourceX && sourceBottom > sourceY)
+      display.drawImage(
+        this.world,
+        sourceX,
+        sourceY,
+        sourceRight - sourceX,
+        sourceBottom - sourceY,
+        (sourceX - PAD_X - this.camera.x) * scale,
+        (sourceY - PAD_Y - this.camera.y) * scale,
+        (sourceRight - sourceX) * scale,
+        (sourceBottom - sourceY) * scale,
+      );
     // Text uses display resolution so HP and names stay readable at phone sizes.
     display.setTransform(scale, 0, 0, scale, -this.camera.x * scale, offsetY);
     display.font = "bold 17px system-ui";
